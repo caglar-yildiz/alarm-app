@@ -7,56 +7,131 @@ import android.app.NotificationManager
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.text.InputType
+import android.view.Gravity
+import android.view.View
+import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.Switch
 import android.widget.TextView
+import java.time.Instant
 import java.time.LocalTime
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 import kotlin.random.Random
 
 private val weekdays = arrayOf("Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar")
 private val clockFormat = DateTimeFormatter.ofPattern("HH:mm")
 
+private val backgroundColor = Color.rgb(16, 19, 34)
+private val cardColor = Color.rgb(30, 34, 55)
+private val mutedColor = Color.rgb(179, 184, 208)
+private val accentColor = Color.rgb(255, 166, 133)
+private val nextAlarmFormat = DateTimeFormatter.ofPattern("EEEE · HH:mm", Locale.forLanguageTag("tr-TR"))
+
 abstract class AlarmScreen : Activity() {
     protected lateinit var panel: LinearLayout
+    private var scroll: ScrollView? = null
 
     protected fun layout(title: String) {
-        panel = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(24), dp(48), dp(24), dp(32))
-        }
-        setContentView(ScrollView(this).apply {
+        val previousScroll = scroll?.scrollY ?: 0
+        panel = column()
+        val container = ScrollView(this).apply {
+            setBackgroundColor(backgroundColor)
+            isFillViewport = true
             clipToPadding = false
             addView(panel)
-        })
-        label(title, 36f).setTextColor(Color.rgb(185, 245, 107))
+            setOnApplyWindowInsetsListener { _, insets ->
+                applyScreenInsets(insets)
+                insets
+            }
+        }
+        scroll = container
+        setContentView(container)
+        container.requestApplyInsets()
+        container.post { container.scrollTo(0, previousScroll) }
+        label(title, 36f, bold = true).apply { accessibilityHeading() }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun applyScreenInsets(insets: WindowInsets) {
+        if (Build.VERSION.SDK_INT >= 35) {
+            val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+            panel.setPadding(dp(20) + bars.left, dp(20) + bars.top, dp(20) + bars.right, dp(24) + bars.bottom)
+        } else {
+            panel.setPadding(dp(20), dp(20), dp(20), dp(24))
+        }
     }
 
     protected fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
 
-    protected fun label(text: String, size: Float = 16f) = TextView(this).apply {
-        this.text = text
-        textSize = size
-        setPadding(0, dp(12), 0, dp(8))
-        panel.addView(this)
+    protected fun View.accessibilityHeading() {
+        if (Build.VERSION.SDK_INT >= 28) isAccessibilityHeading = true
     }
 
-    protected fun button(text: String, action: () -> Unit) = Button(this).apply {
+    protected fun column() = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+
+    protected fun card(color: Int = cardColor) = column().apply {
+        background = rounded(color, 20)
+        setPadding(dp(16), dp(12), dp(16), dp(12))
+        panel.addView(this, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
+    }
+
+    private fun rounded(color: Int, radius: Int) = GradientDrawable().apply {
+        setColor(color)
+        cornerRadius = dp(radius).toFloat()
+    }
+
+    protected fun label(
+        text: String,
+        size: Float = 16f,
+        parent: LinearLayout = panel,
+        bold: Boolean = false,
+        color: Int = Color.WHITE
+    ) = TextView(this).apply {
+        this.text = text
+        textSize = size
+        setTextColor(color)
+        if (bold) typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+        setPadding(0, dp(5), 0, dp(5))
+        parent.addView(this)
+    }
+
+    protected fun button(
+        text: String,
+        parent: LinearLayout = panel,
+        primary: Boolean = true,
+        action: () -> Unit
+    ) = Button(this).apply {
         this.text = text
         isAllCaps = false
+        textSize = 16f
+        setTextColor(if (primary) backgroundColor else accentColor)
+        background = RippleDrawable(
+            ColorStateList.valueOf(0x28FFFFFF),
+            rounded(if (primary) accentColor else Color.TRANSPARENT, 14),
+            rounded(Color.WHITE, 14)
+        )
+        minimumHeight = dp(48)
+        setPadding(dp(12), dp(8), dp(12), dp(8))
         setOnClickListener { action() }
-        panel.addView(this)
+        parent.addView(this, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(8) })
     }
 }
 
@@ -71,58 +146,133 @@ class MainActivity : AlarmScreen() {
 
     private fun render() {
         layout("Uyan")
+        val all = alarms.all().sortedBy { it.time }
+        showNextAlarm(all)
+        button("+  Alarm ekle") { pickTime(null) }
         if (RingService.active != null) {
-            button("Çalan alarmı aç") { startActivity(Intent(this, RingActivity::class.java)) }
-        }
-        if (!alarms.canSchedule()) {
-            label("Alarmların saatinde çalması için Alarmlar ve hatırlatıcılar izni gerekiyor.")
-            button("Alarm iznini aç") { openSettings(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM) }
-        }
-        val notifications = getSystemService(NotificationManager::class.java)
-        if (!notifications.areNotificationsEnabled()) {
-            button("Alarm bildirimlerini aç") {
-                if (Build.VERSION.SDK_INT >= 33 &&
-                    checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED &&
-                    !getPreferences(MODE_PRIVATE).getBoolean("notificationRequested", false)) {
-                    getPreferences(MODE_PRIVATE).edit().putBoolean("notificationRequested", true).apply()
-                    requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
-                } else {
-                    startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-                        .putExtra(Settings.EXTRA_APP_PACKAGE, packageName))
-                }
+            button("Çalan alarmı aç", primary = false) {
+                startActivity(Intent(this, RingActivity::class.java))
             }
         }
-        if (Build.VERSION.SDK_INT >= 34 && !notifications.canUseFullScreenIntent()) {
-            button("Kilit ekranında alarmı göster") {
+        showMissingPermissions()
+        label("Alarmlarım", 22f, bold = true).apply {
+            setPadding(0, dp(24), 0, dp(2))
+            accessibilityHeading()
+        }
+        if (all.isEmpty()) label("Henüz alarm eklenmedi.", parent = card(), color = mutedColor)
+        all.forEach(::showAlarm)
+    }
+
+    private fun showNextAlarm(all: List<Alarm>) {
+        val now = ZonedDateTime.now()
+        val next = all.mapNotNull { alarm ->
+            listOfNotNull(
+                alarm.snoozeAt.takeIf { it > now.toInstant().toEpochMilli() },
+                if (alarm.enabled) alarm.nextAfter(now) else null
+            ).minOrNull()
+        }.minOrNull()
+        val hero = card(Color.rgb(25, 29, 53))
+        val row = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+        hero.addView(row)
+        val details = column()
+        row.addView(details, LinearLayout.LayoutParams(0, -2, 1f))
+        label("Sonraki alarm", 15f, details, color = mutedColor)
+        val summary = when {
+            next == null -> "Alarm planlanmadı"
+            !alarms.canSchedule() -> "Alarm izni gerekli"
+            else -> Instant.ofEpochMilli(next).atZone(now.zone).format(nextAlarmFormat)
+        }
+        label(summary, 22f, details, bold = true)
+        row.addView(ImageView(this).apply {
+            setImageResource(R.drawable.alarm_clock)
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }, LinearLayout.LayoutParams(dp(104), dp(104)).apply { marginStart = dp(8) })
+    }
+
+    private fun showMissingPermissions() {
+        val notifications = getSystemService(NotificationManager::class.java)
+        val exactAlarmMissing = !alarms.canSchedule()
+        val notificationsMissing = !notifications.areNotificationsEnabled()
+        val fullScreenMissing = Build.VERSION.SDK_INT >= 34 && !notifications.canUseFullScreenIntent()
+        if (!exactAlarmMissing && !notificationsMissing && !fullScreenMissing) return
+
+        val permissions = card()
+        label("Eksik izinler", 18f, permissions, bold = true).apply { accessibilityHeading() }
+        if (exactAlarmMissing) {
+            label("Alarmların tam saatinde çalması için zamanlama izni gerekli.", 14f, permissions, color = mutedColor)
+            button("Alarm iznini aç", permissions, primary = false) {
+                openSettings(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+            }
+        }
+        if (notificationsMissing) {
+            label("Alarmı bildirimden açabilmek için bildirim izni gerekli.", 14f, permissions, color = mutedColor)
+            button("Bildirimlere izin ver", permissions, primary = false) { requestNotifications() }
+        }
+        if (fullScreenMissing) {
+            label("Alarm ekranının kilitliyken açılması için tam ekran izni gerekli.", 14f, permissions, color = mutedColor)
+            button("Kilit ekranı iznini aç", permissions, primary = false) {
                 openSettings(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT)
             }
         }
-        button("+ Alarm ekle") { pickTime(null) }
-        val all = alarms.all().sortedBy { it.time }
-        if (all.isEmpty()) label("Henüz alarm eklenmedi.")
-        all.forEach { alarm ->
-            val time = alarm.time.format(clockFormat)
-            val repeat = if (alarm.days.isEmpty()) "Bir kez"
-                else alarm.days.sorted().joinToString(", ") { weekdays[it - 1] }
-            panel.addView(Switch(this).apply {
-                text = "$time · $repeat"
-                textSize = 18f
-                setPadding(0, dp(12), 0, dp(4))
-                isChecked = alarm.enabled
-                setOnCheckedChangeListener { _, enabled ->
-                    alarms.save(alarm.copy(enabled = enabled, snoozeAt = 0))
-                    render()
-                }
-            })
-            if (alarm.snoozeAt > 0) {
-                label("5 dakika ertelendi")
-                button("Ertelemeyi iptal et") {
-                    alarms.save(alarm.copy(snoozeAt = 0))
-                    render()
-                }
-            }
-            button("$time alarmını düzenle") { pickTime(alarm) }
+    }
+
+    private fun requestNotifications() {
+        val preferences = getPreferences(MODE_PRIVATE)
+        if (Build.VERSION.SDK_INT >= 33 &&
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED &&
+            (!preferences.getBoolean("notificationRequested", false) ||
+                shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS))) {
+            preferences.edit().putBoolean("notificationRequested", true).apply()
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
+        } else {
+            startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                .putExtra(Settings.EXTRA_APP_PACKAGE, packageName))
         }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1) render()
+    }
+
+    private fun showAlarm(alarm: Alarm) {
+        val time = alarm.time.format(clockFormat)
+        val repeat = when {
+            alarm.days.isEmpty() -> "Bir kez"
+            alarm.days.size == 7 -> "Her gün"
+            else -> alarm.days.sorted().joinToString(" · ") { weekdays[it - 1].take(3) }
+        }
+        val alarmCard = card()
+        val row = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+        alarmCard.addView(row)
+        val details = column()
+        row.addView(details, LinearLayout.LayoutParams(0, -2, 1f))
+        label(time, 34f, details, bold = true, color = if (alarm.enabled) Color.WHITE else mutedColor)
+        label(repeat, 15f, details, color = mutedColor)
+        if (alarm.math) label("Matematik görevi", 14f, details, color = mutedColor)
+        row.addView(Switch(this).apply {
+            contentDescription = "$time alarmı"
+            minWidth = dp(48)
+            minHeight = dp(48)
+            isChecked = alarm.enabled
+            setOnCheckedChangeListener { _, enabled ->
+                alarms.save(alarm.copy(enabled = enabled, snoozeAt = 0))
+                render()
+            }
+        })
+        if (alarm.snoozeAt > 0) {
+            button("Ertelemeyi iptal et", alarmCard, primary = false) {
+                alarms.save(alarm.copy(snoozeAt = 0))
+                render()
+            }
+        }
+        button("Düzenle", alarmCard, primary = false) { pickTime(alarm) }
+            .contentDescription = "$time alarmını düzenle"
     }
 
     private fun openSettings(action: String) {
@@ -223,14 +373,15 @@ class RingActivity : AlarmScreen() {
             second = Random.nextInt(8, 40)
         }
         layout("Alarm çalıyor")
+        val controls = card()
         if (ring.math) {
-            label("$first + $second = ?", 28f)
+            label("$first + $second = ?", 32f, controls, bold = true)
             val answer = EditText(this).apply {
                 hint = "Cevap"
                 inputType = InputType.TYPE_CLASS_NUMBER
-                panel.addView(this)
+                controls.addView(this)
             }
-            button("Alarmı kapat") {
+            button("Alarmı kapat", controls) {
                 if (answer.text.toString().toIntOrNull() == first + second) {
                     send(RingService.DISMISS, ring)
                 } else {
@@ -238,9 +389,9 @@ class RingActivity : AlarmScreen() {
                 }
             }
         } else {
-            button("Alarmı kapat") { send(RingService.DISMISS, ring) }
+            button("Alarmı kapat", controls) { send(RingService.DISMISS, ring) }
         }
-        if (Alarms(this).canSchedule()) button("5 dakika ertele") { send(RingService.SNOOZE, ring) }
+        if (Alarms(this).canSchedule()) button("5 dakika ertele", controls, primary = false) { send(RingService.SNOOZE, ring) }
     }
 
     private fun send(action: String, ring: Ring) {
