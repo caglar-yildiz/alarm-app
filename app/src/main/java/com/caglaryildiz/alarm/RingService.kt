@@ -118,7 +118,7 @@ class RingService : Service() {
         }
     }
 
-    private fun notifyScreen() = sendBroadcast(Intent(CHANGED).setPackage(packageName))
+    private fun notifyScreen() = listeners.toList().forEach { it() }
 
     override fun onDestroy() {
         handler.removeCallbacks(timeout)
@@ -132,7 +132,7 @@ class RingService : Service() {
 
     companion object {
         private const val CHANNEL = "ringing"
-        internal const val CHANGED = "com.caglaryildiz.alarm.CHANGED"
+        internal val listeners = mutableSetOf<() -> Unit>()
         internal const val DISMISS = "com.caglaryildiz.alarm.DISMISS"
         internal const val SNOOZE = "com.caglaryildiz.alarm.SNOOZE_RING"
         internal var active: Ring? = null

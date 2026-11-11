@@ -5,10 +5,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.app.NotificationManager
 import android.app.TimePickerDialog
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
@@ -178,9 +175,7 @@ class RingActivity : AlarmScreen() {
     private var token: String? = null
     private var first = 0
     private var second = 0
-    private val changes = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) = render()
-    }
+    private val onRingChanged: () -> Unit = ::render
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -200,17 +195,12 @@ class RingActivity : AlarmScreen() {
 
     override fun onStart() {
         super.onStart()
-        val filter = IntentFilter(RingService.CHANGED)
-        if (Build.VERSION.SDK_INT >= 33) registerReceiver(changes, filter, RECEIVER_NOT_EXPORTED)
-        else {
-            @Suppress("DEPRECATION")
-            registerReceiver(changes, filter)
-        }
+        RingService.listeners.add(onRingChanged)
         render()
     }
 
     override fun onStop() {
-        unregisterReceiver(changes)
+        RingService.listeners.remove(onRingChanged)
         super.onStop()
     }
 
