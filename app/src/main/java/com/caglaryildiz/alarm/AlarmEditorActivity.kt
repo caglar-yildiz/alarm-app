@@ -2,7 +2,6 @@ package com.caglaryildiz.alarm
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.media.RingtoneManager
@@ -16,6 +15,8 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import android.widget.TextView
 import android.view.Gravity
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZonedDateTime
@@ -29,6 +30,8 @@ class AlarmEditorActivity : AlarmScreen() {
     private var task = AlarmTask.MATH
     private var tone: String? = null
     private lateinit var nameInput: EditText
+    private lateinit var nameAction: Button
+    private var editingName = false
     private lateinit var timeReadout: TextView
     private lateinit var orbit: OrbitTimeView
     private lateinit var hourButton: Button
@@ -54,12 +57,14 @@ class AlarmEditorActivity : AlarmScreen() {
         task = savedInstanceState?.getString("task")?.let(AlarmTask::valueOf) ?: alarm.task
         tone = if (savedInstanceState == null) alarm.tone else savedInstanceState.getString("tone")
 
-        layout(if (original == null) "Yeni alarm" else "Alarmı düzenle")
+        layout()
+        showNameField(savedInstanceState?.getString("label") ?: alarm.label)
+        if (savedInstanceState?.getBoolean("editingName") == true) setNameEditing(true)
         val schedule = card()
         timeReadout = timeLabel("", 56f, schedule).apply { gravity = Gravity.CENTER }
         orbit = OrbitTimeView(this) { picked ->
             time = picked
-            updateTimeFields()
+            updateFields()
         }
         orbit.selectingMinutes = savedInstanceState?.getBoolean("selectingMinutes") ?: false
         val tabs = LinearLayout(this)
@@ -79,28 +84,15 @@ class AlarmEditorActivity : AlarmScreen() {
             }
         }
         schedule.addView(orbit, LinearLayout.LayoutParams(-1, dp(268)))
-        button("Standart saat seçici", schedule, primary = false, action = ::pickTime)
         dateButton = button("", section("Tarih"), primary = false, action = ::pickDate)
-
-        val identity = section("Alarm adı")
-        nameInput = EditText(this).apply {
-            hint = "Örn. Hafta içi"
-            contentDescription = "Alarm adı"
-            setSingleLine()
-            styleInput(this)
-            filters = arrayOf(InputFilter.LengthFilter(60))
-            setText(savedInstanceState?.getString("label") ?: alarm.label)
-            identity.addView(this)
-        }
-
-        repeatButton = button("", section("Tekrar"), primary = false, action = ::pickDays)
+        repeatButton = button("", section("Tekrar edilen günler"), primary = false, action = ::pickDays)
         toneButton = button("", section("Alarm sesi"), primary = false, action = ::pickTone)
         taskButton = button("", section("Kapatma görevi"), primary = false, action = ::pickTask)
 
         button("Kaydet", action = ::save)
         button("Vazgeç", primary = false) { finish() }
         original?.let { existing ->
-            button("Alarmı sil", primary = false) {
+            button("Alarmı sil", primary = false, destructive = true) {
                 AlertDialog.Builder(this).setTitle("Alarm silinsin mi?")
                     .setNegativeButton("Vazgeç", null)
                     .setPositiveButton("Sil") { _, _ ->
@@ -110,6 +102,52 @@ class AlarmEditorActivity : AlarmScreen() {
             }
         }
         updateFields()
+    }
+
+    private fun showNameField(name: String) {
+        val row = LinearLayout(this).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            panel.addView(this, LinearLayout.LayoutParams(-1, -2))
+        }
+        nameInput = EditText(this).apply {
+            hint = "Alarm adı gir"
+            contentDescription = "Alarm adı"
+            setSingleLine()
+            imeOptions = EditorInfo.IME_ACTION_DONE
+            textSize = 23f
+            styleInput(this)
+            filters = arrayOf(InputFilter.LengthFilter(60))
+            setText(name)
+            setOnEditorActionListener { _, action, _ ->
+                if (action != EditorInfo.IME_ACTION_DONE) return@setOnEditorActionListener false
+                setNameEditing(false)
+                true
+            }
+        }
+        row.addView(nameInput, LinearLayout.LayoutParams(0, -2, 1f))
+        nameAction = button("✎", row, primary = false) { setNameEditing(!editingName) }
+        nameAction.layoutParams = LinearLayout.LayoutParams(dp(54), -2).apply { marginStart = dp(8) }
+        setNameEditing(false)
+    }
+
+    private fun setNameEditing(editing: Boolean) {
+        editingName = editing
+        nameInput.isFocusableInTouchMode = editing
+        nameInput.isFocusable = editing
+        nameInput.isCursorVisible = editing
+        nameInput.isClickable = editing
+        nameInput.isLongClickable = editing
+        nameAction.text = if (editing) "✓" else "✎"
+        nameAction.contentDescription = if (editing) "Alarm adını onayla" else "Alarm adını düzenle"
+        val keyboard = getSystemService(InputMethodManager::class.java)
+        if (editing) {
+            nameInput.requestFocus()
+            nameInput.setSelection(nameInput.length())
+            nameInput.post { if (editingName) keyboard.showSoftInput(nameInput, InputMethodManager.SHOW_IMPLICIT) }
+        } else {
+            nameInput.clearFocus()
+            keyboard.hideSoftInputFromWindow(nameInput.windowToken, 0)
+        }
     }
 
     private fun section(title: String): LinearLayout = card().also {
@@ -128,8 +166,15 @@ class AlarmEditorActivity : AlarmScreen() {
     private fun updateFields() {
         updateTimeFields()
         dateButton.isEnabled = days.isEmpty()
-        dateButton.text = if (days.isNotEmpty()) "Tekrar günleri geçerli"
-            else date?.format(dateFormat) ?: "Sonraki uygun tarih"
+        dateButton.text = when {
+            days.isNotEmpty() -> "Tarih, tekrar günlerine göre belirlenir"
+            date != null -> date?.format(dateFormat)
+            else -> {
+                val now = ZonedDateTime.now()
+                val today = now.toLocalDate().atTime(time).atZone(now.zone).isAfter(now)
+                if (today) "Otomatik · Bugün bir kez" else "Otomatik · Yarın bir kez"
+            }
+        }
         repeatButton.text = when (days.size) {
             0 -> "Tek sefer"
             7 -> "Her gün"
@@ -141,13 +186,6 @@ class AlarmEditorActivity : AlarmScreen() {
         } ?: "Cihazın varsayılan alarm sesi"
     }
 
-    private fun pickTime() {
-        TimePickerDialog(this, { _, hour, minute ->
-            time = LocalTime.of(hour, minute)
-            updateTimeFields()
-        }, time.hour, time.minute, true).show()
-    }
-
     private fun pickDate() {
         val today = LocalDate.now()
         val selected = date?.coerceAtLeast(today) ?: today
@@ -156,7 +194,7 @@ class AlarmEditorActivity : AlarmScreen() {
             updateFields()
         }, selected.year, selected.monthValue - 1, selected.dayOfMonth).apply {
             datePicker.minDate = today.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
-            setButton(AlertDialog.BUTTON_NEUTRAL, "Sonraki uygun tarih") { _, _ ->
+            setButton(AlertDialog.BUTTON_NEUTRAL, "Bugün veya yarın") { _, _ ->
                 date = null
                 updateFields()
             }
@@ -166,7 +204,7 @@ class AlarmEditorActivity : AlarmScreen() {
     private fun pickDays() {
         val selected = BooleanArray(weekdays.size) { it + 1 in days }
         AlertDialog.Builder(this)
-            .setTitle("Haftalık tekrar günleri")
+            .setTitle("Tekrar edilen günler")
             .setMultiChoiceItems(weekdays, selected) { _, index, checked -> selected[index] = checked }
             .setNegativeButton("Vazgeç", null)
             .setNeutralButton("Tek sefer") { _, _ ->
@@ -227,6 +265,7 @@ class AlarmEditorActivity : AlarmScreen() {
         outState.putString("task", task.name)
         outState.putString("tone", tone)
         outState.putString("label", nameInput.text.toString())
+        outState.putBoolean("editingName", editingName)
     }
 
     private fun save() {

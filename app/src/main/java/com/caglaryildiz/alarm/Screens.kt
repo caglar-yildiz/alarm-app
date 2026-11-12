@@ -45,7 +45,7 @@ abstract class AlarmScreen : Activity() {
     protected lateinit var panel: LinearLayout
     private var scroll: ScrollView? = null
 
-    protected fun layout(title: String) {
+    protected fun layout(title: String? = null) {
         val previousScroll = scroll?.scrollY ?: 0
         panel = column()
         val container = ScrollView(this).apply {
@@ -62,6 +62,7 @@ abstract class AlarmScreen : Activity() {
         setContentView(container)
         container.requestApplyInsets()
         container.post { container.scrollTo(0, previousScroll) }
+        if (title == null) return
         label(title, 32f, bold = true).apply {
             accessibilityHeading()
             if (title == getString(R.string.app_name)) {
@@ -152,19 +153,28 @@ abstract class AlarmScreen : Activity() {
         text: String,
         parent: LinearLayout = panel,
         primary: Boolean = true,
+        destructive: Boolean = false,
         action: () -> Unit
     ) = Button(this).apply {
         this.text = text
         isAllCaps = false
         textSize = 16f
+        val textColor = when {
+            destructive -> 0xFFFFC4D1.toInt()
+            primary -> midnight
+            else -> accentColor
+        }
         setTextColor(ColorStateList(
             arrayOf(intArrayOf(-android.R.attr.state_enabled), intArrayOf()),
-            intArrayOf(mutedColor, if (primary) midnight else accentColor)
+            intArrayOf(mutedColor, textColor)
         ))
         background = RippleDrawable(
             ColorStateList.valueOf(0x35FFFFFF),
-            if (primary) glass(0xFF9BDFFF.toInt(), 0xFFC3A0FC.toInt(), 18)
-            else glass(0xA6253152.toInt(), 0xA42F2149.toInt(), 18),
+            when {
+                destructive -> glass(0xE65E213E.toInt(), 0xE6461B36.toInt(), 18)
+                primary -> glass(0xFF9BDFFF.toInt(), 0xFFC3A0FC.toInt(), 18)
+                else -> glass(0xA6253152.toInt(), 0xA42F2149.toInt(), 18)
+            },
             null
         )
         minimumHeight = dp(48)

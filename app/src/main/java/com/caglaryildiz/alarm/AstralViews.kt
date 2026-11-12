@@ -9,7 +9,10 @@ import android.graphics.RadialGradient
 import android.graphics.Shader
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
+import android.os.Bundle
+import android.view.KeyEvent
 import android.view.MotionEvent
+import android.view.accessibility.AccessibilityNodeInfo
 import android.view.View
 import java.time.LocalTime
 import kotlin.math.PI
@@ -85,11 +88,13 @@ internal class OrbitTimeView(
     var time: LocalTime = LocalTime.MIDNIGHT
         set(value) {
             field = value
+            updateDescription()
             invalidate()
         }
     var selectingMinutes = false
         set(value) {
             field = value
+            updateDescription()
             invalidate()
         }
 
@@ -104,8 +109,42 @@ internal class OrbitTimeView(
     private val innerRadius get() = outerRadius * .66f
 
     init {
-        // The standard picker button provides equivalent keyboard and screen-reader input.
-        importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
+        isFocusable = true
+        updateDescription()
+    }
+
+    private fun updateDescription() {
+        contentDescription = if (selectingMinutes) "Dakika: ${time.minute}" else "Saat: ${time.hour}"
+    }
+
+    override fun onInitializeAccessibilityNodeInfo(info: AccessibilityNodeInfo) {
+        super.onInitializeAccessibilityNodeInfo(info)
+        info.isScrollable = true
+        info.addAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_FORWARD)
+        info.addAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_BACKWARD)
+    }
+
+    override fun performAccessibilityAction(action: Int, arguments: Bundle?): Boolean {
+        return when (action) {
+            AccessibilityNodeInfo.ACTION_SCROLL_FORWARD -> adjustTime(1)
+            AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD -> adjustTime(-1)
+            else -> super.performAccessibilityAction(action, arguments)
+        }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        return when (keyCode) {
+            KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_RIGHT -> adjustTime(1)
+            KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.KEYCODE_DPAD_LEFT -> adjustTime(-1)
+            else -> super.onKeyDown(keyCode, event)
+        }
+    }
+
+    private fun adjustTime(delta: Int): Boolean {
+        time = if (selectingMinutes) time.withMinute(Math.floorMod(time.minute + delta, 60))
+            else time.plusHours(delta.toLong())
+        onTimeChanged(time)
+        return true
     }
 
     override fun onDraw(canvas: Canvas) {
