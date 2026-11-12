@@ -1,9 +1,19 @@
 <resources>
     <style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
         <item name="android:fontFamily">sans</item>
+        <item name="android:alertDialogTheme">@style/AstralDialogTheme</item>
         <item name="android:colorAccent">#B9A6FF</item>
         <item name="android:windowBackground">#0B1021</item>
         <item name="android:statusBarColor">#0B1021</item>
         <item name="android:navigationBarColor">#0B1021</item>
+    </style>
+    <style name="AstralDialogTheme" parent="android:style/Theme.Material.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/astral_dialog_surface</item>
+        <item name="android:colorBackground">#232747</item>
+        <item name="android:colorAccent">#C5BAFF</item>
+        <item name="android:textColorPrimary">#F5F2FF</item>
+        <item name="android:textColorSecondary">#C0C4E1</item>
+        <item name="android:colorControlActivated">#A9DFFF</item>
+        <item name="android:colorControlNormal">#A7A4C9</item>
     </style>
 </resources>

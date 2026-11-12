@@ -2,12 +2,10 @@ package com.caglaryildiz.alarm
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
-import android.content.ActivityNotFoundException
-import android.content.Intent
+import android.media.Ringtone
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
 import android.text.InputFilter
 import android.widget.Button
 import android.widget.EditText
@@ -29,6 +27,7 @@ class AlarmEditorActivity : AlarmScreen() {
     private var days: Set<Int> = emptySet()
     private var task = AlarmTask.MATH
     private var tone: String? = null
+    private var preview: Ringtone? = null
     private lateinit var nameInput: EditText
     private lateinit var nameAction: Button
     private var editingName = false
@@ -93,7 +92,7 @@ class AlarmEditorActivity : AlarmScreen() {
         button("Vazgeç", primary = false) { finish() }
         original?.let { existing ->
             button("Alarmı sil", primary = false, destructive = true) {
-                AlertDialog.Builder(this).setTitle("Alarm silinsin mi?")
+                AlertDialog.Builder(this, R.style.AstralDialogTheme).setTitle("Alarm silinsin mi?")
                     .setNegativeButton("Vazgeç", null)
                     .setPositiveButton("Sil") { _, _ ->
                         alarms.delete(existing)
@@ -189,7 +188,7 @@ class AlarmEditorActivity : AlarmScreen() {
     private fun pickDate() {
         val today = LocalDate.now()
         val selected = date?.coerceAtLeast(today) ?: today
-        DatePickerDialog(this, { _, year, month, day ->
+        DatePickerDialog(this, R.style.AstralDialogTheme, { _, year, month, day ->
             date = LocalDate.of(year, month + 1, day)
             updateFields()
         }, selected.year, selected.monthValue - 1, selected.dayOfMonth).apply {
@@ -203,7 +202,7 @@ class AlarmEditorActivity : AlarmScreen() {
 
     private fun pickDays() {
         val selected = BooleanArray(weekdays.size) { it + 1 in days }
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(this, R.style.AstralDialogTheme)
             .setTitle("Tekrar edilen günler")
             .setMultiChoiceItems(weekdays, selected) { _, index, checked -> selected[index] = checked }
             .setNegativeButton("Vazgeç", null)
@@ -219,7 +218,7 @@ class AlarmEditorActivity : AlarmScreen() {
     }
 
     private fun pickTask() {
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(this, R.style.AstralDialogTheme)
             .setTitle("Kapatma görevi")
             .setSingleChoiceItems(AlarmTask.entries.map { it.label }.toTypedArray(), task.ordinal) { dialog, index ->
                 task = AlarmTask.entries[index]
@@ -230,30 +229,57 @@ class AlarmEditorActivity : AlarmScreen() {
             .show()
     }
 
-    @Suppress("DEPRECATION")
     private fun pickTone() {
-        val picker = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
-            .putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM)
-            .putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
-            .putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
-            .putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, Settings.System.DEFAULT_ALARM_ALERT_URI)
-            .putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
-                tone?.let(Uri::parse) ?: Settings.System.DEFAULT_ALARM_ALERT_URI)
-        try {
-            startActivityForResult(picker, PICK_TONE)
-        } catch (_: ActivityNotFoundException) {
-            Toast.makeText(this, "Cihazın alarm sesi seçicisi açılamadı.", Toast.LENGTH_SHORT).show()
+        val defaultLabel = "Cihazın varsayılan alarm sesi"
+        val options = linkedMapOf<Uri?, String>(null to defaultLabel)
+        val manager = RingtoneManager(applicationContext).apply {
+            setType(RingtoneManager.TYPE_ALARM)
         }
+        runCatching {
+            manager.cursor.use { cursor ->
+                while (cursor.moveToNext()) {
+                    val uri = manager.getRingtoneUri(cursor.position) ?: continue
+                    options[uri] = cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX)
+                }
+            }
+        }
+        val savedTone = tone?.let(Uri::parse)
+        if (savedTone != null && savedTone !in options) {
+            options[savedTone] = runCatching {
+                RingtoneManager.getRingtone(this, savedTone)?.getTitle(this)
+            }.getOrNull() ?: "Kayıtlı alarm sesi"
+        }
+
+        val uris = options.keys.toList()
+        var selected = uris.indexOf(savedTone).coerceAtLeast(0)
+        AlertDialog.Builder(this, R.style.AstralDialogTheme)
+            .setTitle("Alarm sesi")
+            .setSingleChoiceItems(options.values.toTypedArray(), selected) { _, index ->
+                selected = index
+                stopPreview()
+                val uri = uris[index] ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+                runCatching {
+                    preview = RingtoneManager.getRingtone(this, uri)
+                    preview?.play()
+                }
+            }
+            .setNegativeButton("Vazgeç", null)
+            .setPositiveButton("Uygula") { _, _ ->
+                tone = uris[selected]?.toString()
+                updateFields()
+            }
+            .setOnDismissListener { stopPreview() }
+            .show()
     }
 
-    @Deprecated("Handles the platform ringtone picker result.")
-    @Suppress("DEPRECATION")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode != PICK_TONE || resultCode != RESULT_OK) return
-        val picked = data?.getParcelableExtra<Uri>(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
-        tone = picked?.takeUnless(RingtoneManager::isDefault)?.toString()
-        updateFields()
+    override fun onStop() {
+        stopPreview()
+        super.onStop()
+    }
+
+    private fun stopPreview() {
+        preview?.stop()
+        preview = null
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -290,9 +316,5 @@ class AlarmEditorActivity : AlarmScreen() {
         }
         alarms.save(updated)
         finish()
-    }
-
-    private companion object {
-        const val PICK_TONE = 1
     }
 }
