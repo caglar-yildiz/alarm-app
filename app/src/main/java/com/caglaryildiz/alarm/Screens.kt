@@ -134,6 +134,17 @@ abstract class AlarmScreen : Activity() {
 
 class MainActivity : AlarmScreen() {
     private val alarms by lazy { Alarms(this) }
+    private val onRingChanged: () -> Unit = ::render
+
+    override fun onStart() {
+        super.onStart()
+        RingService.listeners.add(onRingChanged)
+    }
+
+    override fun onStop() {
+        RingService.listeners.remove(onRingChanged)
+        super.onStop()
+    }
 
     override fun onResume() {
         super.onResume()
@@ -143,14 +154,17 @@ class MainActivity : AlarmScreen() {
 
     private fun render() {
         layout(getString(R.string.app_name))
-        val all = alarms.all().sortedBy { it.time }
-        showNextAlarm(all)
-        button("+  Alarm ekle") { openEditor(null) }
-        if (RingService.active != null) {
-            button("Çalan alarmı aç", primary = false) {
+        RingService.active?.let { ring ->
+            val ringing = card()
+            label("Alarm çalıyor", 20f, ringing, bold = true).accessibilityHeading()
+            if (ring.label.isNotBlank()) label(ring.label, parent = ringing)
+            button("Çalan alarmı aç", ringing) {
                 startActivity(Intent(this, RingActivity::class.java))
             }
         }
+        val all = alarms.all().sortedBy { it.time }
+        showNextAlarm(all)
+        button("+  Alarm ekle") { openEditor(null) }
         showMissingPermissions()
         label("Alarmlarım", 22f, bold = true).apply {
             setPadding(0, dp(24), 0, dp(2))

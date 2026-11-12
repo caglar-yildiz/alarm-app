@@ -26,3 +26,9 @@ Windows'ta `gradlew.bat :app:assembleDebug` kullan. APK, `app/build/outputs/apk/
 6. İki alarmı aynı saate kur. İlkini kapattığında ikincisinin ekrana geldiğini kontrol et.
 
 Alarm, etkileşim olmazsa 10 dakika sonra susar. Tam ekran izni kapalıysa ve bildirimler açıksa, alarm ekranını bildirimden açabilirsin. Samsung cihazda kilit ekranı ve yeniden başlatma senaryoları fiziksel cihazda doğrulanmalıdır.
+
+### Çalan alarma yeniden erişim
+
+- Ekran açıkken bir alarm çaldır. Bildirimi tek başına kaydırırsan, Android kaldırmaya izin verdiğinde bildirimin geri gelmesini bekle. Bildirimdeki **Alarmı aç** düğmesini kullan.
+- Bildirime erişemiyorsan BENG'i aç. Ana ekranın en üstündeki **Çalan alarmı aç** düğmesiyle mevcut göreve dön.
+- Alarmı kapatınca bildirimin kaybolduğunu ve yeniden görünmediğini kontrol et.
