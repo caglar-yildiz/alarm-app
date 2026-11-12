@@ -9,11 +9,15 @@
     </style>
     <style name="AstralDialogTheme" parent="android:style/Theme.Material.Dialog.Alert">
         <item name="android:windowBackground">@drawable/astral_dialog_surface</item>
+        <item name="android:datePickerStyle">@style/AstralDatePicker</item>
         <item name="android:colorBackground">#232747</item>
         <item name="android:colorAccent">#C5BAFF</item>
         <item name="android:textColorPrimary">#F5F2FF</item>
         <item name="android:textColorSecondary">#C0C4E1</item>
         <item name="android:colorControlActivated">#A9DFFF</item>
         <item name="android:colorControlNormal">#A7A4C9</item>
+    </style>
+    <style name="AstralDatePicker" parent="android:style/Widget.Material.DatePicker">
+        <item name="android:headerBackground">@drawable/astral_date_header</item>
     </style>
 </resources>

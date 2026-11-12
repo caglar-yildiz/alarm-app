@@ -306,7 +306,10 @@ class MainActivity : AlarmScreen() {
             alarm.days.size == 7 -> "Her gün"
             else -> alarm.days.sorted().joinToString(" · ") { weekdays[it - 1].take(3) }
         }
-        val alarmCard = card()
+        val alarmCard = card().apply {
+            isFocusable = true
+            setOnClickListener { openEditor(alarm) }
+        }
         val row = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         alarmCard.addView(row)
         val details = column()
@@ -339,8 +342,6 @@ class MainActivity : AlarmScreen() {
                 render()
             }
         }
-        button("Düzenle", alarmCard, primary = false) { openEditor(alarm) }
-            .contentDescription = "$time alarmını düzenle"
     }
 
     private fun openSettings(action: String) {
