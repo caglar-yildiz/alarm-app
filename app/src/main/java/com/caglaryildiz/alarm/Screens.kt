@@ -16,6 +16,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.text.InputType
+import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
 import android.view.WindowInsets
@@ -304,22 +305,22 @@ class MainActivity : AlarmScreen() {
         val repeat = when {
             alarm.days.isEmpty() -> alarm.date?.format(dateFormat) ?: "Bir kez"
             alarm.days.size == 7 -> "Her gün"
-            else -> alarm.days.sorted().joinToString(" · ") { weekdays[it - 1].take(3) }
+            alarm.days == setOf(6, 7) -> "Hafta sonu"
+            alarm.days == (1..5).toSet() -> "Hafta içi"
+            else -> "${alarm.days.size} gün"
         }
         val alarmCard = card().apply {
+            setPadding(dp(14), dp(6), dp(14), dp(9))
             isFocusable = true
             setOnClickListener { openEditor(alarm) }
         }
         val row = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         alarmCard.addView(row)
-        val details = column()
-        row.addView(details, LinearLayout.LayoutParams(0, -2, 1f))
-        timeLabel(time, 38f, details, color = if (alarm.enabled) Color.WHITE else mutedColor)
-        label(repeat, 15f, details, color = mutedColor)
-        if (alarm.label.isNotBlank()) label(alarm.label, 16f, details, bold = true)
-        if (alarm.task != AlarmTask.NONE) label(alarm.task.label, 14f, details, color = mutedColor)
+        timeLabel(time, 35f, row, color = if (alarm.enabled) Color.WHITE else mutedColor).apply {
+            setPadding(0, 0, 0, 0)
+            layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
+        }
         val dateExpired = alarm.date != null && alarm.nextAfter(ZonedDateTime.now()) == null
-        if (dateExpired && alarm.enabled) label("Alarm tarihi geçti", 14f, details, color = mutedColor)
         row.addView(Switch(this).apply {
             contentDescription = "$time alarmı"
             stylePlanetToggle()
@@ -336,12 +337,46 @@ class MainActivity : AlarmScreen() {
                 }
             }
         })
+        val tags = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+        alarmCard.addView(tags)
+        if (alarm.label.isNotBlank()) addAlarmTag(tags, alarm.label, flexible = true)
+        addAlarmTag(tags, repeat, description = alarm.days.takeIf { it.isNotEmpty() }
+            ?.sorted()?.joinToString(", ") { weekdays[it - 1] })
+        if (alarm.task != AlarmTask.NONE) addAlarmTag(tags, alarm.task.label)
+        if (dateExpired && alarm.enabled) label("Alarm tarihi geçti", 13f, alarmCard, color = mutedColor)
         if (alarm.snoozeAt > 0) {
             button("Ertelemeyi iptal et", alarmCard, primary = false) {
                 alarms.save(alarm.copy(snoozeAt = 0))
                 render()
             }
         }
+    }
+
+    private fun addAlarmTag(
+        row: LinearLayout,
+        text: String,
+        flexible: Boolean = false,
+        description: String? = null
+    ) {
+        val tag = TextView(this).apply {
+            this.text = text
+            if (description != null) contentDescription = description
+            textSize = 12f
+            setTextColor(0xFFE7DFFF.toInt())
+            setSingleLine()
+            ellipsize = TextUtils.TruncateAt.END
+            setPadding(dp(8), dp(3), dp(8), dp(3))
+            background = GradientDrawable().apply {
+                setColor(0x604E407B)
+                cornerRadius = dp(12).toFloat()
+                setStroke(dp(1), 0x668C8CD8)
+            }
+        }
+        tag.maxWidth = ((resources.displayMetrics.widthPixels - dp(78)).coerceAtLeast(0) *
+            (if (flexible) 38 else 30)) / 100
+        row.addView(tag, LinearLayout.LayoutParams(-2, -2).apply {
+            if (row.childCount > 0) marginStart = dp(5)
+        })
     }
 
     private fun openSettings(action: String) {
