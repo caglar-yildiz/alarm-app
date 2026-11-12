@@ -318,7 +318,18 @@ class MainActivity : AlarmScreen() {
         alarmCard.addView(row)
         timeLabel(time, 35f, row, color = if (alarm.enabled) Color.WHITE else mutedColor).apply {
             setPadding(0, 0, 0, 0)
-            layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
+            setSingleLine()
+            if (alarm.label.isBlank()) layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
+        }
+        if (alarm.label.isNotBlank()) {
+            label(alarm.label, 16f, row, bold = true, color = if (alarm.enabled) Color.WHITE else mutedColor).apply {
+                maxLines = 2
+                ellipsize = TextUtils.TruncateAt.END
+                layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply {
+                    marginStart = dp(12)
+                    marginEnd = dp(6)
+                }
+            }
         }
         val dateExpired = alarm.date != null && alarm.nextAfter(ZonedDateTime.now()) == null
         row.addView(Switch(this).apply {
@@ -339,7 +350,6 @@ class MainActivity : AlarmScreen() {
         })
         val tags = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         alarmCard.addView(tags)
-        if (alarm.label.isNotBlank()) addAlarmTag(tags, alarm.label, flexible = true)
         addAlarmTag(tags, repeat, description = alarm.days.takeIf { it.isNotEmpty() }
             ?.sorted()?.joinToString(", ") { weekdays[it - 1] })
         if (alarm.task != AlarmTask.NONE) addAlarmTag(tags, alarm.task.label)
@@ -355,7 +365,6 @@ class MainActivity : AlarmScreen() {
     private fun addAlarmTag(
         row: LinearLayout,
         text: String,
-        flexible: Boolean = false,
         description: String? = null
     ) {
         val tag = TextView(this).apply {
@@ -372,8 +381,7 @@ class MainActivity : AlarmScreen() {
                 setStroke(dp(1), 0x668C8CD8)
             }
         }
-        tag.maxWidth = ((resources.displayMetrics.widthPixels - dp(78)).coerceAtLeast(0) *
-            (if (flexible) 38 else 30)) / 100
+        tag.maxWidth = (resources.displayMetrics.widthPixels - dp(78)).coerceAtLeast(0) / 2
         row.addView(tag, LinearLayout.LayoutParams(-2, -2).apply {
             if (row.childCount > 0) marginStart = dp(5)
         })
