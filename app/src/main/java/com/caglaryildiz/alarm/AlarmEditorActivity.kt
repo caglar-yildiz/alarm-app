@@ -2,21 +2,21 @@ package com.caglaryildiz.alarm
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
-import android.content.ActivityNotFoundException
-import android.content.Intent
+import android.media.Ringtone
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
 import android.text.InputFilter
 import android.widget.Button
+import android.widget.CheckBox
+import android.widget.ScrollView
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
 import android.widget.TextView
 import android.view.Gravity
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
+import android.view.ContextThemeWrapper
+import android.view.WindowManager
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZonedDateTime
@@ -29,9 +29,8 @@ class AlarmEditorActivity : AlarmScreen() {
     private var days: Set<Int> = emptySet()
     private var task = AlarmTask.MATH
     private var tone: String? = null
+    private var preview: Ringtone? = null
     private lateinit var nameInput: EditText
-    private lateinit var nameAction: Button
-    private var editingName = false
     private lateinit var timeReadout: TextView
     private lateinit var orbit: OrbitTimeView
     private lateinit var hourButton: Button
@@ -59,7 +58,6 @@ class AlarmEditorActivity : AlarmScreen() {
 
         layout()
         showNameField(savedInstanceState?.getString("label") ?: alarm.label)
-        if (savedInstanceState?.getBoolean("editingName") == true) setNameEditing(true)
         val schedule = card()
         timeReadout = timeLabel("", 56f, schedule).apply { gravity = Gravity.CENTER }
         orbit = OrbitTimeView(this) { picked ->
@@ -93,7 +91,7 @@ class AlarmEditorActivity : AlarmScreen() {
         button("Vazgeç", primary = false) { finish() }
         original?.let { existing ->
             button("Alarmı sil", primary = false, destructive = true) {
-                AlertDialog.Builder(this).setTitle("Alarm silinsin mi?")
+                AlertDialog.Builder(this, R.style.AstralDialogTheme).setTitle("Alarm silinsin mi?")
                     .setNegativeButton("Vazgeç", null)
                     .setPositiveButton("Sil") { _, _ ->
                         alarms.delete(existing)
@@ -105,49 +103,20 @@ class AlarmEditorActivity : AlarmScreen() {
     }
 
     private fun showNameField(name: String) {
-        val row = LinearLayout(this).apply {
-            gravity = Gravity.CENTER_VERTICAL
-            panel.addView(this, LinearLayout.LayoutParams(-1, -2))
-        }
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+        panel.isFocusableInTouchMode = true
+        panel.requestFocus()
         nameInput = EditText(this).apply {
             hint = "Alarm adı gir"
             contentDescription = "Alarm adı"
             setSingleLine()
-            imeOptions = EditorInfo.IME_ACTION_DONE
+            imeOptions = android.view.inputmethod.EditorInfo.IME_ACTION_DONE
             textSize = 23f
             styleInput(this)
             filters = arrayOf(InputFilter.LengthFilter(60))
             setText(name)
-            setOnEditorActionListener { _, action, _ ->
-                if (action != EditorInfo.IME_ACTION_DONE) return@setOnEditorActionListener false
-                setNameEditing(false)
-                true
-            }
         }
-        row.addView(nameInput, LinearLayout.LayoutParams(0, -2, 1f))
-        nameAction = button("✎", row, primary = false) { setNameEditing(!editingName) }
-        nameAction.layoutParams = LinearLayout.LayoutParams(dp(54), -2).apply { marginStart = dp(8) }
-        setNameEditing(false)
-    }
-
-    private fun setNameEditing(editing: Boolean) {
-        editingName = editing
-        nameInput.isFocusableInTouchMode = editing
-        nameInput.isFocusable = editing
-        nameInput.isCursorVisible = editing
-        nameInput.isClickable = editing
-        nameInput.isLongClickable = editing
-        nameAction.text = if (editing) "✓" else "✎"
-        nameAction.contentDescription = if (editing) "Alarm adını onayla" else "Alarm adını düzenle"
-        val keyboard = getSystemService(InputMethodManager::class.java)
-        if (editing) {
-            nameInput.requestFocus()
-            nameInput.setSelection(nameInput.length())
-            nameInput.post { if (editingName) keyboard.showSoftInput(nameInput, InputMethodManager.SHOW_IMPLICIT) }
-        } else {
-            nameInput.clearFocus()
-            keyboard.hideSoftInputFromWindow(nameInput.windowToken, 0)
-        }
+        panel.addView(nameInput, LinearLayout.LayoutParams(-1, -2))
     }
 
     private fun section(title: String): LinearLayout = card().also {
@@ -189,7 +158,7 @@ class AlarmEditorActivity : AlarmScreen() {
     private fun pickDate() {
         val today = LocalDate.now()
         val selected = date?.coerceAtLeast(today) ?: today
-        DatePickerDialog(this, { _, year, month, day ->
+        DatePickerDialog(this, R.style.AstralDialogTheme, { _, year, month, day ->
             date = LocalDate.of(year, month + 1, day)
             updateFields()
         }, selected.year, selected.monthValue - 1, selected.dayOfMonth).apply {
@@ -202,24 +171,52 @@ class AlarmEditorActivity : AlarmScreen() {
     }
 
     private fun pickDays() {
-        val selected = BooleanArray(weekdays.size) { it + 1 in days }
-        AlertDialog.Builder(this)
+        val dialogContext = ContextThemeWrapper(this, R.style.AstralDialogTheme)
+        val choices = LinearLayout(dialogContext).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(12), dp(4), dp(12), dp(8))
+        }
+        val checkboxes = weekdays.mapIndexed { index, name ->
+            CheckBox(dialogContext).apply {
+                text = name
+                minHeight = dp(44)
+                isChecked = index + 1 in days
+                choices.addView(this)
+            }
+        }
+        val scroll = ScrollView(dialogContext).apply { addView(choices) }
+        val dialog = AlertDialog.Builder(dialogContext)
             .setTitle("Tekrar edilen günler")
-            .setMultiChoiceItems(weekdays, selected) { _, index, checked -> selected[index] = checked }
+            .setView(scroll)
             .setNegativeButton("Vazgeç", null)
-            .setNeutralButton("Tek sefer") { _, _ ->
-                days = emptySet()
-                updateFields()
-            }
+            .setNeutralButton("Tek sefer") { _, _ -> updateDays(emptySet()) }
             .setPositiveButton("Uygula") { _, _ ->
-                days = selected.indices.filter { selected[it] }.map { it + 1 }.toSet()
-                updateFields()
+                updateDays(checkboxes.indices.filter { checkboxes[it].isChecked }.map { it + 1 }.toSet())
             }
-            .show()
+            .create()
+
+        button("Hepsini seç", choices, primary = false) {
+            updateDays((1..7).toSet())
+            dialog.dismiss()
+        }
+        button("Hafta sonu", choices, primary = false) {
+            updateDays(setOf(6, 7))
+            dialog.dismiss()
+        }
+        button("Hafta içi", choices, primary = false) {
+            updateDays((1..5).toSet())
+            dialog.dismiss()
+        }
+        dialog.show()
+    }
+
+    private fun updateDays(selection: Set<Int>) {
+        days = selection
+        updateFields()
     }
 
     private fun pickTask() {
-        AlertDialog.Builder(this)
+        AlertDialog.Builder(this, R.style.AstralDialogTheme)
             .setTitle("Kapatma görevi")
             .setSingleChoiceItems(AlarmTask.entries.map { it.label }.toTypedArray(), task.ordinal) { dialog, index ->
                 task = AlarmTask.entries[index]
@@ -230,30 +227,57 @@ class AlarmEditorActivity : AlarmScreen() {
             .show()
     }
 
-    @Suppress("DEPRECATION")
     private fun pickTone() {
-        val picker = Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
-            .putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM)
-            .putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
-            .putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
-            .putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, Settings.System.DEFAULT_ALARM_ALERT_URI)
-            .putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,
-                tone?.let(Uri::parse) ?: Settings.System.DEFAULT_ALARM_ALERT_URI)
-        try {
-            startActivityForResult(picker, PICK_TONE)
-        } catch (_: ActivityNotFoundException) {
-            Toast.makeText(this, "Cihazın alarm sesi seçicisi açılamadı.", Toast.LENGTH_SHORT).show()
+        val defaultLabel = "Cihazın varsayılan alarm sesi"
+        val options = linkedMapOf<Uri?, String>(null to defaultLabel)
+        val manager = RingtoneManager(applicationContext).apply {
+            setType(RingtoneManager.TYPE_ALARM)
         }
+        runCatching {
+            manager.cursor.use { cursor ->
+                while (cursor.moveToNext()) {
+                    val uri = manager.getRingtoneUri(cursor.position) ?: continue
+                    options[uri] = cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX)
+                }
+            }
+        }
+        val savedTone = tone?.let(Uri::parse)
+        if (savedTone != null && savedTone !in options) {
+            options[savedTone] = runCatching {
+                RingtoneManager.getRingtone(this, savedTone)?.getTitle(this)
+            }.getOrNull() ?: "Kayıtlı alarm sesi"
+        }
+
+        val uris = options.keys.toList()
+        var selected = uris.indexOf(savedTone).coerceAtLeast(0)
+        AlertDialog.Builder(this, R.style.AstralDialogTheme)
+            .setTitle("Alarm sesi")
+            .setSingleChoiceItems(options.values.toTypedArray(), selected) { _, index ->
+                selected = index
+                stopPreview()
+                val uri = uris[index] ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+                runCatching {
+                    preview = RingtoneManager.getRingtone(this, uri)
+                    preview?.play()
+                }
+            }
+            .setNegativeButton("Vazgeç", null)
+            .setPositiveButton("Uygula") { _, _ ->
+                tone = uris[selected]?.toString()
+                updateFields()
+            }
+            .setOnDismissListener { stopPreview() }
+            .show()
     }
 
-    @Deprecated("Handles the platform ringtone picker result.")
-    @Suppress("DEPRECATION")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode != PICK_TONE || resultCode != RESULT_OK) return
-        val picked = data?.getParcelableExtra<Uri>(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
-        tone = picked?.takeUnless(RingtoneManager::isDefault)?.toString()
-        updateFields()
+    override fun onStop() {
+        stopPreview()
+        super.onStop()
+    }
+
+    private fun stopPreview() {
+        preview?.stop()
+        preview = null
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -265,7 +289,6 @@ class AlarmEditorActivity : AlarmScreen() {
         outState.putString("task", task.name)
         outState.putString("tone", tone)
         outState.putString("label", nameInput.text.toString())
-        outState.putBoolean("editingName", editingName)
     }
 
     private fun save() {
@@ -290,9 +313,5 @@ class AlarmEditorActivity : AlarmScreen() {
         }
         alarms.save(updated)
         finish()
-    }
-
-    private companion object {
-        const val PICK_TONE = 1
     }
 }
