@@ -18,6 +18,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
 import android.provider.Settings
+import java.time.LocalTime
 import java.util.UUID
 
 internal data class Ring(
@@ -25,7 +26,8 @@ internal data class Ring(
     val math: Boolean,
     val label: String,
     val tone: Uri?,
-    val token: String = UUID.randomUUID().toString()
+    val token: String = UUID.randomUUID().toString(),
+    val startedAt: LocalTime = LocalTime.now()
 )
 
 class RingService : Service() {

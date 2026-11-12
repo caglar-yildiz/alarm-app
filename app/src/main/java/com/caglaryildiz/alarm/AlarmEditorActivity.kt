@@ -14,6 +14,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
+import android.widget.TextView
+import android.view.Gravity
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZonedDateTime
@@ -27,7 +29,10 @@ class AlarmEditorActivity : AlarmScreen() {
     private var task = AlarmTask.MATH
     private var tone: String? = null
     private lateinit var nameInput: EditText
-    private lateinit var timeButton: Button
+    private lateinit var timeReadout: TextView
+    private lateinit var orbit: OrbitTimeView
+    private lateinit var hourButton: Button
+    private lateinit var minuteButton: Button
     private lateinit var dateButton: Button
     private lateinit var repeatButton: Button
     private lateinit var toneButton: Button
@@ -50,19 +55,44 @@ class AlarmEditorActivity : AlarmScreen() {
         tone = if (savedInstanceState == null) alarm.tone else savedInstanceState.getString("tone")
 
         layout(if (original == null) "Yeni alarm" else "Alarmı düzenle")
+        val schedule = card()
+        timeReadout = timeLabel("", 56f, schedule).apply { gravity = Gravity.CENTER }
+        orbit = OrbitTimeView(this) { picked ->
+            time = picked
+            updateTimeFields()
+        }
+        orbit.selectingMinutes = savedInstanceState?.getBoolean("selectingMinutes") ?: false
+        val tabs = LinearLayout(this)
+        schedule.addView(tabs)
+        hourButton = button("Saat", tabs, primary = false) {
+            orbit.selectingMinutes = false
+            updateTimeFields()
+        }
+        minuteButton = button("Dakika", tabs, primary = false) {
+            orbit.selectingMinutes = true
+            updateTimeFields()
+        }
+        for (tab in listOf(hourButton, minuteButton)) {
+            tab.layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply {
+                marginEnd = dp(4)
+                marginStart = dp(4)
+            }
+        }
+        schedule.addView(orbit, LinearLayout.LayoutParams(-1, dp(268)))
+        button("Standart saat seçici", schedule, primary = false, action = ::pickTime)
+        dateButton = button("", section("Tarih"), primary = false, action = ::pickDate)
+
         val identity = section("Alarm adı")
         nameInput = EditText(this).apply {
             hint = "Örn. Hafta içi"
             contentDescription = "Alarm adı"
             setSingleLine()
+            styleInput(this)
             filters = arrayOf(InputFilter.LengthFilter(60))
             setText(savedInstanceState?.getString("label") ?: alarm.label)
             identity.addView(this)
         }
 
-        val schedule = section("Saat ve tarih")
-        timeButton = button("", schedule, primary = false, action = ::pickTime)
-        dateButton = button("", schedule, primary = false, action = ::pickDate)
         repeatButton = button("", section("Tekrar"), primary = false, action = ::pickDays)
         toneButton = button("", section("Alarm sesi"), primary = false, action = ::pickTone)
         taskButton = button("", section("Kapatma görevi"), primary = false, action = ::pickTask)
@@ -86,8 +116,17 @@ class AlarmEditorActivity : AlarmScreen() {
         label(title, 18f, it, bold = true).accessibilityHeading()
     }
 
+    private fun updateTimeFields() {
+        timeReadout.text = time.format(clockFormat)
+        orbit.time = time
+        hourButton.isSelected = !orbit.selectingMinutes
+        minuteButton.isSelected = orbit.selectingMinutes
+        hourButton.alpha = if (hourButton.isSelected) 1f else .66f
+        minuteButton.alpha = if (minuteButton.isSelected) 1f else .66f
+    }
+
     private fun updateFields() {
-        timeButton.text = time.format(clockFormat)
+        updateTimeFields()
         dateButton.isEnabled = days.isEmpty()
         dateButton.text = if (days.isNotEmpty()) "Tekrar günleri geçerli"
             else date?.format(dateFormat) ?: "Sonraki uygun tarih"
@@ -105,7 +144,7 @@ class AlarmEditorActivity : AlarmScreen() {
     private fun pickTime() {
         TimePickerDialog(this, { _, hour, minute ->
             time = LocalTime.of(hour, minute)
-            updateFields()
+            updateTimeFields()
         }, time.hour, time.minute, true).show()
     }
 
@@ -182,6 +221,7 @@ class AlarmEditorActivity : AlarmScreen() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString("time", time.toString())
+        outState.putBoolean("selectingMinutes", orbit.selectingMinutes)
         outState.putString("date", date?.toString())
         outState.putIntArray("days", days.toIntArray())
         outState.putString("task", task.name)
