@@ -10,6 +10,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
+import android.graphics.drawable.StateListDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -21,7 +22,6 @@ import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.Switch
@@ -35,10 +35,9 @@ import kotlin.random.Random
 internal val weekdays = arrayOf("Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar")
 internal val clockFormat = DateTimeFormatter.ofPattern("HH:mm")
 
-private val backgroundColor = Color.rgb(16, 19, 34)
-private val cardColor = Color.rgb(30, 34, 55)
-internal val mutedColor = Color.rgb(179, 184, 208)
-private val accentColor = Color.rgb(255, 166, 133)
+private val midnight = 0xFF0B1021.toInt()
+internal val mutedColor = 0xFFC0C4E1.toInt()
+private val accentColor = 0xFFC5BAFF.toInt()
 internal val dateFormat = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag("tr-TR"))
 private val nextAlarmFormat = DateTimeFormatter.ofPattern("EEEE · HH:mm", Locale.forLanguageTag("tr-TR"))
 
@@ -50,7 +49,7 @@ abstract class AlarmScreen : Activity() {
         val previousScroll = scroll?.scrollY ?: 0
         panel = column()
         val container = ScrollView(this).apply {
-            setBackgroundColor(backgroundColor)
+            background = Starfield()
             isFillViewport = true
             clipToPadding = false
             addView(panel)
@@ -63,7 +62,13 @@ abstract class AlarmScreen : Activity() {
         setContentView(container)
         container.requestApplyInsets()
         container.post { container.scrollTo(0, previousScroll) }
-        label(title, 36f, bold = true).apply { accessibilityHeading() }
+        label(title, 32f, bold = true).apply {
+            accessibilityHeading()
+            if (title == getString(R.string.app_name)) {
+                setTextColor(accentColor)
+                letterSpacing = .12f
+            }
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -84,15 +89,48 @@ abstract class AlarmScreen : Activity() {
 
     protected fun column() = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
 
-    protected fun card(color: Int = cardColor) = column().apply {
-        background = rounded(color, 20)
+    protected fun card() = column().apply {
+        background = glass(0xDD242F58.toInt(), 0xD137204F.toInt(), 20)
         setPadding(dp(16), dp(12), dp(16), dp(12))
         panel.addView(this, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
     }
 
-    private fun rounded(color: Int, radius: Int) = GradientDrawable().apply {
-        setColor(color)
-        cornerRadius = dp(radius).toFloat()
+    private fun glass(from: Int, to: Int, radius: Int) =
+        GradientDrawable(GradientDrawable.Orientation.TL_BR, intArrayOf(from, to)).apply {
+            cornerRadius = dp(radius).toFloat()
+            setStroke(dp(1), 0x748C8CD8)
+        }
+
+    protected fun timeLabel(text: String, size: Float, parent: LinearLayout = panel, color: Int = Color.WHITE) =
+        label(text, size, parent, color = color).apply {
+            typeface = Typeface.create("sans-serif-light", Typeface.NORMAL)
+            letterSpacing = .055f
+        }
+
+    protected fun styleInput(input: EditText) {
+        input.background = glass(0xDA11192F.toInt(), 0xD6231C37.toInt(), 12)
+        input.setPadding(dp(12), dp(9), dp(12), dp(9))
+        input.minHeight = dp(48)
+    }
+
+    protected fun Switch.stylePlanetToggle() {
+        val checkedStates = arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf())
+        trackTintList = ColorStateList(checkedStates, intArrayOf(0xFF6969BD.toInt(), 0xFF494264.toInt()))
+        val lit = GradientDrawable(GradientDrawable.Orientation.TL_BR,
+            intArrayOf(0xFFF4FFFF.toInt(), 0xFF91D7FF.toInt(), 0xFF7566EA.toInt())).apply {
+            shape = GradientDrawable.OVAL
+            setSize(dp(22), dp(22))
+            setStroke(dp(1), 0xFFC5ECFF.toInt())
+        }
+        val dim = GradientDrawable(GradientDrawable.Orientation.TL_BR,
+            intArrayOf(0xFFD3CCE9.toInt(), 0xFF74658F.toInt())).apply {
+            shape = GradientDrawable.OVAL
+            setSize(dp(22), dp(22))
+        }
+        thumbDrawable = StateListDrawable().apply {
+            addState(checkedStates[0], lit)
+            addState(checkedStates[1], dim)
+        }
     }
 
     protected fun label(
@@ -119,11 +157,15 @@ abstract class AlarmScreen : Activity() {
         this.text = text
         isAllCaps = false
         textSize = 16f
-        setTextColor(if (primary) backgroundColor else accentColor)
+        setTextColor(ColorStateList(
+            arrayOf(intArrayOf(-android.R.attr.state_enabled), intArrayOf()),
+            intArrayOf(mutedColor, if (primary) midnight else accentColor)
+        ))
         background = RippleDrawable(
-            ColorStateList.valueOf(0x28FFFFFF),
-            rounded(if (primary) accentColor else Color.TRANSPARENT, 14),
-            rounded(Color.WHITE, 14)
+            ColorStateList.valueOf(0x35FFFFFF),
+            if (primary) glass(0xFF9BDFFF.toInt(), 0xFFC3A0FC.toInt(), 18)
+            else glass(0xA6253152.toInt(), 0xA42F2149.toInt(), 18),
+            null
         )
         minimumHeight = dp(48)
         setPadding(dp(12), dp(8), dp(12), dp(8))
@@ -182,7 +224,7 @@ class MainActivity : AlarmScreen() {
                 if (alarm.enabled) alarm.nextAfter(now) else null
             ).minOrNull()
         }.minOrNull()
-        val hero = card(Color.rgb(25, 29, 53))
+        val hero = card()
         val row = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         hero.addView(row)
         val details = column()
@@ -194,11 +236,7 @@ class MainActivity : AlarmScreen() {
             else -> Instant.ofEpochMilli(next).atZone(now.zone).format(nextAlarmFormat)
         }
         label(summary, 22f, details, bold = true)
-        row.addView(ImageView(this).apply {
-            setImageResource(R.drawable.alarm_clock)
-            scaleType = ImageView.ScaleType.FIT_CENTER
-            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        }, LinearLayout.LayoutParams(dp(104), dp(104)).apply { marginStart = dp(8) })
+        row.addView(AstralPlanet(this), LinearLayout.LayoutParams(dp(112), dp(96)).apply { marginStart = dp(4) })
     }
 
     private fun showMissingPermissions() {
@@ -263,7 +301,7 @@ class MainActivity : AlarmScreen() {
         alarmCard.addView(row)
         val details = column()
         row.addView(details, LinearLayout.LayoutParams(0, -2, 1f))
-        label(time, 34f, details, bold = true, color = if (alarm.enabled) Color.WHITE else mutedColor)
+        timeLabel(time, 38f, details, color = if (alarm.enabled) Color.WHITE else mutedColor)
         label(repeat, 15f, details, color = mutedColor)
         if (alarm.label.isNotBlank()) label(alarm.label, 16f, details, bold = true)
         if (alarm.task != AlarmTask.NONE) label(alarm.task.label, 14f, details, color = mutedColor)
@@ -271,6 +309,7 @@ class MainActivity : AlarmScreen() {
         if (dateExpired && alarm.enabled) label("Alarm tarihi geçti", 14f, details, color = mutedColor)
         row.addView(Switch(this).apply {
             contentDescription = "$time alarmı"
+            stylePlanetToggle()
             minWidth = dp(48)
             minHeight = dp(48)
             isChecked = alarm.enabled && !dateExpired
@@ -356,13 +395,19 @@ class RingActivity : AlarmScreen() {
             first = Random.nextInt(12, 50)
             second = Random.nextInt(8, 40)
         }
-        layout(ring.label.ifBlank { "Alarm çalıyor" })
+        layout(getString(R.string.app_name))
+        val header = card()
+        label("Alarm çalıyor", 22f, header, bold = true).gravity = Gravity.CENTER
+        if (ring.label.isNotBlank()) label(ring.label, 16f, header, color = mutedColor).gravity = Gravity.CENTER
+        timeLabel(ring.startedAt.format(clockFormat), 60f, header).gravity = Gravity.CENTER
+        header.addView(AstralPlanet(this), LinearLayout.LayoutParams(-1, dp(112)))
         val controls = card()
         if (ring.math) {
-            label("$first + $second = ?", 32f, controls, bold = true)
+            label("$first + $second = ?", 32f, controls, bold = true).gravity = Gravity.CENTER
             val answer = EditText(this).apply {
                 hint = "Cevap"
                 inputType = InputType.TYPE_CLASS_NUMBER
+                styleInput(this)
                 controls.addView(this)
             }
             button("Alarmı kapat", controls) {
