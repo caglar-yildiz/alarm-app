@@ -2,9 +2,7 @@ package com.caglaryildiz.alarm
 
 import android.Manifest
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.NotificationManager
-import android.app.TimePickerDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -22,7 +20,6 @@ import android.view.View
 import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -30,19 +27,19 @@ import android.widget.ScrollView
 import android.widget.Switch
 import android.widget.TextView
 import java.time.Instant
-import java.time.LocalTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.random.Random
 
-private val weekdays = arrayOf("Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar")
-private val clockFormat = DateTimeFormatter.ofPattern("HH:mm")
+internal val weekdays = arrayOf("Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar")
+internal val clockFormat = DateTimeFormatter.ofPattern("HH:mm")
 
 private val backgroundColor = Color.rgb(16, 19, 34)
 private val cardColor = Color.rgb(30, 34, 55)
-private val mutedColor = Color.rgb(179, 184, 208)
+internal val mutedColor = Color.rgb(179, 184, 208)
 private val accentColor = Color.rgb(255, 166, 133)
+internal val dateFormat = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag("tr-TR"))
 private val nextAlarmFormat = DateTimeFormatter.ofPattern("EEEE · HH:mm", Locale.forLanguageTag("tr-TR"))
 
 abstract class AlarmScreen : Activity() {
@@ -145,10 +142,10 @@ class MainActivity : AlarmScreen() {
     }
 
     private fun render() {
-        layout("Uyan")
+        layout(getString(R.string.app_name))
         val all = alarms.all().sortedBy { it.time }
         showNextAlarm(all)
-        button("+  Alarm ekle") { pickTime(null) }
+        button("+  Alarm ekle") { openEditor(null) }
         if (RingService.active != null) {
             button("Çalan alarmı aç", primary = false) {
                 startActivity(Intent(this, RingActivity::class.java))
@@ -243,7 +240,7 @@ class MainActivity : AlarmScreen() {
     private fun showAlarm(alarm: Alarm) {
         val time = alarm.time.format(clockFormat)
         val repeat = when {
-            alarm.days.isEmpty() -> "Bir kez"
+            alarm.days.isEmpty() -> alarm.date?.format(dateFormat) ?: "Bir kez"
             alarm.days.size == 7 -> "Her gün"
             else -> alarm.days.sorted().joinToString(" · ") { weekdays[it - 1].take(3) }
         }
@@ -254,15 +251,23 @@ class MainActivity : AlarmScreen() {
         row.addView(details, LinearLayout.LayoutParams(0, -2, 1f))
         label(time, 34f, details, bold = true, color = if (alarm.enabled) Color.WHITE else mutedColor)
         label(repeat, 15f, details, color = mutedColor)
-        if (alarm.math) label("Matematik görevi", 14f, details, color = mutedColor)
+        if (alarm.label.isNotBlank()) label(alarm.label, 16f, details, bold = true)
+        if (alarm.task != AlarmTask.NONE) label(alarm.task.label, 14f, details, color = mutedColor)
+        val dateExpired = alarm.date != null && alarm.nextAfter(ZonedDateTime.now()) == null
+        if (dateExpired && alarm.enabled) label("Alarm tarihi geçti", 14f, details, color = mutedColor)
         row.addView(Switch(this).apply {
             contentDescription = "$time alarmı"
             minWidth = dp(48)
             minHeight = dp(48)
-            isChecked = alarm.enabled
+            isChecked = alarm.enabled && !dateExpired
             setOnCheckedChangeListener { _, enabled ->
-                alarms.save(alarm.copy(enabled = enabled, snoozeAt = 0))
-                render()
+                if (enabled && dateExpired) {
+                    render()
+                    openEditor(alarm, enableOnSave = true)
+                } else {
+                    alarms.save(alarm.copy(enabled = enabled, snoozeAt = 0))
+                    render()
+                }
             }
         })
         if (alarm.snoozeAt > 0) {
@@ -271,7 +276,7 @@ class MainActivity : AlarmScreen() {
                 render()
             }
         }
-        button("Düzenle", alarmCard, primary = false) { pickTime(alarm) }
+        button("Düzenle", alarmCard, primary = false) { openEditor(alarm) }
             .contentDescription = "$time alarmını düzenle"
     }
 
@@ -279,45 +284,10 @@ class MainActivity : AlarmScreen() {
         startActivity(Intent(action, Uri.fromParts("package", packageName, null)))
     }
 
-    private fun pickTime(alarm: Alarm?) {
-        val time = alarm?.time ?: LocalTime.now().plusMinutes(1)
-        TimePickerDialog(this, { _, hour, minute ->
-            editOptions(alarm, LocalTime.of(hour, minute))
-        }, time.hour, time.minute, true).show()
-    }
-
-    private fun editOptions(alarm: Alarm?, time: LocalTime) {
-        val options = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(24), 0, dp(24), 0)
-        }
-        val days = weekdays.mapIndexed { index, name ->
-            CheckBox(this).apply {
-                text = name
-                isChecked = alarm?.days?.contains(index + 1) == true
-                options.addView(this)
-            }
-        }
-        val math = CheckBox(this).apply {
-            text = "Kapatmak için matematik sorusu"
-            isChecked = alarm?.math ?: true
-            options.addView(this)
-        }
-        val builder = AlertDialog.Builder(this)
-            .setTitle("${time.format(clockFormat)} · Tekrar günleri")
-            .setView(ScrollView(this).apply { addView(options) })
-            .setNegativeButton("Vazgeç", null)
-            .setPositiveButton("Kaydet") { _, _ ->
-                val chosen = days.mapIndexedNotNull { index, box -> (index + 1).takeIf { box.isChecked } }.toSet()
-                alarms.save((alarm ?: Alarm(time = time)).copy(time = time, days = chosen,
-                    enabled = true, math = math.isChecked, snoozeAt = 0))
-                render()
-            }
-        if (alarm != null) builder.setNeutralButton("Sil") { _, _ ->
-            alarms.delete(alarm)
-            render()
-        }
-        builder.show()
+    private fun openEditor(alarm: Alarm?, enableOnSave: Boolean = false) {
+        startActivity(Intent(this, AlarmEditorActivity::class.java)
+            .putExtra("id", alarm?.id)
+            .putExtra("enableOnSave", enableOnSave))
     }
 }
 
@@ -372,7 +342,7 @@ class RingActivity : AlarmScreen() {
             first = Random.nextInt(12, 50)
             second = Random.nextInt(8, 40)
         }
-        layout("Alarm çalıyor")
+        layout(ring.label.ifBlank { "Alarm çalıyor" })
         val controls = card()
         if (ring.math) {
             label("$first + $second = ?", 32f, controls, bold = true)

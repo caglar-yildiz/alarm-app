@@ -1,6 +1,8 @@
-# Uyan
+# BENG
 
 Tek seferlik ve haftalık alarmlar kurabileceğin yerel bir Android uygulaması. Alarmı 5 dakika erteleyebilir, istersen kapatmak için toplama sorusu çözebilirsin. Alarm ayarları telefonda saklanır.
+
+Alarm düzenleyicisinde alarm adı, saat, tek seferlik tarih veya haftalık tekrar günleri, cihaz alarm sesi ve kapatma görevi ayrı ayrı değiştirilebilir.
 
 ## Kurulum
 

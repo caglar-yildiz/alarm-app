@@ -10,20 +10,33 @@ import android.os.Build
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
+
+internal enum class AlarmTask(val label: String) {
+    NONE("Görev yok"),
+    MATH("Matematik")
+}
 
 internal data class Alarm(
     val id: String = UUID.randomUUID().toString(),
     val time: LocalTime,
     val days: Set<Int> = emptySet(),
     val enabled: Boolean = true,
-    val math: Boolean = true,
-    val snoozeAt: Long = 0
+    val task: AlarmTask = AlarmTask.MATH,
+    val snoozeAt: Long = 0,
+    val date: LocalDate? = null,
+    val label: String = "",
+    val tone: String? = null
 ) {
-    fun nextAfter(now: ZonedDateTime): Long {
+    fun nextAfter(now: ZonedDateTime): Long? {
+        if (days.isEmpty() && date != null) {
+            val candidate = date.atTime(time).atZone(now.zone)
+            return candidate.takeIf { it.isAfter(now) }?.toInstant()?.toEpochMilli()
+        }
         for (offset in 0L..7L) {
             val date = now.toLocalDate().plusDays(offset)
             if (days.isNotEmpty() && date.dayOfWeek.value !in days) continue
@@ -49,8 +62,12 @@ internal class Alarms(private val context: Context) {
                 time = LocalTime.parse(item.getString("time")),
                 days = List(days.length()) { days.getInt(it) }.toSet(),
                 enabled = item.getBoolean("enabled"),
-                math = item.getBoolean("math"),
-                snoozeAt = item.optLong("snoozeAt")
+                task = AlarmTask.entries.firstOrNull { it.name == item.optString("task") }
+                    ?: if (item.optBoolean("math", true)) AlarmTask.MATH else AlarmTask.NONE,
+                snoozeAt = item.optLong("snoozeAt"),
+                date = item.optString("date").takeIf { it.isNotEmpty() }?.let(LocalDate::parse),
+                label = item.optString("label"),
+                tone = item.optString("tone").takeIf { it.isNotEmpty() }
             )
         }
     }
@@ -60,7 +77,8 @@ internal class Alarms(private val context: Context) {
         alarms.forEach {
             data.put(JSONObject().put("id", it.id).put("time", it.time.toString())
                 .put("days", JSONArray(it.days.sorted())).put("enabled", it.enabled)
-                .put("math", it.math).put("snoozeAt", it.snoozeAt))
+                .put("task", it.task.name).put("snoozeAt", it.snoozeAt)
+                .put("date", it.date?.toString()).put("label", it.label).put("tone", it.tone))
         }
         prefs.edit().putString("list", data.toString()).apply()
     }
@@ -81,7 +99,7 @@ internal class Alarms(private val context: Context) {
     fun syncAll() = all().forEach(::sync)
 
     private fun sync(alarm: Alarm) {
-        update(alarm.id, false, if (alarm.enabled) alarm.nextAfter(ZonedDateTime.now()) else 0)
+        update(alarm.id, false, alarm.takeIf { it.enabled }?.nextAfter(ZonedDateTime.now()) ?: 0)
         update(alarm.id, true, alarm.snoozeAt)
     }
 
@@ -121,7 +139,8 @@ internal class Alarms(private val context: Context) {
         } else {
             val scheduled = Instant.ofEpochMilli(at).atZone(ZoneId.systemDefault())
             if (!alarm.enabled || scheduled.toLocalDate().atTime(alarm.time).atZone(scheduled.zone) != scheduled ||
-                (alarm.days.isNotEmpty() && scheduled.dayOfWeek.value !in alarm.days)) return null
+                (alarm.days.isNotEmpty() && scheduled.dayOfWeek.value !in alarm.days) ||
+                (alarm.days.isEmpty() && alarm.date != null && scheduled.toLocalDate() != alarm.date)) return null
             save(alarm.copy(enabled = alarm.days.isNotEmpty()))
         }
         return alarm
@@ -142,7 +161,10 @@ class AlarmReceiver : BroadcastReceiver() {
                 val alarm = alarms.consume(id, intent.action == Alarms.SNOOZE,
                     intent.getLongExtra("at", 0)) ?: return
                 context.startForegroundService(Intent(context, RingService::class.java)
-                    .putExtra("id", alarm.id).putExtra("math", alarm.math))
+                    .putExtra("id", alarm.id)
+                    .putExtra("math", alarm.task == AlarmTask.MATH)
+                    .putExtra("label", alarm.label)
+                    .putExtra("tone", alarm.tone))
             }
             Intent.ACTION_LOCKED_BOOT_COMPLETED, Intent.ACTION_BOOT_COMPLETED,
             Intent.ACTION_MY_PACKAGE_REPLACED, Intent.ACTION_TIME_CHANGED,

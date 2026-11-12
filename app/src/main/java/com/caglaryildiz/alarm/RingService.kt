@@ -10,6 +10,7 @@ import android.content.pm.ServiceInfo
 import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
@@ -18,7 +19,13 @@ import android.os.PowerManager
 import android.provider.Settings
 import java.util.UUID
 
-internal data class Ring(val id: String, val math: Boolean, val token: String = UUID.randomUUID().toString())
+internal data class Ring(
+    val id: String,
+    val math: Boolean,
+    val label: String,
+    val tone: Uri?,
+    val token: String = UUID.randomUUID().toString()
+)
 
 class RingService : Service() {
     private val queue = ArrayDeque<Ring>()
@@ -43,7 +50,9 @@ class RingService : Service() {
             }
             else -> {
                 val id = intent?.getStringExtra("id") ?: return START_NOT_STICKY
-                val ring = Ring(id, intent.getBooleanExtra("math", true))
+                val ring = Ring(id, intent.getBooleanExtra("math", true),
+                    intent.getStringExtra("label").orEmpty(),
+                    intent.getStringExtra("tone")?.let(Uri::parse))
                 if (active == null) show(ring) else queue.addLast(ring)
             }
         }
@@ -63,7 +72,7 @@ class RingService : Service() {
             PendingIntent.FLAG_IMMUTABLE)
         val notification = Notification.Builder(this, CHANNEL)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-            .setContentTitle("Alarm çalıyor")
+            .setContentTitle(ring.label.ifBlank { "Alarm çalıyor" })
             .setContentText("Alarmı açmak için dokun")
             .setCategory(Notification.CATEGORY_ALARM)
             .setVisibility(Notification.VISIBILITY_PUBLIC)
@@ -76,14 +85,14 @@ class RingService : Service() {
         } else {
             startForeground(1, notification)
         }
-        play()
+        play(ring.tone)
         handler.postDelayed(timeout, 10 * 60_000L)
         notifyScreen()
     }
 
-    private fun play() {
+    private fun play(tone: Uri?) {
         val selected = RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_ALARM)
-        for (uri in listOfNotNull(selected, Settings.System.DEFAULT_NOTIFICATION_URI).distinct()) {
+        for (uri in listOfNotNull(tone, selected, Settings.System.DEFAULT_NOTIFICATION_URI).distinct()) {
             val media = MediaPlayer()
             try {
                 media.setAudioAttributes(AudioAttributes.Builder()
