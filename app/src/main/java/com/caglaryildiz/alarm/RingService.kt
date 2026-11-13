@@ -23,6 +23,7 @@ internal data class Ring(
     var extra: ExtraMission?,
     val label: String,
     val tone: Uri?,
+    val crescendo: Boolean = true,
     val token: String = UUID.randomUUID().toString(),
     val startedAt: LocalTime = LocalTime.now()
 )
@@ -77,8 +78,15 @@ class RingService : Service() {
                     AlarmTask.MEMORY, AlarmTask.TYPING, AlarmTask.SHAKE, AlarmTask.QR, AlarmTask.SHAPES -> ExtraMission(task, qrCode)
                     else -> null
                 }
-                val ring = Ring(id, math, extra, intent.getStringExtra("label").orEmpty(),
-                    intent.getStringExtra("tone")?.let(Uri::parse))
+                val rawTone = intent.getStringExtra("tone")?.let(Uri::parse)
+                val builtIn = BuiltInTones.fromUri(rawTone)
+                val tone = if (builtIn?.premium == true && !PremiumAccess(this).unlocked) {
+                    BuiltInTones.toUri(BuiltInTones.list.first())
+                } else {
+                    rawTone
+                }
+                val crescendo = intent.getBooleanExtra("crescendo", true)
+                val ring = Ring(id, math, extra, intent.getStringExtra("label").orEmpty(), tone, crescendo)
                 if (active == null) show(ring) else queue.addLast(ring)
             }
         }
@@ -99,7 +107,7 @@ class RingService : Service() {
         } else {
             startForeground(NOTIFICATION_ID, notification)
         }
-        play(ring.tone)
+        play(ring.tone, ring.crescendo)
         handler.postDelayed(timeout, 10 * 60_000L)
         notifyScreen()
     }
@@ -141,12 +149,43 @@ class RingService : Service() {
             .apply { flags = flags or Notification.FLAG_NO_CLEAR }
     }
 
-    private fun play(tone: Uri?) {
+    private var crescendoRunnable: Runnable? = null
+
+    private fun play(tone: Uri?, crescendo: Boolean) {
+        stopCrescendo()
         player = playAlarmTone(this, tone, keepAwake = true)
+        if (crescendo) {
+            startCrescendo()
+        }
+    }
+
+    private fun startCrescendo() {
+        val p = player ?: return
+        var currentVol = 0.08f
+        p.setVolume(currentVol, currentVol)
+        val step = (1.0f - 0.08f) / 30f
+        val runnable = object : Runnable {
+            override fun run() {
+                val currentPlayer = player ?: return
+                currentVol = (currentVol + step).coerceAtMost(1.0f)
+                runCatching { currentPlayer.setVolume(currentVol, currentVol) }
+                if (currentVol < 1.0f) {
+                    handler.postDelayed(this, 1000L)
+                }
+            }
+        }
+        crescendoRunnable = runnable
+        handler.postDelayed(runnable, 1000L)
+    }
+
+    private fun stopCrescendo() {
+        crescendoRunnable?.let { handler.removeCallbacks(it) }
+        crescendoRunnable = null
     }
 
     private fun advance() {
         handler.removeCallbacks(timeout)
+        stopCrescendo()
         player?.release()
         player = null
         val next = queue.removeFirstOrNull()
@@ -164,6 +203,7 @@ class RingService : Service() {
 
     override fun onDestroy() {
         handler.removeCallbacks(timeout)
+        stopCrescendo()
         player?.release()
         if (active != null) {
             active = null

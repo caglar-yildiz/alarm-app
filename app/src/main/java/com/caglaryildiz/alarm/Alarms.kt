@@ -36,6 +36,7 @@ internal data class Alarm(
     val date: LocalDate? = null,
     val label: String = "",
     val tone: String? = null,
+    val crescendo: Boolean = true,
     val mathSettings: MathSettings = MathSettings(),
     val qrCode: String = ""
 ) {
@@ -75,6 +76,7 @@ internal class Alarms(private val context: Context) {
                 date = item.optString("date").takeIf { it.isNotEmpty() }?.let(LocalDate::parse),
                 label = item.optString("label"),
                 tone = item.optString("tone").takeIf { it.isNotEmpty() },
+                crescendo = item.optBoolean("crescendo", true),
                 mathSettings = MathSettings.from(item.optString("mathDifficulty"), item.optInt("mathCount", 1)),
                 qrCode = item.optString("qrCode")
             )
@@ -88,7 +90,8 @@ internal class Alarms(private val context: Context) {
                 .put("days", JSONArray(it.days.sorted())).put("enabled", it.enabled)
                 .put("task", it.task.name).put("snoozeAt", it.snoozeAt)
                 .put("mathDifficulty", it.mathSettings.difficulty.name).put("mathCount", it.mathSettings.count)
-                .put("qrCode", it.qrCode).put("date", it.date?.toString()).put("label", it.label).put("tone", it.tone))
+                .put("qrCode", it.qrCode).put("date", it.date?.toString()).put("label", it.label)
+                .put("tone", it.tone).put("crescendo", it.crescendo))
         }
         prefs.edit().putString("list", data.toString()).apply()
     }
@@ -192,3 +195,4 @@ internal fun Alarm.ringIntent(context: Context) = Intent(context, RingService::c
     .putExtra("mathCount", mathSettings.count)
     .putExtra("label", label)
     .putExtra("tone", tone)
+    .putExtra("crescendo", crescendo)

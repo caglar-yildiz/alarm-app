@@ -6,6 +6,13 @@
         <item name="android:windowBackground">#0B1021</item>
         <item name="android:statusBarColor">#0B1021</item>
         <item name="android:navigationBarColor">#0B1021</item>
+        <item name="android:windowAnimationStyle">@style/AstralWindowAnimation</item>
+    </style>
+    <style name="AstralWindowAnimation" parent="android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/astral_slide_in_right</item>
+        <item name="android:activityOpenExitAnimation">@anim/astral_slide_out_left</item>
+        <item name="android:activityCloseEnterAnimation">@anim/astral_slide_in_left</item>
+        <item name="android:activityCloseExitAnimation">@anim/astral_slide_out_right</item>
     </style>
     <style name="AstralDialogTheme" parent="android:style/Theme.Material.Dialog.Alert">
         <item name="android:windowBackground">@drawable/astral_dialog_surface</item>

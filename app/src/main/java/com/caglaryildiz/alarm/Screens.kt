@@ -45,8 +45,13 @@ abstract class AlarmScreen : Activity() {
     protected lateinit var panel: LinearLayout
     private var scroll: ScrollView? = null
 
-    protected fun layout(title: String? = null, footer: View? = null) {
-        val previousScroll = scroll?.scrollY ?: 0
+    protected fun layout(
+        title: String? = null,
+        footer: View? = null,
+        resetScroll: Boolean = false,
+        animate: Boolean = false
+    ) {
+        val previousScroll = if (resetScroll) 0 else scroll?.scrollY ?: 0
         panel = column()
         val container = ScrollView(this).apply {
             background = Starfield()
@@ -78,6 +83,16 @@ abstract class AlarmScreen : Activity() {
         }
         container.requestApplyInsets()
         container.post { container.scrollTo(0, previousScroll) }
+        if (animate) {
+            panel.alpha = 0f
+            panel.translationY = dp(14).toFloat()
+            panel.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(180)
+                .setInterpolator(android.view.animation.DecelerateInterpolator())
+                .start()
+        }
         if (title == null) return
         label(title, 32f, bold = true).apply {
             accessibilityHeading()
@@ -263,9 +278,11 @@ class MainActivity : PremiumScreen() {
                     importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 }
                 setOnClickListener {
-                    tab = item
-                    render()
-                    if (tab == Tab.PREMIUM) refreshPremium()
+                    if (tab != item) {
+                        tab = item
+                        render(animateTabChange = true)
+                        if (tab == Tab.PREMIUM) refreshPremium()
+                    }
                 }
             }, LinearLayout.LayoutParams(0, -2, 1f))
         }
@@ -279,7 +296,7 @@ class MainActivity : PremiumScreen() {
         if (!premiumAccess.unlocked) {
             button("Premium’u incele", settings) {
                 tab = Tab.PREMIUM
-                render()
+                render(animateTabChange = true)
                 refreshPremium()
             }
             return
@@ -323,7 +340,7 @@ class MainActivity : PremiumScreen() {
         }
     }
     private val alarms by lazy { Alarms(this) }
-    private val onRingChanged: () -> Unit = ::render
+    private val onRingChanged: () -> Unit = { render() }
 
     override fun onStart() {
         super.onStart()
@@ -342,8 +359,13 @@ class MainActivity : PremiumScreen() {
         refreshPremium()
     }
 
-    private fun render() {
-        layout(if (tab == Tab.ALARMS) getString(R.string.app_name) else tab.title, navigation())
+    private fun render(animateTabChange: Boolean = false) {
+        layout(
+            if (tab == Tab.ALARMS) getString(R.string.app_name) else tab.title,
+            navigation(),
+            resetScroll = animateTabChange,
+            animate = animateTabChange
+        )
         RingService.active?.let { ring ->
             val ringing = card()
             label("Alarm çalıyor", 20f, ringing, bold = true).accessibilityHeading()

@@ -1,7 +1,9 @@
 package com.caglaryildiz.alarm
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.media.MediaPlayer
 import android.media.RingtoneManager
 import android.net.Uri
@@ -32,6 +34,7 @@ class AlarmEditorActivity : AlarmScreen() {
     private lateinit var qrButton: Button
     private var mathSettings = MathSettings()
     private var tone: String? = null
+    private var crescendo: Boolean = true
     private var preview: MediaPlayer? = null
     private lateinit var nameInput: EditText
     private lateinit var timeReadout: TextView
@@ -41,6 +44,7 @@ class AlarmEditorActivity : AlarmScreen() {
     private lateinit var dateButton: Button
     private lateinit var repeatButton: Button
     private lateinit var toneButton: Button
+    private lateinit var crescendoButton: Button
     private lateinit var taskButton: Button
     private lateinit var difficultyButton: Button
     private lateinit var questionCountButton: Button
@@ -63,6 +67,7 @@ class AlarmEditorActivity : AlarmScreen() {
             savedInstanceState.getString("mathDifficulty"), savedInstanceState.getInt("mathCount", 1))
         qrCode = savedInstanceState?.getString("qrCode") ?: alarm.qrCode
         tone = if (savedInstanceState == null) alarm.tone else savedInstanceState.getString("tone")
+        crescendo = if (savedInstanceState == null) alarm.crescendo else savedInstanceState.getBoolean("crescendo", true)
 
         layout()
         showNameField(savedInstanceState?.getString("label") ?: alarm.label)
@@ -92,7 +97,9 @@ class AlarmEditorActivity : AlarmScreen() {
         schedule.addView(orbit, LinearLayout.LayoutParams(-1, dp(268)))
         dateButton = button("", section("Tarih"), primary = false, action = ::pickDate)
         repeatButton = button("", section("Tekrar edilen günler"), primary = false, action = ::pickDays)
-        toneButton = button("", section("Alarm sesi"), primary = false, action = ::pickTone)
+        val soundSection = section("Alarm sesi")
+        toneButton = button("", soundSection, primary = false, action = ::pickTone)
+        crescendoButton = button("", soundSection, primary = false, action = ::toggleCrescendo)
         val taskSection = section("Kapatma görevi")
         taskButton = button("", taskSection, primary = false, action = ::pickTask)
         qrButton = button("", taskSection, primary = false, action = ::registerQrCode)
@@ -172,9 +179,13 @@ class AlarmEditorActivity : AlarmScreen() {
         questionCountButton.visibility = showMathSettings
         difficultyButton.text = "Zorluk · ${mathSettings.difficulty.label}"
         questionCountButton.text = "Soru sayısı · ${mathSettings.count}"
-        toneButton.text = tone?.let {
-            runCatching { RingtoneManager.getRingtone(this, Uri.parse(it))?.getTitle(this) }.getOrNull()
-        } ?: "Cihazın varsayılan alarm sesi"
+        toneButton.text = "Ses · ${resolveToneTitle(this, tone)}"
+        crescendoButton.text = if (crescendo) "Kademeli ses artışı · Açık (Yumuşak uyanış)" else "Kademeli ses artışı · Kapalı (Doğrudan tam ses)"
+    }
+
+    private fun toggleCrescendo() {
+        crescendo = !crescendo
+        updateFields()
     }
 
     private fun pickDate() {
@@ -289,15 +300,30 @@ class AlarmEditorActivity : AlarmScreen() {
         }
     }
 
-    @Deprecated("Receives the locally scanned QR code.")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
+    @Deprecated("Receives the locally scanned QR code and picked audio.")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode != 21) return
-        if (resultCode == QrScannerActivity.RESULT_CAMERA_UNAVAILABLE) {
-            Toast.makeText(this, "Kamera açılamadı.", Toast.LENGTH_SHORT).show()
-        } else if (resultCode == RESULT_OK) {
-            qrCode = data?.getStringExtra(QrScannerActivity.CODE).orEmpty()
+        if (requestCode == 21) {
+            if (resultCode == QrScannerActivity.RESULT_CAMERA_UNAVAILABLE) {
+                Toast.makeText(this, "Kamera açılamadı.", Toast.LENGTH_SHORT).show()
+            } else if (resultCode == RESULT_OK) {
+                qrCode = data?.getStringExtra(QrScannerActivity.CODE).orEmpty()
+                updateFields()
+            }
+        } else if (requestCode == REQUEST_PICK_AUDIO && resultCode == RESULT_OK) {
+            val uri = data?.data ?: return
+            runCatching {
+                contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            }
+            tone = uri.toString()
             updateFields()
+            stopPreview()
+            if (RingService.active == null) {
+                preview = playAlarmTone(this, uri, loop = false)
+            }
         }
     }
 
@@ -328,8 +354,20 @@ class AlarmEditorActivity : AlarmScreen() {
     }
 
     private fun pickTone() {
-        val defaultLabel = "Cihazın varsayılan alarm sesi"
-        val options = linkedMapOf<Uri?, String>(null to defaultLabel)
+        val options = linkedMapOf<Uri?, String>()
+        options[null] = "Cihazın varsayılan alarm sesi"
+
+        for (builtIn in BuiltInTones.list) {
+            val badge = if (builtIn.premium) " ✦" else ""
+            options[BuiltInTones.toUri(builtIn)] = "${builtIn.title}$badge · ${builtIn.description}"
+        }
+
+        val savedToneUri = tone?.let { runCatching { Uri.parse(it) }.getOrNull() }
+        if (savedToneUri != null && savedToneUri !in options) {
+            val label = resolveToneTitle(this, tone)
+            options[savedToneUri] = "Mevcut seçim: $label"
+        }
+
         val manager = RingtoneManager(applicationContext).apply {
             setType(RingtoneManager.TYPE_ALARM)
         }
@@ -337,30 +375,54 @@ class AlarmEditorActivity : AlarmScreen() {
             manager.cursor.use { cursor ->
                 while (cursor.moveToNext()) {
                     val uri = manager.getRingtoneUri(cursor.position) ?: continue
-                    options[uri] = cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX)
+                    if (uri !in options) {
+                        options[uri] = "Sistem: " + cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX)
+                    }
                 }
             }
         }
-        val savedTone = tone?.let(Uri::parse)
-        if (savedTone != null && savedTone !in options) {
-            options[savedTone] = runCatching {
-                RingtoneManager.getRingtone(this, savedTone)?.getTitle(this)
-            }.getOrNull() ?: "Kayıtlı alarm sesi"
-        }
 
         val uris = options.keys.toList()
-        var selected = uris.indexOf(savedTone).coerceAtLeast(0)
+        val titles = options.values.toMutableList()
+        titles.add("📁 Telefonundan müzik / ses dosyası seç…")
+
+        var selected = uris.indexOf(savedToneUri).coerceAtLeast(0)
         AlertDialog.Builder(this, R.style.AstralDialogTheme)
             .setTitle("Alarm sesi")
-            .setSingleChoiceItems(options.values.toTypedArray(), selected) { _, index ->
+            .setSingleChoiceItems(titles.toTypedArray(), selected) { dialog, index ->
+                if (index == titles.lastIndex) {
+                    stopPreview()
+                    dialog.dismiss()
+                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                        addCategory(Intent.CATEGORY_OPENABLE)
+                        type = "audio/*"
+                        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                    }
+                    runCatching {
+                        @Suppress("DEPRECATION")
+                        startActivityForResult(intent, REQUEST_PICK_AUDIO)
+                    }.onFailure {
+                        Toast.makeText(this, "Dosya seçici açılamadı.", Toast.LENGTH_SHORT).show()
+                    }
+                    return@setSingleChoiceItems
+                }
                 selected = index
                 stopPreview()
                 if (RingService.active == null) preview = playAlarmTone(this, uris[index], loop = false)
             }
             .setNegativeButton("Vazgeç", null)
             .setPositiveButton("Uygula") { _, _ ->
-                tone = uris[selected]?.toString()
-                updateFields()
+                if (selected < uris.size) {
+                    val chosenUri = uris[selected]
+                    val builtIn = BuiltInTones.fromUri(chosenUri)
+                    if (builtIn?.premium == true && !PremiumAccess(this).unlocked) {
+                        Toast.makeText(this, "Bu ses Premium üyelere özeldir.", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this, PremiumActivity::class.java))
+                        return@setPositiveButton
+                    }
+                    tone = chosenUri?.toString()
+                    updateFields()
+                }
             }
             .setOnDismissListener { stopPreview() }
             .show()
@@ -387,12 +449,19 @@ class AlarmEditorActivity : AlarmScreen() {
         outState.putString("mathDifficulty", mathSettings.difficulty.name)
         outState.putInt("mathCount", mathSettings.count)
         outState.putString("tone", tone)
+        outState.putBoolean("crescendo", crescendo)
         outState.putString("label", nameInput.text.toString())
     }
 
     private fun save() {
         if (task.premium && !PremiumAccess(this).unlocked) {
-            startActivity(android.content.Intent(this, PremiumActivity::class.java))
+            startActivity(Intent(this, PremiumActivity::class.java))
+            return
+        }
+        val selectedBuiltIn = tone?.let { runCatching { Uri.parse(it) }.getOrNull() }?.let(BuiltInTones::fromUri)
+        if (selectedBuiltIn?.premium == true && !PremiumAccess(this).unlocked) {
+            Toast.makeText(this, "Seçtiğin alarm sesi Premium üyelere özeldir.", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, PremiumActivity::class.java))
             return
         }
         if (task == AlarmTask.QR && qrCode.isBlank()) {
@@ -413,7 +482,8 @@ class AlarmEditorActivity : AlarmScreen() {
             mathSettings = mathSettings,
             label = nameInput.text.toString().trim(),
             tone = tone,
-            enabled = intent.getBooleanExtra("enableOnSave", false) || existing?.enabled != false,
+            crescendo = crescendo,
+            enabled = true,
             snoozeAt = 0
         )
         if (updated.nextAfter(ZonedDateTime.now()) == null) {
@@ -422,5 +492,9 @@ class AlarmEditorActivity : AlarmScreen() {
         }
         alarms.save(updated)
         finish()
+    }
+
+    companion object {
+        private const val REQUEST_PICK_AUDIO = 2002
     }
 }
