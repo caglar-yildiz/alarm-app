@@ -25,7 +25,7 @@ internal data class MathSettings(
 internal data class MathQuestion(val expression: String, val answer: Int)
 
 internal class MathMission(private val settings: MathSettings, private val random: Random = Random.Default) {
-    private val questions = buildList {
+    private val questions = buildList<MathQuestion> {
         while (size < settings.count) {
             val question = generate()
             if (none { it.expression == question.expression }) add(question)
