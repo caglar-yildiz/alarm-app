@@ -100,6 +100,7 @@ internal class Alarms(private val context: Context) {
     }
 
     fun delete(alarm: Alarm) {
+        WakeCheck(context).confirm(alarm.id)
         write(all().filterNot { it.id == alarm.id })
         manager.cancel(operation(alarm.id, false))
         manager.cancel(operation(alarm.id, true))
@@ -169,19 +170,24 @@ class AlarmReceiver : BroadcastReceiver() {
                 val id = intent.data?.lastPathSegment ?: return
                 val alarm = alarms.consume(id, intent.action == Alarms.SNOOZE,
                     intent.getLongExtra("at", 0)) ?: return
-                context.startForegroundService(Intent(context, RingService::class.java)
-                    .putExtra("id", alarm.id)
-                    .putExtra("task", alarm.task.name)
-                    .putExtra("qrCode", alarm.qrCode)
-                    .putExtra("mathDifficulty", alarm.mathSettings.difficulty.name)
-                    .putExtra("mathCount", alarm.mathSettings.count)
-                    .putExtra("label", alarm.label)
-                    .putExtra("tone", alarm.tone))
+                context.startForegroundService(alarm.ringIntent(context))
             }
             Intent.ACTION_LOCKED_BOOT_COMPLETED, Intent.ACTION_BOOT_COMPLETED,
             Intent.ACTION_MY_PACKAGE_REPLACED, Intent.ACTION_TIME_CHANGED,
             Intent.ACTION_TIMEZONE_CHANGED,
-            AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED -> alarms.syncAll()
+            AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED -> {
+                alarms.syncAll()
+                WakeCheck(context).restore()
+            }
         }
     }
 }
+
+internal fun Alarm.ringIntent(context: Context) = Intent(context, RingService::class.java)
+    .putExtra("id", id)
+    .putExtra("task", task.name)
+    .putExtra("qrCode", qrCode)
+    .putExtra("mathDifficulty", mathSettings.difficulty.name)
+    .putExtra("mathCount", mathSettings.count)
+    .putExtra("label", label)
+    .putExtra("tone", tone)

@@ -4,18 +4,6 @@ import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorManager
 
-internal class PremiumAccess(context: Context) {
-    val previewAvailable = context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0
-    private val prefs = context.createDeviceProtectedStorageContext()
-        .getSharedPreferences("premium_preview", Context.MODE_PRIVATE)
-
-    val unlocked get() = previewAvailable && prefs.getBoolean("enabled", false)
-
-    fun enablePreview() {
-        if (previewAvailable) prefs.edit().putBoolean("enabled", true).apply()
-    }
-}
-
 internal class ExtraMission(val task: AlarmTask, val qrCode: String) {
     val sequence = List(4) { (1..4).random() }
     val phrase = listOf("Bugün yeni bir gün", "Perdeyi aç ve güne başla", "Bir bardak su iç").random()

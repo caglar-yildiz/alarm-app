@@ -60,6 +60,7 @@ class RingService : Service() {
                         alarms.save(it.copy(snoozeAt = System.currentTimeMillis() + 300_000))
                     }
                 }
+                if (intent.action == DISMISS) WakeCheck(this).schedule(ring.id)
                 advance()
             }
             else -> {

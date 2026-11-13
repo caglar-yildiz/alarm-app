@@ -45,7 +45,7 @@ abstract class AlarmScreen : Activity() {
     protected lateinit var panel: LinearLayout
     private var scroll: ScrollView? = null
 
-    protected fun layout(title: String? = null) {
+    protected fun layout(title: String? = null, footer: View? = null) {
         val previousScroll = scroll?.scrollY ?: 0
         panel = column()
         val container = ScrollView(this).apply {
@@ -59,7 +59,23 @@ abstract class AlarmScreen : Activity() {
             }
         }
         scroll = container
-        setContentView(container)
+        if (footer == null) {
+            setContentView(container)
+        } else {
+            val root = column().apply {
+                setBackgroundColor(midnight)
+                addView(container, LinearLayout.LayoutParams(-1, 0, 1f))
+                addView(footer)
+            }
+            root.setOnApplyWindowInsetsListener { _, insets ->
+                if (Build.VERSION.SDK_INT >= 35) {
+                    val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+                    footer.setPadding(bars.left, 0, bars.right, bars.bottom)
+                }
+                insets
+            }
+            setContentView(root)
+        }
         container.requestApplyInsets()
         container.post { container.scrollTo(0, previousScroll) }
         if (title == null) return
@@ -184,7 +200,106 @@ abstract class AlarmScreen : Activity() {
     }
 }
 
-class MainActivity : AlarmScreen() {
+class MainActivity : PremiumScreen() {
+    private enum class Tab(val title: String, val icon: Int) {
+        ALARMS("Alarmlar", R.drawable.ic_beng_launcher),
+        WAKE("Uyanıklık", android.R.drawable.ic_menu_day),
+        PREMIUM("Premium", android.R.drawable.star_on)
+    }
+
+    private var tab = Tab.ALARMS
+    private val wake by lazy { WakeCheck(this) }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        tab = if (intent.getBooleanExtra("wakeTab", false)) Tab.WAKE
+            else savedInstanceState?.getString("tab")?.let(Tab::valueOf) ?: Tab.ALARMS
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.getBooleanExtra("wakeTab", false)) {
+            tab = Tab.WAKE
+            render()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("tab", tab.name)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onPremiumChanged() {
+        if (tab != Tab.ALARMS) render()
+    }
+
+    private fun navigation(): LinearLayout = LinearLayout(this).apply {
+        setBackgroundColor(0xFF161B34.toInt())
+        for (item in Tab.entries) {
+            val selected = item == tab
+            addView(LinearLayout(this@MainActivity).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = Gravity.CENTER
+                minimumHeight = dp(64)
+                isSelected = selected
+                isFocusable = true
+                contentDescription = item.title
+                if (selected) setBackgroundColor(0xFF29264C.toInt())
+                addView(android.widget.ImageView(this@MainActivity).apply {
+                    setImageResource(item.icon)
+                    if (item != Tab.ALARMS) setColorFilter(if (selected) accentColor else mutedColor)
+                    importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                }, LinearLayout.LayoutParams(dp(26), dp(26)))
+                label(item.title, 12f, this, bold = selected, color = if (selected) accentColor else mutedColor)
+                    .importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                setOnClickListener {
+                    tab = item
+                    render()
+                    if (tab == Tab.PREMIUM) refreshPremium()
+                }
+            }, LinearLayout.LayoutParams(0, -2, 1f))
+        }
+    }
+
+    private fun showWakeSettings() {
+        val settings = card()
+        label("Alarmı kapattıktan sonra uyanık olduğunu onayla. 60 saniye içinde onay vermezsen alarm yeniden çalar.",
+            16f, settings)
+        for (id in wake.activeIds()) {
+            val alarm = alarms.all().firstOrNull { it.id == id } ?: continue
+            button("Uyanığım · ${alarm.label.ifBlank { alarm.time.format(clockFormat) }}", settings) {
+                wake.confirm(id)
+                render()
+            }
+        }
+        settings.addView(Switch(this).apply {
+            text = "Uyanıklık kontrolü"
+            minHeight = dp(48)
+            isChecked = wake.enabled
+            setOnCheckedChangeListener { _, enabled ->
+                if (enabled && !premiumAccess.unlocked) {
+                    tab = Tab.PREMIUM
+                    render()
+                    refreshPremium()
+                } else {
+                    wake.enabled = enabled
+                    render()
+                }
+            }
+        })
+        button("Kontrol gecikmesi · ${wake.delay} dk", settings, primary = false) {
+            val delays = listOf(1, 3, 5, 10)
+            android.app.AlertDialog.Builder(this, R.style.AstralDialogTheme)
+                .setTitle("Kontrol gecikmesi")
+                .setSingleChoiceItems(delays.map { "$it dakika" }.toTypedArray(), delays.indexOf(wake.delay)) { dialog, index ->
+                    wake.delay = delays[index]
+                    dialog.dismiss()
+                    render()
+                }.setNegativeButton("Vazgeç", null).show()
+        }
+        if (!wake.canPrompt()) showMissingPermissions()
+    }
     private val alarms by lazy { Alarms(this) }
     private val onRingChanged: () -> Unit = ::render
 
@@ -202,10 +317,11 @@ class MainActivity : AlarmScreen() {
         super.onResume()
         alarms.syncAll()
         render()
+        refreshPremium()
     }
 
     private fun render() {
-        layout(getString(R.string.app_name))
+        layout(if (tab == Tab.ALARMS) getString(R.string.app_name) else tab.title, navigation())
         RingService.active?.let { ring ->
             val ringing = card()
             label("Alarm çalıyor", 20f, ringing, bold = true).accessibilityHeading()
@@ -213,6 +329,11 @@ class MainActivity : AlarmScreen() {
             button("Çalan alarmı aç", ringing) {
                 startActivity(Intent(this, RingActivity::class.java))
             }
+        }
+        when (tab) {
+            Tab.PREMIUM -> { showPremium(); return }
+            Tab.WAKE -> { showWakeSettings(); return }
+            Tab.ALARMS -> Unit
         }
         val all = alarms.all().sortedBy { it.time }
         showNextAlarm(all)

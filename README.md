@@ -32,3 +32,17 @@ Alarm, etkileşim olmazsa 10 dakika sonra susar. Tam ekran izni kapalıysa ve bi
 - Ekran açıkken bir alarm çaldır. Bildirimi tek başına kaydırırsan, Android kaldırmaya izin verdiğinde bildirimin geri gelmesini bekle. Bildirimdeki **Alarmı aç** düğmesini kullan.
 - Bildirime erişemiyorsan BENG'i aç. Ana ekranın en üstündeki **Çalan alarmı aç** düğmesiyle mevcut göreve dön.
 - Alarmı kapatınca bildirimin kaybolduğunu ve yeniden görünmediğini kontrol et.
+
+## Premium ve uyanıklık kontrolü
+
+Play Console'da `com.caglaryildiz.alarm` için `beng_premium` aboneliği ve
+`monthly` kimlikli aylık, otomatik yenilenen temel plan tanımlanır. Fiyat
+ve para birimi Google Play'den alınır. Satın alma ve geri yükleme Play
+hesabıyla yapılır. Lisans testinde Play Console'daki paket kimliğiyle
+imzalanmış bir iç test sürümü kullanılır. Yerel test APK'sında Premium
+ekranındaki test düğmesi ödeme olmadan özellikleri açar.
+
+Uyanıklık sekmesindeki ayar tüm alarmlara uygulanır. Alarm kapatıldığında
+seçilen gecikme sonunda bildirim gösterilir. 60 saniye içinde onay
+gelmezse alarm yeniden çalar. Test ederken bildirim ve kesin alarm
+izinlerini ver, kilit ekranında hem onay hem yanıtsız senaryoyu dene.

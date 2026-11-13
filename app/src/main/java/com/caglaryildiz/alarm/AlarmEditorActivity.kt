@@ -252,24 +252,6 @@ class AlarmEditorActivity : AlarmScreen() {
             Toast.makeText(this, "Bu cihazda hareket sensörü yok.", Toast.LENGTH_SHORT).show()
             return
         }
-        val premium = PremiumAccess(this)
-        if (selected.premium && !premium.unlocked) {
-            val prompt = AlertDialog.Builder(this, R.style.AstralDialogTheme)
-                .setTitle("BENG Premium")
-                .setNegativeButton("Vazgeç", null)
-            if (premium.previewAvailable) {
-                prompt.setMessage("Bu test sürümünde Premium görevleri ücretsiz deneyebilirsin.")
-                    .setPositiveButton("Premium’u dene") { _, _ ->
-                        premium.enablePreview()
-                        selectTask(selected)
-                    }
-            } else {
-                prompt.setMessage("Bu görev Premium üyelik gerektirir.")
-                    .setPositiveButton("Tamam", null)
-            }
-            prompt.show()
-            return
-        }
         task = selected
         updateFields()
     }
@@ -396,6 +378,10 @@ class AlarmEditorActivity : AlarmScreen() {
     }
 
     private fun save() {
+        if (task.premium && !PremiumAccess(this).unlocked) {
+            startActivity(android.content.Intent(this, PremiumActivity::class.java))
+            return
+        }
         if (task == AlarmTask.QR && qrCode.isBlank()) {
             Toast.makeText(this, "Önce alarmı kapatacak QR kodunu kaydet.", Toast.LENGTH_SHORT).show()
             return
