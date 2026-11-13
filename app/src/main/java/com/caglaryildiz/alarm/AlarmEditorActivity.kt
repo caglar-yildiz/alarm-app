@@ -257,7 +257,7 @@ class AlarmEditorActivity : AlarmScreen() {
             val prompt = AlertDialog.Builder(this, R.style.AstralDialogTheme)
                 .setTitle("BENG Premium")
                 .setNegativeButton("Vazgeç", null)
-            if (BuildConfig.DEBUG) {
+            if (premium.previewAvailable) {
                 prompt.setMessage("Bu test sürümünde Premium görevleri ücretsiz deneyebilirsin.")
                     .setPositiveButton("Premium’u dene") { _, _ ->
                         premium.enablePreview()

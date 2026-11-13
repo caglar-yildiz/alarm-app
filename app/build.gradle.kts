@@ -7,7 +7,6 @@ android {
     namespace = "com.caglaryildiz.alarm"
     compileSdk = 35
     buildToolsVersion = "35.0.0"
-    buildFeatures.buildConfig = true
 
     defaultConfig {
         applicationId = "com.caglaryildiz.alarm"

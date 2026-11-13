@@ -5,13 +5,14 @@ import android.hardware.Sensor
 import android.hardware.SensorManager
 
 internal class PremiumAccess(context: Context) {
+    val previewAvailable = context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0
     private val prefs = context.createDeviceProtectedStorageContext()
         .getSharedPreferences("premium_preview", Context.MODE_PRIVATE)
 
-    val unlocked get() = BuildConfig.DEBUG && prefs.getBoolean("enabled", false)
+    val unlocked get() = previewAvailable && prefs.getBoolean("enabled", false)
 
     fun enablePreview() {
-        if (BuildConfig.DEBUG) prefs.edit().putBoolean("enabled", true).apply()
+        if (previewAvailable) prefs.edit().putBoolean("enabled", true).apply()
     }
 }
 
