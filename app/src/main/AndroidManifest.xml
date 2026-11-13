@@ -18,6 +18,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".AlarmEditorActivity" android:exported="false" />
+        <activity android:name=".MissionPreviewActivity" android:exported="false" />
+        <activity android:name=".PremiumActivity" android:exported="false" />
+        <receiver android:name=".WakeCheckReceiver" android:exported="false" />
         <activity android:name=".QrScannerActivity" android:exported="false" />
         <activity android:name=".RingActivity" android:exported="false"
             android:excludeFromRecents="true" android:launchMode="singleTop" />

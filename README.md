@@ -32,3 +32,102 @@ Alarm, etkileşim olmazsa 10 dakika sonra susar. Tam ekran izni kapalıysa ve bi
 - Ekran açıkken bir alarm çaldır. Bildirimi tek başına kaydırırsan, Android kaldırmaya izin verdiğinde bildirimin geri gelmesini bekle. Bildirimdeki **Alarmı aç** düğmesini kullan.
 - Bildirime erişemiyorsan BENG'i aç. Ana ekranın en üstündeki **Çalan alarmı aç** düğmesiyle mevcut göreve dön.
 - Alarmı kapatınca bildirimin kaybolduğunu ve yeniden görünmediğini kontrol et.
+
+## Premium ve uyanıklık kontrolü
+
+Play Console'da `com.caglaryildiz.alarm` için `beng_premium` aboneliği ve
+`monthly` kimlikli aylık, otomatik yenilenen temel plan tanımlanır. Fiyat
+ve para birimi Google Play'den alınır. Satın alma ve geri yükleme Play
+hesabıyla yapılır. Lisans testinde Play Console'daki paket kimliğiyle
+imzalanmış bir iç test sürümü kullanılır. Yerel test APK'sında Premium
+ekranındaki test düğmesi ödeme olmadan özellikleri açar.
+
+Uyanıklık sekmesindeki ayar tüm alarmlara uygulanır. Alarm kapatıldığında
+seçilen gecikme sonunda bildirim gösterilir. 60 saniye içinde onay
+gelmezse alarm yeniden çalar. Test ederken bildirim ve kesin alarm
+izinlerini ver, kilit ekranında hem onay hem yanıtsız senaryoyu dene.
+
+## 0.8: Görev önizlemesi ve şekil görevi
+
+Görev seçildikten sonra **Görevi önizle** seçilen matematik zorluğunu ve soru
+sayısını da kullanarak gerçek görev bileşenini açar. **Alarmı sesli önizle**
+seçilen alarm sesini en fazla 30 saniye çalar. Önizlemeden çıkıldığında ses
+ve sensör dinleyicisi durur. Bu akış alarm kaydetmez, ertelemez ve uyanıklık
+kontrolü başlatmaz. Premium görevleri denemek ücretsizdir; kaydederken
+abonelik kontrol edilir. Şekilleri bul görevinde dört farklı hedef şekil,
+4 × 4 tabloda soldan sağa sırayla seçilir; yanlış kutu ilerletmez.
+
+## Google Play aboneliğini açma ve yayın
+
+1. Play Console'da ödeme profilini tamamla. Uygulama paket kimliği
+   `com.caglaryildiz.alarm` olmalı. Önizleme APK'sının `.editorpreview`
+   paketi bu uygulamanın abonelik ürünlerini sorgulayamaz.
+2. **Play ile para kazanma > Ürünler > Abonelikler** altında `beng_premium`
+   oluştur. `monthly` kimlikli, aylık ve otomatik yenilenen temel plan ekle.
+   Ülke/bölge ve fiyatları belirleyip planı etkinleştir. Bu sürüm yalnızca
+   standart aylık planı sunar; deneme/indirim tekliflerini sunmaz.
+3. Fiyat kodda sabit değildir. Google Play'in yerelleştirilmiş fiyatı,
+   aylık dönem ve otomatik yenileme açıklaması ödeme düğmesinden önce
+   gösterilir. Ürün sorgusu başarısızsa ödeme düğmesi açılmaz; yeniden
+   yükleme sunulur. Bekleyen ödemeler erişim açmaz. Satın alımlar geri
+   yüklenebilir, etkin abonelik Play üzerinden yönetilip iptal edilebilir.
+4. Yayın anahtarınla imzalanmış AAB'yi iç test kanalına yükle; test hesabını
+   hem test kanalına hem lisans test kullanıcılarına ekle. Uygulamayı Play
+   üzerinden kur. Onay, reddetme, bekleyen ödeme, iptal, yenileme, süre
+   dolması ve yeniden kurulum/geri yükleme senaryolarını dene.
+5. Mağaza kaydı, gizlilik politikası, veri güvenliği, içerik derecelendirmesi,
+   hedef kitle ve kullanılan izinlere ilişkin Console görevlerini tamamla.
+   Üretim erişimi ve inceleme tamamlanmadan herkese açık yayın gerçekleşmez.
+   13 Kasım 2023 sonrasında açılan kişisel hesaplarda üretim başvurusu için
+   en az 12 test kullanıcısının kesintisiz 14 günlük kapalı testi gerekebilir.
+
+**Mevcut sınır:** abonelik sorgulama ve satın alma onayı istemcidedir.
+Sunucuda Google Play `purchases.subscriptionsv2.get` doğrulaması, gerçek
+zamanlı bildirimler (RTDN), iade/iptal durum takibi henüz entegre değildir.
+Çevrimdışıyken son erişim durumu korunur; süresi dolan abonelik, başarılı
+Play sorgusuna kadar önbellekte etkin kalabilir. Ücretli üretim dağıtımından
+önce bu erişim politikasını ve sunucu doğrulamasını tamamlamak önerilir.
+Uygulama içi kullanıcı hesabı gerekmemesi, Play satın alma doğrulamasını
+ortadan kaldırmaz. Debug test erişimi release sürümünde bulunmaz.
+
+Kaynaklar:
+- https://support.google.com/googleplay/android-developer/answer/140504
+- https://developer.android.com/google/play/billing/test
+- https://developer.android.com/google/play/billing/security
+- https://support.google.com/googleplay/android-developer/answer/14151465
+
+### GitHub Actions ile imzalı AAB oluşturma
+
+1. GitHub'da **Settings → Environments** bölümünden `play-signing` ortamını
+   oluştur. Dağıtım dalı kuralını yalnızca `main` dalına izin verecek şekilde
+   ayarla.
+2. Ortamın **Environment secrets** bölümüne aşağıdaki değerleri ekle.
+   Daha önce Play Console'a paket yüklediysen aynı yükleme anahtarını kullan.
+
+   | Secret | Değer |
+   | --- | --- |
+   | `PLAY_UPLOAD_KEYSTORE_BASE64` | Yükleme anahtarı dosyasının Base64 karşılığı |
+   | `PLAY_UPLOAD_STORE_PASSWORD` | Anahtar deposu şifresi |
+   | `PLAY_UPLOAD_KEY_ALIAS` | Anahtar takma adı |
+   | `PLAY_UPLOAD_KEY_PASSWORD` | Anahtarın şifresi |
+
+   İlk yüklemeyse JDK 17 ile bir yükleme anahtarı oluşturabilirsin:
+
+   ```sh
+   keytool -genkeypair -keystore beng-upload.jks -storetype JKS -alias beng-upload -keyalg RSA -keysize 2048 -validity 10000
+   ```
+
+   Windows PowerShell'de Base64 değerini almak için:
+
+   ```powershell
+   [Convert]::ToBase64String([IO.File]::ReadAllBytes((Resolve-Path .\beng-upload.jks).Path))
+   ```
+
+   Anahtarı ve şifreleri güvenli bir yerde yedekle. Base64 değerini yalnızca
+   ilgili GitHub secret alanına yapıştır.
+
+3. Workflow `main` dalına girdikten sonra **Actions → Build Play Store bundle
+   → Run workflow** üzerinden `main` dalıyla çalıştır. Başarılı çalışmanın
+   **Artifacts** bölümünden `BENG-play-release` arşivini indir ve içindeki
+   `BENG-play-release.aab` dosyasını Play Console'da test sürümüne yükle.
+   Sonraki Play yüklemeleri için `versionCode` değerini artır.
