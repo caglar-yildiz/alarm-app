@@ -203,7 +203,7 @@ abstract class AlarmScreen : Activity() {
 class MainActivity : PremiumScreen() {
     private enum class Tab(val title: String, val icon: Int) {
         ALARMS("Alarmlar", R.drawable.ic_beng_launcher),
-        WAKE("Uyanıklık", android.R.drawable.ic_menu_day),
+        WAKE("Uyanıklık", R.drawable.ic_wake_check),
         PREMIUM("Premium", android.R.drawable.star_on)
     }
 
@@ -248,14 +248,14 @@ class MainActivity : PremiumScreen() {
                 setPadding(dp(4), dp(8), dp(4), dp(8))
                 isSelected = selected
                 isFocusable = true
-                contentDescription = item.title
+                contentDescription = if (item == Tab.WAKE) "Uyanıklık, Premium" else item.title
                 if (selected) setBackgroundColor(0xFF29264C.toInt())
                 addView(android.widget.ImageView(this@MainActivity).apply {
                     setImageResource(item.icon)
                     if (item != Tab.ALARMS) setColorFilter(if (selected) accentColor else mutedColor)
                     importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 }, LinearLayout.LayoutParams(dp(26), dp(26)))
-                label(item.title, 12f, this, bold = selected, color = if (selected) accentColor else mutedColor).apply {
+                label(if (item == Tab.WAKE) "${item.title} ✦" else item.title, 12f, this, bold = selected, color = if (selected) accentColor else mutedColor).apply {
                     gravity = Gravity.CENTER
                     includeFontPadding = false
                     setPadding(0, dp(6), 0, 0)
@@ -273,8 +273,17 @@ class MainActivity : PremiumScreen() {
 
     private fun showWakeSettings() {
         val settings = card()
-        label("Alarmı kapattıktan sonra uyanık olduğunu onayla. 60 saniye içinde onay vermezsen alarm yeniden çalar.",
+        label("✦ Premium", 14f, settings, bold = true, color = accentColor)
+        label("Alarmı kapattıktan sonra bir bildirim alırsın. 60 saniye içinde uyanık olduğunu onaylamazsan alarm tekrar çalar.",
             16f, settings)
+        if (!premiumAccess.unlocked) {
+            button("Premium’u incele", settings) {
+                tab = Tab.PREMIUM
+                render()
+                refreshPremium()
+            }
+            return
+        }
         for (id in wake.activeIds()) {
             val alarm = alarms.all().firstOrNull { it.id == id } ?: continue
             button("Uyanığım · ${alarm.label.ifBlank { alarm.time.format(clockFormat) }}", settings) {
@@ -283,20 +292,14 @@ class MainActivity : PremiumScreen() {
             }
         }
         settings.addView(Switch(this).apply {
-            text = "Uyanıklık kontrolü  ✦"
+            text = "Uyanıklık kontrolü"
             contentDescription = "Uyanıklık kontrolü, Premium özellik"
             stylePlanetToggle()
             minHeight = dp(48)
             isChecked = wake.enabled
             setOnCheckedChangeListener { _, enabled ->
-                if (enabled && !premiumAccess.unlocked) {
-                    tab = Tab.PREMIUM
-                    render()
-                    refreshPremium()
-                } else {
-                    wake.enabled = enabled
-                    render()
-                }
+                wake.enabled = enabled
+                render()
             }
         })
         button("Kontrol gecikmesi · ${wake.delay} dk", settings, primary = false) {
@@ -309,7 +312,15 @@ class MainActivity : PremiumScreen() {
                     render()
                 }.setNegativeButton("Vazgeç", null).show()
         }
-        if (!wake.canPrompt()) showMissingPermissions()
+        if (wake.enabled && !wake.canPrompt()) {
+            label("Kontrolü göndermek için bildirim ve alarm izinlerini aç.", 14f, settings, color = mutedColor)
+            if (wake.isChannelBlocked()) {
+                button("Uyanıklık bildirimlerini aç", settings, primary = false) {
+                    startActivity(wake.channelSettingsIntent())
+                }
+            }
+            showMissingPermissions()
+        }
     }
     private val alarms by lazy { Alarms(this) }
     private val onRingChanged: () -> Unit = ::render
@@ -534,7 +545,7 @@ class MissionPreviewActivity : RingActivity()
 open class RingActivity : AlarmScreen() {
     private val isPreview get() = this is MissionPreviewActivity
     private var previewRing: Ring? = null
-    private var previewTone: android.media.Ringtone? = null
+    private var previewTone: android.media.MediaPlayer? = null
     private val soundTimeout = android.os.Handler(android.os.Looper.getMainLooper())
     private fun currentRing() = if (isPreview) previewRing else RingService.active
     private val sensorManager by lazy { getSystemService(android.hardware.SensorManager::class.java) }
@@ -543,7 +554,7 @@ open class RingActivity : AlarmScreen() {
     private var failedQrToken: String? = null
     private val onRingChanged: () -> Unit = {
         if (isPreview && RingService.active != null) {
-            previewTone?.stop()
+            stopPreviewSound()
             finish()
         } else render()
     }
@@ -572,27 +583,31 @@ open class RingActivity : AlarmScreen() {
     override fun onStart() {
         super.onStart()
         RingService.listeners.add(onRingChanged)
-        if (isPreview && intent.getBooleanExtra("sound", false) && RingService.active == null) {
-            runCatching {
-                val uri = previewRing?.tone ?: android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM)
-                previewTone = android.media.RingtoneManager.getRingtone(this, uri)?.apply {
-                    audioAttributes = android.media.AudioAttributes.Builder()
-                        .setUsage(android.media.AudioAttributes.USAGE_ALARM).build()
-                    play()
-                }
-                soundTimeout.postDelayed({ previewTone?.stop() }, 30_000)
-            }
-        }
+        if (isPreview && RingService.active == null) startPreviewSound()
         render()
     }
 
     override fun onStop() {
         RingService.listeners.remove(onRingChanged)
         clearMissionCallbacks()
-        soundTimeout.removeCallbacksAndMessages(null)
-        previewTone?.stop()
-        previewTone = null
+        stopPreviewSound()
         super.onStop()
+    }
+
+    private fun startPreviewSound() {
+        stopPreviewSound()
+        previewTone = playAlarmTone(this, previewRing?.tone)
+        if (previewTone != null) {
+            soundTimeout.postDelayed(::stopPreviewSound, 30_000)
+        } else {
+            android.widget.Toast.makeText(this, "Alarm sesi oynatılamadı.", android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun stopPreviewSound() {
+        soundTimeout.removeCallbacksAndMessages(null)
+        previewTone?.release()
+        previewTone = null
     }
 
     private fun render() {
@@ -610,7 +625,10 @@ open class RingActivity : AlarmScreen() {
         header.addView(AstralPlanet(this), LinearLayout.LayoutParams(-1, dp(112)))
         if (isPreview) {
             label("Bu bir denemedir. Alarmların değişmez; ses en fazla 30 saniye çalar.", 14f, header, color = mutedColor)
-            button("Önizlemeyi kapat", header, primary = false) { finish() }
+            button("Önizlemeyi kapat", header, primary = false) {
+                stopPreviewSound()
+                finish()
+            }
         }
         val controls = card()
         val mission = ring.math
@@ -817,6 +835,7 @@ open class RingActivity : AlarmScreen() {
 
     private fun send(action: String, ring: Ring) {
         if (isPreview) {
+            stopPreviewSound()
             android.widget.Toast.makeText(this, "Önizleme tamamlandı", android.widget.Toast.LENGTH_SHORT).show()
             finish()
             return

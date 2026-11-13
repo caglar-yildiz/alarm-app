@@ -2,7 +2,7 @@ package com.caglaryildiz.alarm
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
-import android.media.Ringtone
+import android.media.MediaPlayer
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Bundle
@@ -32,7 +32,7 @@ class AlarmEditorActivity : AlarmScreen() {
     private lateinit var qrButton: Button
     private var mathSettings = MathSettings()
     private var tone: String? = null
-    private var preview: Ringtone? = null
+    private var preview: MediaPlayer? = null
     private lateinit var nameInput: EditText
     private lateinit var timeReadout: TextView
     private lateinit var orbit: OrbitTimeView
@@ -99,8 +99,7 @@ class AlarmEditorActivity : AlarmScreen() {
         difficultyButton = button("", taskSection, primary = false, action = ::pickDifficulty)
         questionCountButton = button("", taskSection, primary = false, action = ::pickQuestionCount)
 
-        button("Görevi önizle", taskSection, primary = false) { openPreview(false) }
-        button("Alarmı sesli önizle", taskSection, primary = false) { openPreview(true) }
+        button("Alarmı ve görevi önizle", taskSection, primary = false, action = ::openPreview)
 
         button("Kaydet", action = ::save)
         button("Vazgeç", primary = false) { finish() }
@@ -251,7 +250,7 @@ class AlarmEditorActivity : AlarmScreen() {
             .show()
     }
 
-    private fun openPreview(sound: Boolean) {
+    private fun openPreview() {
         if (task == AlarmTask.QR && qrCode.isBlank()) {
             Toast.makeText(this, "QR önizlemesi için önce bir QR kod kaydet.", Toast.LENGTH_SHORT).show()
             return
@@ -262,8 +261,7 @@ class AlarmEditorActivity : AlarmScreen() {
             .putExtra("mathCount", mathSettings.count)
             .putExtra("qrCode", qrCode)
             .putExtra("label", nameInput.text.toString())
-            .putExtra("tone", tone)
-            .putExtra("sound", sound))
+            .putExtra("tone", tone))
     }
 
     private fun selectTask(selected: AlarmTask) {
@@ -357,11 +355,7 @@ class AlarmEditorActivity : AlarmScreen() {
             .setSingleChoiceItems(options.values.toTypedArray(), selected) { _, index ->
                 selected = index
                 stopPreview()
-                val uri = uris[index] ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-                runCatching {
-                    preview = RingtoneManager.getRingtone(this, uri)
-                    preview?.play()
-                }
+                if (RingService.active == null) preview = playAlarmTone(this, uris[index], loop = false)
             }
             .setNegativeButton("Vazgeç", null)
             .setPositiveButton("Uygula") { _, _ ->
@@ -378,7 +372,7 @@ class AlarmEditorActivity : AlarmScreen() {
     }
 
     private fun stopPreview() {
-        preview?.stop()
+        preview?.release()
         preview = null
     }
 
