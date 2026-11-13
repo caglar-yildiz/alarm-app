@@ -28,6 +28,7 @@ class AlarmEditorActivity : AlarmScreen() {
     private var date: LocalDate? = null
     private var days: Set<Int> = emptySet()
     private var task = AlarmTask.MATH
+    private var mathSettings = MathSettings()
     private var tone: String? = null
     private var preview: Ringtone? = null
     private lateinit var nameInput: EditText
@@ -39,6 +40,8 @@ class AlarmEditorActivity : AlarmScreen() {
     private lateinit var repeatButton: Button
     private lateinit var toneButton: Button
     private lateinit var taskButton: Button
+    private lateinit var difficultyButton: Button
+    private lateinit var questionCountButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +57,8 @@ class AlarmEditorActivity : AlarmScreen() {
             savedInstanceState.getString("date")?.let(LocalDate::parse)
         days = savedInstanceState?.getIntArray("days")?.toSet() ?: alarm.days
         task = savedInstanceState?.getString("task")?.let(AlarmTask::valueOf) ?: alarm.task
+        mathSettings = if (savedInstanceState == null) alarm.mathSettings else MathSettings.from(
+            savedInstanceState.getString("mathDifficulty"), savedInstanceState.getInt("mathCount", 1))
         tone = if (savedInstanceState == null) alarm.tone else savedInstanceState.getString("tone")
 
         layout()
@@ -85,7 +90,10 @@ class AlarmEditorActivity : AlarmScreen() {
         dateButton = button("", section("Tarih"), primary = false, action = ::pickDate)
         repeatButton = button("", section("Tekrar edilen günler"), primary = false, action = ::pickDays)
         toneButton = button("", section("Alarm sesi"), primary = false, action = ::pickTone)
-        taskButton = button("", section("Kapatma görevi"), primary = false, action = ::pickTask)
+        val taskSection = section("Kapatma görevi")
+        taskButton = button("", taskSection, primary = false, action = ::pickTask)
+        difficultyButton = button("", taskSection, primary = false, action = ::pickDifficulty)
+        questionCountButton = button("", taskSection, primary = false, action = ::pickQuestionCount)
 
         button("Kaydet", action = ::save)
         button("Vazgeç", primary = false) { finish() }
@@ -150,6 +158,11 @@ class AlarmEditorActivity : AlarmScreen() {
             else -> days.sorted().joinToString(" · ") { weekdays[it - 1].take(3) }
         }
         taskButton.text = task.label
+        val showMathSettings = if (task == AlarmTask.MATH) android.view.View.VISIBLE else android.view.View.GONE
+        difficultyButton.visibility = showMathSettings
+        questionCountButton.visibility = showMathSettings
+        difficultyButton.text = "Zorluk · ${mathSettings.difficulty.label}"
+        questionCountButton.text = "Soru sayısı · ${mathSettings.count}"
         toneButton.text = tone?.let {
             runCatching { RingtoneManager.getRingtone(this, Uri.parse(it))?.getTitle(this) }.getOrNull()
         } ?: "Cihazın varsayılan alarm sesi"
@@ -227,6 +240,32 @@ class AlarmEditorActivity : AlarmScreen() {
             .show()
     }
 
+    private fun pickDifficulty() {
+        val levels = MathDifficulty.entries
+        AlertDialog.Builder(this, R.style.AstralDialogTheme)
+            .setTitle("Matematik zorluğu")
+            .setSingleChoiceItems(levels.map { it.label }.toTypedArray(), mathSettings.difficulty.ordinal) { dialog, index ->
+                mathSettings = mathSettings.copy(difficulty = levels[index])
+                updateFields()
+                dialog.dismiss()
+            }
+            .setNegativeButton("Vazgeç", null)
+            .show()
+    }
+
+    private fun pickQuestionCount() {
+        val counts = MathSettings.counts.toList()
+        AlertDialog.Builder(this, R.style.AstralDialogTheme)
+            .setTitle("Soru sayısı")
+            .setSingleChoiceItems(counts.map { "$it soru" }.toTypedArray(), counts.indexOf(mathSettings.count)) { dialog, index ->
+                mathSettings = mathSettings.copy(count = counts[index])
+                updateFields()
+                dialog.dismiss()
+            }
+            .setNegativeButton("Vazgeç", null)
+            .show()
+    }
+
     private fun pickTone() {
         val defaultLabel = "Cihazın varsayılan alarm sesi"
         val options = linkedMapOf<Uri?, String>(null to defaultLabel)
@@ -287,6 +326,8 @@ class AlarmEditorActivity : AlarmScreen() {
         outState.putString("date", date?.toString())
         outState.putIntArray("days", days.toIntArray())
         outState.putString("task", task.name)
+        outState.putString("mathDifficulty", mathSettings.difficulty.name)
+        outState.putInt("mathCount", mathSettings.count)
         outState.putString("tone", tone)
         outState.putString("label", nameInput.text.toString())
     }
@@ -302,6 +343,7 @@ class AlarmEditorActivity : AlarmScreen() {
             date = date.takeIf { days.isEmpty() },
             days = days,
             task = task,
+            mathSettings = mathSettings,
             label = nameInput.text.toString().trim(),
             tone = tone,
             enabled = intent.getBooleanExtra("enableOnSave", false) || existing?.enabled != false,

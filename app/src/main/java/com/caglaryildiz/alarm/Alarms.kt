@@ -30,7 +30,8 @@ internal data class Alarm(
     val snoozeAt: Long = 0,
     val date: LocalDate? = null,
     val label: String = "",
-    val tone: String? = null
+    val tone: String? = null,
+    val mathSettings: MathSettings = MathSettings()
 ) {
     fun nextAfter(now: ZonedDateTime): Long? {
         if (days.isEmpty() && date != null) {
@@ -67,7 +68,8 @@ internal class Alarms(private val context: Context) {
                 snoozeAt = item.optLong("snoozeAt"),
                 date = item.optString("date").takeIf { it.isNotEmpty() }?.let(LocalDate::parse),
                 label = item.optString("label"),
-                tone = item.optString("tone").takeIf { it.isNotEmpty() }
+                tone = item.optString("tone").takeIf { it.isNotEmpty() },
+                mathSettings = MathSettings.from(item.optString("mathDifficulty"), item.optInt("mathCount", 1))
             )
         }
     }
@@ -78,6 +80,7 @@ internal class Alarms(private val context: Context) {
             data.put(JSONObject().put("id", it.id).put("time", it.time.toString())
                 .put("days", JSONArray(it.days.sorted())).put("enabled", it.enabled)
                 .put("task", it.task.name).put("snoozeAt", it.snoozeAt)
+                .put("mathDifficulty", it.mathSettings.difficulty.name).put("mathCount", it.mathSettings.count)
                 .put("date", it.date?.toString()).put("label", it.label).put("tone", it.tone))
         }
         prefs.edit().putString("list", data.toString()).apply()
@@ -162,7 +165,9 @@ class AlarmReceiver : BroadcastReceiver() {
                     intent.getLongExtra("at", 0)) ?: return
                 context.startForegroundService(Intent(context, RingService::class.java)
                     .putExtra("id", alarm.id)
-                    .putExtra("math", alarm.task == AlarmTask.MATH)
+                    .putExtra("task", alarm.task.name)
+                    .putExtra("mathDifficulty", alarm.mathSettings.difficulty.name)
+                    .putExtra("mathCount", alarm.mathSettings.count)
                     .putExtra("label", alarm.label)
                     .putExtra("tone", alarm.tone))
             }

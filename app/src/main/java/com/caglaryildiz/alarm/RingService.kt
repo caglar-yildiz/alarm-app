@@ -23,7 +23,7 @@ import java.util.UUID
 
 internal data class Ring(
     val id: String,
-    val math: Boolean,
+    val math: MathMission?,
     val label: String,
     val tone: Uri?,
     val token: String = UUID.randomUUID().toString(),
@@ -52,6 +52,7 @@ class RingService : Service() {
                         .notify(NOTIFICATION_ID, alarmNotification(ring, fullScreen = false))
                     return START_NOT_STICKY
                 }
+                if (intent.action == DISMISS && ring.math?.question != null) return START_NOT_STICKY
                 if (intent.action == SNOOZE) {
                     val alarms = Alarms(this)
                     alarms.all().firstOrNull { it.id == ring.id }?.let {
@@ -62,7 +63,11 @@ class RingService : Service() {
             }
             else -> {
                 val id = intent?.getStringExtra("id") ?: return START_NOT_STICKY
-                val ring = Ring(id, intent.getBooleanExtra("math", true),
+                val math = if (intent.getStringExtra("task") == AlarmTask.MATH.name) {
+                    MathMission(MathSettings.from(intent.getStringExtra("mathDifficulty"),
+                        intent.getIntExtra("mathCount", 1)))
+                } else null
+                val ring = Ring(id, math,
                     intent.getStringExtra("label").orEmpty(),
                     intent.getStringExtra("tone")?.let(Uri::parse))
                 if (active == null) show(ring) else queue.addLast(ring)
