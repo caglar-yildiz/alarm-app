@@ -8,16 +8,12 @@ import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.graphics.drawable.Icon
-import android.media.AudioAttributes
 import android.media.MediaPlayer
-import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.os.PowerManager
-import android.provider.Settings
 import java.time.LocalTime
 import java.util.UUID
 
@@ -146,25 +142,7 @@ class RingService : Service() {
     }
 
     private fun play(tone: Uri?) {
-        val selected = RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_ALARM)
-        for (uri in listOfNotNull(tone, selected, Settings.System.DEFAULT_NOTIFICATION_URI).distinct()) {
-            val media = MediaPlayer()
-            try {
-                media.setAudioAttributes(AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ALARM)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build())
-                media.setWakeMode(this, PowerManager.PARTIAL_WAKE_LOCK)
-                media.setDataSource(this, uri)
-                media.isLooping = true
-                media.prepare()
-                media.start()
-                player = media
-                return
-            } catch (error: Exception) {
-                android.util.Log.w("RingService", "Could not play alarm tone", error)
-                media.release()
-            }
-        }
+        player = playAlarmTone(this, tone, keepAwake = true)
     }
 
     private fun advance() {

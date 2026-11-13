@@ -42,16 +42,15 @@ hesabıyla yapılır. Lisans testinde Play Console'daki paket kimliğiyle
 imzalanmış bir iç test sürümü kullanılır. Yerel test APK'sında Premium
 ekranındaki test düğmesi ödeme olmadan özellikleri açar.
 
-Uyanıklık sekmesindeki ayar tüm alarmlara uygulanır. Alarm kapatıldığında
+Premium üyeler Uyanıklık sekmesindeki kontrolü tüm alarmlar için açabilir. Alarm kapatıldığında
 seçilen gecikme sonunda bildirim gösterilir. 60 saniye içinde onay
 gelmezse alarm yeniden çalar. Test ederken bildirim ve kesin alarm
 izinlerini ver, kilit ekranında hem onay hem yanıtsız senaryoyu dene.
 
 ## 0.8: Görev önizlemesi ve şekil görevi
 
-Görev seçildikten sonra **Görevi önizle** seçilen matematik zorluğunu ve soru
-sayısını da kullanarak gerçek görev bileşenini açar. **Alarmı sesli önizle**
-seçilen alarm sesini en fazla 30 saniye çalar. Önizlemeden çıkıldığında ses
+**Alarmı ve görevi önizle** seçilen görevi açar ve alarm sesini en fazla
+30 saniye çalar. Matematik önizlemesi seçilen zorluk ve soru sayısını kullanır. Önizlemeden çıkıldığında ses
 ve sensör dinleyicisi durur. Bu akış alarm kaydetmez, ertelemez ve uyanıklık
 kontrolü başlatmaz. Premium görevleri denemek ücretsizdir; kaydederken
 abonelik kontrol edilir. Şekilleri bul görevinde dört farklı hedef şekil,

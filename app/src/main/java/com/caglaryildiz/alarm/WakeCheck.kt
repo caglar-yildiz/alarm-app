@@ -55,9 +55,16 @@ internal class WakeCheck(private val context: Context) {
         }
     }
 
+    fun isChannelBlocked() =
+        notifications.getNotificationChannel(CHANNEL)?.importance == NotificationManager.IMPORTANCE_NONE
+
+    fun channelSettingsIntent() = Intent(android.provider.Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+        .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, context.packageName)
+        .putExtra(android.provider.Settings.EXTRA_CHANNEL_ID, CHANNEL)
+
     fun canPrompt(): Boolean {
         if (!notifications.areNotificationsEnabled() ||
-            notifications.getNotificationChannel(CHANNEL)?.importance == NotificationManager.IMPORTANCE_NONE ||
+            isChannelBlocked() ||
             !Alarms(context).canSchedule()) return false
         return Build.VERSION.SDK_INT < 33 ||
             context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) ==
@@ -91,7 +98,7 @@ internal class WakeCheck(private val context: Context) {
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
                 val notification = Notification.Builder(context, CHANNEL)
-                    .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+                    .setSmallIcon(R.drawable.ic_wake_check)
                     .setContentTitle("Uyanık mısın?")
                     .setContentText("Onay vermezsen alarm yeniden çalacak.")
                     .setContentIntent(open)
