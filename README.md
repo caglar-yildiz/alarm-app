@@ -6,7 +6,7 @@ Alarm düzenleyicisinde alarm adı, saat, tek seferlik tarih veya haftalık tekr
 
 ## Kurulum
 
-JDK 17 ve Android SDK Platform 35 ile projeyi Android Studio'da aç. Minimum desteklenen sürüm Android 8.0 (API 26).
+JDK 17 ve Android SDK Platform 36 ile projeyi Android Studio'da aç. Minimum desteklenen sürüm Android 8.0 (API 26).
 
 Terminalden debug APK oluşturmak için:
 
