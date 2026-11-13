@@ -31,7 +31,6 @@ import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import kotlin.random.Random
 
 internal val weekdays = arrayOf("Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar")
 internal val clockFormat = DateTimeFormatter.ofPattern("HH:mm")
@@ -399,9 +398,6 @@ class MainActivity : AlarmScreen() {
 }
 
 class RingActivity : AlarmScreen() {
-    private var token: String? = null
-    private var first = 0
-    private var second = 0
     private val onRingChanged: () -> Unit = ::render
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -415,9 +411,6 @@ class RingActivity : AlarmScreen() {
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        token = savedInstanceState?.getString("token")
-        first = savedInstanceState?.getInt("first") ?: 0
-        second = savedInstanceState?.getInt("second") ?: 0
     }
 
     override fun onStart() {
@@ -431,23 +424,11 @@ class RingActivity : AlarmScreen() {
         super.onStop()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString("token", token)
-        outState.putInt("first", first)
-        outState.putInt("second", second)
-        super.onSaveInstanceState(outState)
-    }
-
     private fun render() {
         val ring = RingService.active
         if (ring == null) {
             finish()
             return
-        }
-        if (token != ring.token) {
-            token = ring.token
-            first = Random.nextInt(12, 50)
-            second = Random.nextInt(8, 40)
         }
         layout(getString(R.string.app_name))
         val header = card()
@@ -456,23 +437,32 @@ class RingActivity : AlarmScreen() {
         timeLabel(ring.startedAt.format(clockFormat), 60f, header).gravity = Gravity.CENTER
         header.addView(AstralPlanet(this), LinearLayout.LayoutParams(-1, dp(112)))
         val controls = card()
-        if (ring.math) {
-            label("$first + $second = ?", 32f, controls, bold = true).gravity = Gravity.CENTER
+        val mission = ring.math
+        if (mission == null) {
+            button("Alarmı kapat", controls) { send(RingService.DISMISS, ring) }
+        } else {
+            val progress = label("", 15f, controls, color = mutedColor)
+            val question = label("", 32f, controls, bold = true).apply { gravity = Gravity.CENTER }
             val answer = EditText(this).apply {
                 hint = "Cevap"
                 inputType = InputType.TYPE_CLASS_NUMBER
                 styleInput(this)
                 controls.addView(this)
             }
-            button("Alarmı kapat", controls) {
-                if (answer.text.toString().toIntOrNull() == first + second) {
-                    send(RingService.DISMISS, ring)
-                } else {
-                    answer.error = "Tekrar dene"
+            fun showQuestion() {
+                progress.text = mission.progress
+                question.text = mission.question?.let { "${it.expression} = ?" }
+                answer.text.clear()
+                answer.error = null
+            }
+            showQuestion()
+            button("Cevabı kontrol et", controls) {
+                when (mission.submit(answer.text.toString().toIntOrNull())) {
+                    MathResult.INCORRECT -> answer.error = "Tekrar dene"
+                    MathResult.NEXT -> showQuestion()
+                    MathResult.COMPLETE -> send(RingService.DISMISS, ring)
                 }
             }
-        } else {
-            button("Alarmı kapat", controls) { send(RingService.DISMISS, ring) }
         }
         if (Alarms(this).canSchedule()) button("5 dakika ertele", controls, primary = false) { send(RingService.SNOOZE, ring) }
     }
