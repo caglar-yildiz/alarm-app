@@ -28,6 +28,8 @@ class AlarmEditorActivity : AlarmScreen() {
     private var date: LocalDate? = null
     private var days: Set<Int> = emptySet()
     private var task = AlarmTask.MATH
+    private var qrCode = ""
+    private lateinit var qrButton: Button
     private var mathSettings = MathSettings()
     private var tone: String? = null
     private var preview: Ringtone? = null
@@ -59,6 +61,7 @@ class AlarmEditorActivity : AlarmScreen() {
         task = savedInstanceState?.getString("task")?.let(AlarmTask::valueOf) ?: alarm.task
         mathSettings = if (savedInstanceState == null) alarm.mathSettings else MathSettings.from(
             savedInstanceState.getString("mathDifficulty"), savedInstanceState.getInt("mathCount", 1))
+        qrCode = savedInstanceState?.getString("qrCode") ?: alarm.qrCode
         tone = if (savedInstanceState == null) alarm.tone else savedInstanceState.getString("tone")
 
         layout()
@@ -92,6 +95,7 @@ class AlarmEditorActivity : AlarmScreen() {
         toneButton = button("", section("Alarm sesi"), primary = false, action = ::pickTone)
         val taskSection = section("Kapatma görevi")
         taskButton = button("", taskSection, primary = false, action = ::pickTask)
+        qrButton = button("", taskSection, primary = false, action = ::registerQrCode)
         difficultyButton = button("", taskSection, primary = false, action = ::pickDifficulty)
         questionCountButton = button("", taskSection, primary = false, action = ::pickQuestionCount)
 
@@ -158,6 +162,8 @@ class AlarmEditorActivity : AlarmScreen() {
             else -> days.sorted().joinToString(" · ") { weekdays[it - 1].take(3) }
         }
         taskButton.text = task.label
+        qrButton.visibility = if (task == AlarmTask.QR) android.view.View.VISIBLE else android.view.View.GONE
+        qrButton.text = if (qrCode.isBlank()) "QR kodu kaydet" else "Kayıtlı QR kodu değiştir"
         val showMathSettings = if (task == AlarmTask.MATH) android.view.View.VISIBLE else android.view.View.GONE
         difficultyButton.visibility = showMathSettings
         questionCountButton.visibility = showMathSettings
@@ -231,13 +237,69 @@ class AlarmEditorActivity : AlarmScreen() {
     private fun pickTask() {
         AlertDialog.Builder(this, R.style.AstralDialogTheme)
             .setTitle("Kapatma görevi")
-            .setSingleChoiceItems(AlarmTask.entries.map { it.label }.toTypedArray(), task.ordinal) { dialog, index ->
-                task = AlarmTask.entries[index]
-                updateFields()
+            .setSingleChoiceItems(AlarmTask.entries.map {
+                if (it.premium) "${it.label} · Premium" else it.label
+            }.toTypedArray(), task.ordinal) { dialog, index ->
                 dialog.dismiss()
+                selectTask(AlarmTask.entries[index])
             }
             .setNegativeButton("Vazgeç", null)
             .show()
+    }
+
+    private fun selectTask(selected: AlarmTask) {
+        if (selected == AlarmTask.SHAKE && !ExtraMission.hasAccelerometer(this)) {
+            Toast.makeText(this, "Bu cihazda hareket sensörü yok.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val premium = PremiumAccess(this)
+        if (selected.premium && !premium.unlocked) {
+            val prompt = AlertDialog.Builder(this, R.style.AstralDialogTheme)
+                .setTitle("BENG Premium")
+                .setNegativeButton("Vazgeç", null)
+            if (premium.previewAvailable) {
+                prompt.setMessage("Bu test sürümünde Premium görevleri ücretsiz deneyebilirsin.")
+                    .setPositiveButton("Premium’u dene") { _, _ ->
+                        premium.enablePreview()
+                        selectTask(selected)
+                    }
+            } else {
+                prompt.setMessage("Bu görev Premium üyelik gerektirir.")
+                    .setPositiveButton("Tamam", null)
+            }
+            prompt.show()
+            return
+        }
+        task = selected
+        updateFields()
+    }
+
+    @Suppress("DEPRECATION")
+    private fun registerQrCode() {
+        if (checkSelfPermission(android.Manifest.permission.CAMERA) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(android.Manifest.permission.CAMERA), 20)
+            return
+        }
+        startActivityForResult(android.content.Intent(this, QrScannerActivity::class.java), 21)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 20 && grantResults.firstOrNull() == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            registerQrCode()
+        }
+    }
+
+    @Deprecated("Receives the locally scanned QR code.")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != 21) return
+        if (resultCode == QrScannerActivity.RESULT_CAMERA_UNAVAILABLE) {
+            Toast.makeText(this, "Kamera açılamadı.", Toast.LENGTH_SHORT).show()
+        } else if (resultCode == RESULT_OK) {
+            qrCode = data?.getStringExtra(QrScannerActivity.CODE).orEmpty()
+            updateFields()
+        }
     }
 
     private fun pickDifficulty() {
@@ -326,6 +388,7 @@ class AlarmEditorActivity : AlarmScreen() {
         outState.putString("date", date?.toString())
         outState.putIntArray("days", days.toIntArray())
         outState.putString("task", task.name)
+        outState.putString("qrCode", qrCode)
         outState.putString("mathDifficulty", mathSettings.difficulty.name)
         outState.putInt("mathCount", mathSettings.count)
         outState.putString("tone", tone)
@@ -333,6 +396,10 @@ class AlarmEditorActivity : AlarmScreen() {
     }
 
     private fun save() {
+        if (task == AlarmTask.QR && qrCode.isBlank()) {
+            Toast.makeText(this, "Önce alarmı kapatacak QR kodunu kaydet.", Toast.LENGTH_SHORT).show()
+            return
+        }
         val existing = original?.let { edited -> alarms.all().firstOrNull { it.id == edited.id } }
         if (original != null && existing == null) {
             finish()
@@ -343,6 +410,7 @@ class AlarmEditorActivity : AlarmScreen() {
             date = date.takeIf { days.isEmpty() },
             days = days,
             task = task,
+            qrCode = qrCode,
             mathSettings = mathSettings,
             label = nameInput.text.toString().trim(),
             tone = tone,

@@ -23,7 +23,8 @@ import java.util.UUID
 
 internal data class Ring(
     val id: String,
-    val math: MathMission?,
+    var math: MathMission?,
+    var extra: ExtraMission?,
     val label: String,
     val tone: Uri?,
     val token: String = UUID.randomUUID().toString(),
@@ -52,7 +53,7 @@ class RingService : Service() {
                         .notify(NOTIFICATION_ID, alarmNotification(ring, fullScreen = false))
                     return START_NOT_STICKY
                 }
-                if (intent.action == DISMISS && ring.math?.question != null) return START_NOT_STICKY
+                if (intent.action == DISMISS && (ring.math?.question != null || ring.extra?.complete == false)) return START_NOT_STICKY
                 if (intent.action == SNOOZE) {
                     val alarms = Alarms(this)
                     alarms.all().firstOrNull { it.id == ring.id }?.let {
@@ -63,12 +64,23 @@ class RingService : Service() {
             }
             else -> {
                 val id = intent?.getStringExtra("id") ?: return START_NOT_STICKY
-                val math = if (intent.getStringExtra("task") == AlarmTask.MATH.name) {
+                val savedTask = AlarmTask.entries.firstOrNull { it.name == intent.getStringExtra("task") }
+                    ?: AlarmTask.NONE
+                val qrCode = intent.getStringExtra("qrCode").orEmpty()
+                val needsFallback = (savedTask.premium && !PremiumAccess(this).unlocked) ||
+                    (savedTask == AlarmTask.SHAKE && !ExtraMission.hasAccelerometer(this)) ||
+                    (savedTask == AlarmTask.QR && (qrCode.isBlank() ||
+                        checkSelfPermission(android.Manifest.permission.CAMERA) != android.content.pm.PackageManager.PERMISSION_GRANTED))
+                val task = if (needsFallback) AlarmTask.MATH else savedTask
+                val math = if (task == AlarmTask.MATH) {
                     MathMission(MathSettings.from(intent.getStringExtra("mathDifficulty"),
                         intent.getIntExtra("mathCount", 1)))
                 } else null
-                val ring = Ring(id, math,
-                    intent.getStringExtra("label").orEmpty(),
+                val extra = when (task) {
+                    AlarmTask.MEMORY, AlarmTask.TYPING, AlarmTask.SHAKE, AlarmTask.QR -> ExtraMission(task, qrCode)
+                    else -> null
+                }
+                val ring = Ring(id, math, extra, intent.getStringExtra("label").orEmpty(),
                     intent.getStringExtra("tone")?.let(Uri::parse))
                 if (active == null) show(ring) else queue.addLast(ring)
             }
