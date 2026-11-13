@@ -1,0 +1,60 @@
+name: Build Play Store bundle
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bundle:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    environment: play-signing
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK components
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+
+      - name: Build release bundle
+        run: ./gradlew --no-daemon :app:testReleaseUnitTest :app:bundleRelease
+
+      - name: Sign bundle with the Play upload key
+        env:
+          PLAY_UPLOAD_KEYSTORE_BASE64: ${{ secrets.PLAY_UPLOAD_KEYSTORE_BASE64 }}
+          PLAY_UPLOAD_STORE_PASSWORD: ${{ secrets.PLAY_UPLOAD_STORE_PASSWORD }}
+          PLAY_UPLOAD_KEY_ALIAS: ${{ secrets.PLAY_UPLOAD_KEY_ALIAS }}
+          PLAY_UPLOAD_KEY_PASSWORD: ${{ secrets.PLAY_UPLOAD_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          : "${PLAY_UPLOAD_KEYSTORE_BASE64:?Set PLAY_UPLOAD_KEYSTORE_BASE64 in the play-signing environment}"
+          : "${PLAY_UPLOAD_STORE_PASSWORD:?Set PLAY_UPLOAD_STORE_PASSWORD in the play-signing environment}"
+          : "${PLAY_UPLOAD_KEY_ALIAS:?Set PLAY_UPLOAD_KEY_ALIAS in the play-signing environment}"
+          : "${PLAY_UPLOAD_KEY_PASSWORD:?Set PLAY_UPLOAD_KEY_PASSWORD in the play-signing environment}"
+
+          keystore=$(mktemp "$RUNNER_TEMP/play-upload.XXXXXX")
+          trap 'rm -f "$keystore"' EXIT
+          printf '%s' "$PLAY_UPLOAD_KEYSTORE_BASE64" | base64 --decode > "$keystore"
+          jarsigner -keystore "$keystore" \
+            -storepass:env PLAY_UPLOAD_STORE_PASSWORD \
+            -keypass:env PLAY_UPLOAD_KEY_PASSWORD \
+            -signedjar BENG-play-release.aab \
+            app/build/outputs/bundle/release/app-release.aab "$PLAY_UPLOAD_KEY_ALIAS"
+          jarsigner -verify BENG-play-release.aab
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BENG-play-release
+          path: BENG-play-release.aab
+          if-no-files-found: error
+          retention-days: 14

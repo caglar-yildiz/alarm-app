@@ -95,3 +95,39 @@ Kaynaklar:
 - https://developer.android.com/google/play/billing/test
 - https://developer.android.com/google/play/billing/security
 - https://support.google.com/googleplay/android-developer/answer/14151465
+
+### GitHub Actions ile imzalı AAB oluşturma
+
+1. GitHub'da **Settings → Environments** bölümünden `play-signing` ortamını
+   oluştur. Dağıtım dalı kuralını yalnızca `main` dalına izin verecek şekilde
+   ayarla.
+2. Ortamın **Environment secrets** bölümüne aşağıdaki değerleri ekle.
+   Daha önce Play Console'a paket yüklediysen aynı yükleme anahtarını kullan.
+
+   | Secret | Değer |
+   | --- | --- |
+   | `PLAY_UPLOAD_KEYSTORE_BASE64` | Yükleme anahtarı dosyasının Base64 karşılığı |
+   | `PLAY_UPLOAD_STORE_PASSWORD` | Anahtar deposu şifresi |
+   | `PLAY_UPLOAD_KEY_ALIAS` | Anahtar takma adı |
+   | `PLAY_UPLOAD_KEY_PASSWORD` | Anahtarın şifresi |
+
+   İlk yüklemeyse JDK 17 ile bir yükleme anahtarı oluşturabilirsin:
+
+   ```sh
+   keytool -genkeypair -keystore beng-upload.jks -storetype JKS -alias beng-upload -keyalg RSA -keysize 2048 -validity 10000
+   ```
+
+   Windows PowerShell'de Base64 değerini almak için:
+
+   ```powershell
+   [Convert]::ToBase64String([IO.File]::ReadAllBytes((Resolve-Path .\beng-upload.jks).Path))
+   ```
+
+   Anahtarı ve şifreleri güvenli bir yerde yedekle. Base64 değerini yalnızca
+   ilgili GitHub secret alanına yapıştır.
+
+3. Workflow `main` dalına girdikten sonra **Actions → Build Play Store bundle
+   → Run workflow** üzerinden `main` dalıyla çalıştır. Başarılı çalışmanın
+   **Artifacts** bölümünden `BENG-play-release` arşivini indir ve içindeki
+   `BENG-play-release.aab` dosyasını Play Console'da test sürümüne yükle.
+   Sonraki Play yüklemeleri için `versionCode` değerini artır.
