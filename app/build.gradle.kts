@@ -12,8 +12,8 @@ android {
         applicationId = "com.caglaryildiz.alarm"
         minSdk = 26
         targetSdk = 35
-        versionCode = 13
-        versionName = "0.7.0"
+        versionCode = 14
+        versionName = "0.8.0"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -26,6 +26,7 @@ kotlin {
 }
 
 dependencies {
+    testImplementation("junit:junit:4.13.2")
     implementation("com.android.billingclient:billing:8.0.0")
     implementation("com.google.zxing:core:3.5.3")
 }

@@ -46,3 +46,52 @@ Uyanıklık sekmesindeki ayar tüm alarmlara uygulanır. Alarm kapatıldığınd
 seçilen gecikme sonunda bildirim gösterilir. 60 saniye içinde onay
 gelmezse alarm yeniden çalar. Test ederken bildirim ve kesin alarm
 izinlerini ver, kilit ekranında hem onay hem yanıtsız senaryoyu dene.
+
+## 0.8: Görev önizlemesi ve şekil görevi
+
+Görev seçildikten sonra **Görevi önizle** seçilen matematik zorluğunu ve soru
+sayısını da kullanarak gerçek görev bileşenini açar. **Alarmı sesli önizle**
+seçilen alarm sesini en fazla 30 saniye çalar. Önizlemeden çıkıldığında ses
+ve sensör dinleyicisi durur. Bu akış alarm kaydetmez, ertelemez ve uyanıklık
+kontrolü başlatmaz. Premium görevleri denemek ücretsizdir; kaydederken
+abonelik kontrol edilir. Şekilleri bul görevinde dört farklı hedef şekil,
+4 × 4 tabloda soldan sağa sırayla seçilir; yanlış kutu ilerletmez.
+
+## Google Play aboneliğini açma ve yayın
+
+1. Play Console'da ödeme profilini tamamla. Uygulama paket kimliği
+   `com.caglaryildiz.alarm` olmalı. Önizleme APK'sının `.editorpreview`
+   paketi bu uygulamanın abonelik ürünlerini sorgulayamaz.
+2. **Play ile para kazanma > Ürünler > Abonelikler** altında `beng_premium`
+   oluştur. `monthly` kimlikli, aylık ve otomatik yenilenen temel plan ekle.
+   Ülke/bölge ve fiyatları belirleyip planı etkinleştir. Bu sürüm yalnızca
+   standart aylık planı sunar; deneme/indirim tekliflerini sunmaz.
+3. Fiyat kodda sabit değildir. Google Play'in yerelleştirilmiş fiyatı,
+   aylık dönem ve otomatik yenileme açıklaması ödeme düğmesinden önce
+   gösterilir. Ürün sorgusu başarısızsa ödeme düğmesi açılmaz; yeniden
+   yükleme sunulur. Bekleyen ödemeler erişim açmaz. Satın alımlar geri
+   yüklenebilir, etkin abonelik Play üzerinden yönetilip iptal edilebilir.
+4. Yayın anahtarınla imzalanmış AAB'yi iç test kanalına yükle; test hesabını
+   hem test kanalına hem lisans test kullanıcılarına ekle. Uygulamayı Play
+   üzerinden kur. Onay, reddetme, bekleyen ödeme, iptal, yenileme, süre
+   dolması ve yeniden kurulum/geri yükleme senaryolarını dene.
+5. Mağaza kaydı, gizlilik politikası, veri güvenliği, içerik derecelendirmesi,
+   hedef kitle ve kullanılan izinlere ilişkin Console görevlerini tamamla.
+   Üretim erişimi ve inceleme tamamlanmadan herkese açık yayın gerçekleşmez.
+   13 Kasım 2023 sonrasında açılan kişisel hesaplarda üretim başvurusu için
+   en az 12 test kullanıcısının kesintisiz 14 günlük kapalı testi gerekebilir.
+
+**Mevcut sınır:** abonelik sorgulama ve satın alma onayı istemcidedir.
+Sunucuda Google Play `purchases.subscriptionsv2.get` doğrulaması, gerçek
+zamanlı bildirimler (RTDN), iade/iptal durum takibi henüz entegre değildir.
+Çevrimdışıyken son erişim durumu korunur; süresi dolan abonelik, başarılı
+Play sorgusuna kadar önbellekte etkin kalabilir. Ücretli üretim dağıtımından
+önce bu erişim politikasını ve sunucu doğrulamasını tamamlamak önerilir.
+Uygulama içi kullanıcı hesabı gerekmemesi, Play satın alma doğrulamasını
+ortadan kaldırmaz. Debug test erişimi release sürümünde bulunmaz.
+
+Kaynaklar:
+- https://support.google.com/googleplay/android-developer/answer/140504
+- https://developer.android.com/google/play/billing/test
+- https://developer.android.com/google/play/billing/security
+- https://support.google.com/googleplay/android-developer/answer/14151465

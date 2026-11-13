@@ -22,7 +22,8 @@ internal enum class AlarmTask(val label: String, val premium: Boolean = false) {
     MEMORY("Hafıza dizisi"),
     TYPING("Metin yazma"),
     SHAKE("Telefonu salla", premium = true),
-    QR("QR kod okutma", premium = true)
+    QR("QR kod okutma", premium = true),
+    SHAPES("Şekilleri bul", premium = true)
 }
 
 internal data class Alarm(

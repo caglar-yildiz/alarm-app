@@ -54,7 +54,7 @@ abstract class AlarmScreen : Activity() {
             clipToPadding = false
             addView(panel)
             setOnApplyWindowInsetsListener { _, insets ->
-                applyScreenInsets(insets)
+                applyScreenInsets(insets, footer != null)
                 insets
             }
         }
@@ -89,10 +89,10 @@ abstract class AlarmScreen : Activity() {
     }
 
     @Suppress("DEPRECATION")
-    private fun applyScreenInsets(insets: WindowInsets) {
+    private fun applyScreenInsets(insets: WindowInsets, hasFooter: Boolean) {
         if (Build.VERSION.SDK_INT >= 35) {
             val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
-            panel.setPadding(dp(20) + bars.left, dp(20) + bars.top, dp(20) + bars.right, dp(24) + bars.bottom)
+            panel.setPadding(dp(20) + bars.left, dp(20) + bars.top, dp(20) + bars.right, dp(24) + if (hasFooter) 0 else bars.bottom)
         } else {
             panel.setPadding(dp(20), dp(20), dp(20), dp(24))
         }
@@ -235,13 +235,17 @@ class MainActivity : PremiumScreen() {
     }
 
     private fun navigation(): LinearLayout = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        isBaselineAligned = false
+        gravity = Gravity.CENTER_VERTICAL
         setBackgroundColor(0xFF161B34.toInt())
         for (item in Tab.entries) {
             val selected = item == tab
             addView(LinearLayout(this@MainActivity).apply {
                 orientation = LinearLayout.VERTICAL
                 gravity = Gravity.CENTER
-                minimumHeight = dp(64)
+                minimumHeight = dp(72)
+                setPadding(dp(4), dp(8), dp(4), dp(8))
                 isSelected = selected
                 isFocusable = true
                 contentDescription = item.title
@@ -251,8 +255,13 @@ class MainActivity : PremiumScreen() {
                     if (item != Tab.ALARMS) setColorFilter(if (selected) accentColor else mutedColor)
                     importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 }, LinearLayout.LayoutParams(dp(26), dp(26)))
-                label(item.title, 12f, this, bold = selected, color = if (selected) accentColor else mutedColor)
-                    .importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                label(item.title, 12f, this, bold = selected, color = if (selected) accentColor else mutedColor).apply {
+                    gravity = Gravity.CENTER
+                    includeFontPadding = false
+                    setPadding(0, dp(6), 0, 0)
+                    layoutParams = LinearLayout.LayoutParams(-1, -2)
+                    importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                }
                 setOnClickListener {
                     tab = item
                     render()
@@ -274,7 +283,9 @@ class MainActivity : PremiumScreen() {
             }
         }
         settings.addView(Switch(this).apply {
-            text = "Uyanıklık kontrolü"
+            text = "Uyanıklık kontrolü  ✦"
+            contentDescription = "Uyanıklık kontrolü, Premium özellik"
+            stylePlanetToggle()
             minHeight = dp(48)
             isChecked = wake.enabled
             setOnCheckedChangeListener { _, enabled ->
@@ -518,15 +529,35 @@ class MainActivity : PremiumScreen() {
     }
 }
 
-class RingActivity : AlarmScreen() {
+class MissionPreviewActivity : RingActivity()
+
+open class RingActivity : AlarmScreen() {
+    private val isPreview get() = this is MissionPreviewActivity
+    private var previewRing: Ring? = null
+    private var previewTone: android.media.Ringtone? = null
+    private val soundTimeout = android.os.Handler(android.os.Looper.getMainLooper())
+    private fun currentRing() = if (isPreview) previewRing else RingService.active
     private val sensorManager by lazy { getSystemService(android.hardware.SensorManager::class.java) }
     private var shakeListener: android.hardware.SensorEventListener? = null
     private val memoryHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private var failedQrToken: String? = null
-    private val onRingChanged: () -> Unit = ::render
+    private val onRingChanged: () -> Unit = {
+        if (isPreview && RingService.active != null) {
+            previewTone?.stop()
+            finish()
+        } else render()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (isPreview) {
+            val task = AlarmTask.entries.firstOrNull { it.name == intent.getStringExtra("task") } ?: AlarmTask.NONE
+            previewRing = Ring("preview",
+                if (task == AlarmTask.MATH) MathMission(MathSettings.from(intent.getStringExtra("mathDifficulty"), intent.getIntExtra("mathCount", 1))) else null,
+                if (task != AlarmTask.MATH && task != AlarmTask.NONE) ExtraMission(task, intent.getStringExtra("qrCode").orEmpty()) else null,
+                intent.getStringExtra("label").orEmpty(), intent.getStringExtra("tone")?.let(Uri::parse))
+            return
+        }
         if (Build.VERSION.SDK_INT >= 27) {
             setShowWhenLocked(true)
             setTurnScreenOn(true)
@@ -541,28 +572,46 @@ class RingActivity : AlarmScreen() {
     override fun onStart() {
         super.onStart()
         RingService.listeners.add(onRingChanged)
+        if (isPreview && intent.getBooleanExtra("sound", false) && RingService.active == null) {
+            runCatching {
+                val uri = previewRing?.tone ?: android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM)
+                previewTone = android.media.RingtoneManager.getRingtone(this, uri)?.apply {
+                    audioAttributes = android.media.AudioAttributes.Builder()
+                        .setUsage(android.media.AudioAttributes.USAGE_ALARM).build()
+                    play()
+                }
+                soundTimeout.postDelayed({ previewTone?.stop() }, 30_000)
+            }
+        }
         render()
     }
 
     override fun onStop() {
         RingService.listeners.remove(onRingChanged)
         clearMissionCallbacks()
+        soundTimeout.removeCallbacksAndMessages(null)
+        previewTone?.stop()
+        previewTone = null
         super.onStop()
     }
 
     private fun render() {
         clearMissionCallbacks()
-        val ring = RingService.active
+        val ring = currentRing()
         if (ring == null) {
             finish()
             return
         }
         layout(getString(R.string.app_name))
         val header = card()
-        label("Alarm çalıyor", 22f, header, bold = true).gravity = Gravity.CENTER
+        label(if (isPreview) "Önizleme" else "Alarm çalıyor", 22f, header, bold = true).gravity = Gravity.CENTER
         if (ring.label.isNotBlank()) label(ring.label, 16f, header, color = mutedColor).gravity = Gravity.CENTER
         timeLabel(ring.startedAt.format(clockFormat), 60f, header).gravity = Gravity.CENTER
         header.addView(AstralPlanet(this), LinearLayout.LayoutParams(-1, dp(112)))
+        if (isPreview) {
+            label("Bu bir denemedir. Alarmların değişmez; ses en fazla 30 saniye çalar.", 14f, header, color = mutedColor)
+            button("Önizlemeyi kapat", header, primary = false) { finish() }
+        }
         val controls = card()
         val mission = ring.math
         val extra = ring.extra
@@ -594,7 +643,7 @@ class RingActivity : AlarmScreen() {
                 }
             }
         }
-        if (Alarms(this).canSchedule()) button("5 dakika ertele", controls, primary = false) { send(RingService.SNOOZE, ring) }
+        if (!isPreview && Alarms(this).canSchedule()) button("5 dakika ertele", controls, primary = false) { send(RingService.SNOOZE, ring) }
     }
 
     private fun clearMissionCallbacks() {
@@ -607,31 +656,75 @@ class RingActivity : AlarmScreen() {
         label(mission.task.label, 20f, controls, bold = true)
         when (mission.task) {
             AlarmTask.MEMORY -> {
-                val display = label("Diziyi göster, sonra sırayı tekrarla.", 17f, controls)
+                label("Diziyi göster, sonra sırayı tekrarla.", 17f, controls)
+                val display = label("•", 64f, controls, bold = true).apply {
+                    gravity = Gravity.CENTER
+                    minHeight = dp(104)
+                }
+                val status = label("Hazır olduğunda diziyi göster.", 16f, controls)
                 val row = LinearLayout(this)
                 controls.addView(row)
                 val keys = (1..4).map { number ->
                     button(number.toString(), row, primary = false) {
                         val correct = mission.tap(number)
-                        display.text = if (correct) "${mission.progress} / ${mission.sequence.size}"
+                        status.text = if (correct) "${mission.progress} / ${mission.sequence.size}"
                             else "Yanlış sıra. Baştan dene veya diziyi yeniden göster."
                         if (mission.complete) send(RingService.DISMISS, ring)
                     }.apply {
+                        textSize = 30f
+                        minimumHeight = dp(64)
                         isEnabled = false
                         layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
                     }
                 }
                 button("Diziyi göster", controls, primary = false) {
                     memoryHandler.removeCallbacksAndMessages(null)
+                    mission.resetSequence()
+                    status.text = "Sırayı aklında tut"
                     keys.forEach { it.isEnabled = false }
                     for ((index, number) in mission.sequence.withIndex()) {
                         memoryHandler.postDelayed({ display.text = number.toString() }, index * 800L)
                         memoryHandler.postDelayed({ display.text = "•" }, index * 800L + 550L)
                     }
                     memoryHandler.postDelayed({
-                        display.text = "Sırayı tekrarla · ${mission.progress} / ${mission.sequence.size}"
+                        display.text = "•"
+                        status.text = "Sırayı tekrarla · ${mission.progress} / ${mission.sequence.size}"
                         keys.forEach { it.isEnabled = true }
                     }, mission.sequence.size * 800L)
+                }
+            }
+            AlarmTask.SHAPES -> {
+                val shapes = mission.shapes
+                label("Şekilleri soldan sağa sırayla tabloda bul. Her şekil için bir kutuya dokun.", 16f, controls)
+                label(shapes.targets.joinToString("  ") { ShapeMission.symbols[it] }, 36f, controls).apply {
+                    gravity = Gravity.CENTER
+                    contentDescription = shapes.targets.joinToString(", ") { ShapeMission.names[it] }
+                }
+                val status = label("${shapes.progress} / 4 · ${ShapeMission.names[shapes.targets[shapes.progress.coerceAtMost(3)]]} bul", 18f, controls)
+                repeat(4) { rowIndex ->
+                    val row = LinearLayout(this).apply { isBaselineAligned = false }
+                    controls.addView(row)
+                    repeat(4) { columnIndex ->
+                        val index = rowIndex * 4 + columnIndex
+                        val tile = button(ShapeMission.symbols[shapes.board[index]], row, primary = false) { }
+                        tile.apply {
+                            textSize = 32f
+                            minWidth = 0
+                            minimumHeight = dp(60)
+                            contentDescription = "${rowIndex + 1}. satır, ${columnIndex + 1}. sütun: ${ShapeMission.names[shapes.board[index]]}"
+                            isEnabled = index !in shapes.selected
+                            alpha = if (isEnabled) 1f else .35f
+                            layoutParams = LinearLayout.LayoutParams(0, dp(64), 1f).apply { setMargins(dp(2), dp(2), dp(2), dp(2)) }
+                            setOnClickListener {
+                                if (mission.pickShape(index)) {
+                                    isEnabled = false
+                                    alpha = .35f
+                                    if (mission.complete) send(RingService.DISMISS, ring)
+                                    else status.text = "${shapes.progress} / 4 · ${ShapeMission.names[shapes.targets[shapes.progress]]} bul"
+                                } else status.text = "Sıradaki şekil: ${ShapeMission.names[shapes.targets[shapes.progress]]}"
+                            }
+                        }
+                    }
                 }
             }
             AlarmTask.TYPING -> {
@@ -703,7 +796,7 @@ class RingActivity : AlarmScreen() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode != 22) return
-        val ring = RingService.active ?: return
+        val ring = currentRing() ?: return
         val mission = ring.extra?.takeIf { it.task == AlarmTask.QR } ?: return
         if (data?.getStringExtra("ringToken") != ring.token) return
         when (resultCode) {
@@ -723,6 +816,11 @@ class RingActivity : AlarmScreen() {
     }
 
     private fun send(action: String, ring: Ring) {
+        if (isPreview) {
+            android.widget.Toast.makeText(this, "Önizleme tamamlandı", android.widget.Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
         startService(Intent(this, RingService::class.java).setAction(action).putExtra("token", ring.token))
     }
 }

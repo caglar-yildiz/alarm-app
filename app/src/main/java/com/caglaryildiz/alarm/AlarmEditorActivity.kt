@@ -99,6 +99,9 @@ class AlarmEditorActivity : AlarmScreen() {
         difficultyButton = button("", taskSection, primary = false, action = ::pickDifficulty)
         questionCountButton = button("", taskSection, primary = false, action = ::pickQuestionCount)
 
+        button("Görevi önizle", taskSection, primary = false) { openPreview(false) }
+        button("Alarmı sesli önizle", taskSection, primary = false) { openPreview(true) }
+
         button("Kaydet", action = ::save)
         button("Vazgeç", primary = false) { finish() }
         original?.let { existing ->
@@ -161,7 +164,8 @@ class AlarmEditorActivity : AlarmScreen() {
             7 -> "Her gün"
             else -> days.sorted().joinToString(" · ") { weekdays[it - 1].take(3) }
         }
-        taskButton.text = task.label
+        taskButton.text = if (task.premium) "${task.label}  ✦" else task.label
+        taskButton.contentDescription = task.label + if (task.premium) ", Premium özellik" else ""
         qrButton.visibility = if (task == AlarmTask.QR) android.view.View.VISIBLE else android.view.View.GONE
         qrButton.text = if (qrCode.isBlank()) "QR kodu kaydet" else "Kayıtlı QR kodu değiştir"
         val showMathSettings = if (task == AlarmTask.MATH) android.view.View.VISIBLE else android.view.View.GONE
@@ -238,13 +242,28 @@ class AlarmEditorActivity : AlarmScreen() {
         AlertDialog.Builder(this, R.style.AstralDialogTheme)
             .setTitle("Kapatma görevi")
             .setSingleChoiceItems(AlarmTask.entries.map {
-                if (it.premium) "${it.label} · Premium" else it.label
+                if (it.premium) "${it.label}  ✦" else it.label
             }.toTypedArray(), task.ordinal) { dialog, index ->
                 dialog.dismiss()
                 selectTask(AlarmTask.entries[index])
             }
             .setNegativeButton("Vazgeç", null)
             .show()
+    }
+
+    private fun openPreview(sound: Boolean) {
+        if (task == AlarmTask.QR && qrCode.isBlank()) {
+            Toast.makeText(this, "QR önizlemesi için önce bir QR kod kaydet.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        startActivity(android.content.Intent(this, MissionPreviewActivity::class.java)
+            .putExtra("task", task.name)
+            .putExtra("mathDifficulty", mathSettings.difficulty.name)
+            .putExtra("mathCount", mathSettings.count)
+            .putExtra("qrCode", qrCode)
+            .putExtra("label", nameInput.text.toString())
+            .putExtra("tone", tone)
+            .putExtra("sound", sound))
     }
 
     private fun selectTask(selected: AlarmTask) {

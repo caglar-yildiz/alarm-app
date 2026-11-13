@@ -78,7 +78,7 @@ class RingService : Service() {
                         intent.getIntExtra("mathCount", 1)))
                 } else null
                 val extra = when (task) {
-                    AlarmTask.MEMORY, AlarmTask.TYPING, AlarmTask.SHAKE, AlarmTask.QR -> ExtraMission(task, qrCode)
+                    AlarmTask.MEMORY, AlarmTask.TYPING, AlarmTask.SHAKE, AlarmTask.QR, AlarmTask.SHAPES -> ExtraMission(task, qrCode)
                     else -> null
                 }
                 val ring = Ring(id, math, extra, intent.getStringExtra("label").orEmpty(),

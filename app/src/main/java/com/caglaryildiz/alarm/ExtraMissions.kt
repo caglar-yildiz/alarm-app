@@ -5,6 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorManager
 
 internal class ExtraMission(val task: AlarmTask, val qrCode: String) {
+    val shapes = ShapeMission()
     val sequence = List(4) { (1..4).random() }
     val phrase = listOf("Bugün yeni bir gün", "Perdeyi aç ve güne başla", "Bir bardak su iç").random()
     var progress = 0
@@ -20,6 +21,14 @@ internal class ExtraMission(val task: AlarmTask, val qrCode: String) {
         }
         complete = ++progress == sequence.size
         return true
+    }
+
+    fun resetSequence() { if (!complete) progress = 0 }
+
+    fun pickShape(index: Int): Boolean {
+        val correct = shapes.pick(index)
+        complete = shapes.complete
+        return correct
     }
 
     fun type(text: String): Boolean {
