@@ -1,6 +1,7 @@
 package com.caglaryildiz.alarm
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -16,6 +17,7 @@ import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
+import com.android.billingclient.api.UnfetchedProduct
 
 internal class PremiumAccess(context: Context) {
     private val prefs = context.createDeviceProtectedStorageContext()
@@ -41,7 +43,11 @@ internal class PremiumBilling(private val activity: Activity, private val change
     private var connecting = false
     private var pending = false
     private var closed = false
-    var status = "Google Play fiyatı yükleniyor…"
+    var catalogStatus = "Google Play fiyatı yükleniyor…"
+        private set
+    private var catalogReport = "Google Play yanıtı bekleniyor."
+    private var queryingCatalog = false
+    var status = ""
         private set
     private var purchasing = false
     val canBuy get() = client.isReady && price != null && !pending && !purchasing && !access.subscribed
@@ -75,27 +81,50 @@ internal class PremiumBilling(private val activity: Activity, private val change
         if (closed) return
         if (client.isReady) {
             refreshPurchases()
+            if (queryingCatalog) return
+            queryingCatalog = true
+            catalogStatus = "Google Play fiyatı yükleniyor…"
+            catalogReport = "Ürün sorgusu devam ediyor."
+            changed()
             val product = QueryProductDetailsParams.Product.newBuilder()
                 .setProductId(PRODUCT).setProductType(BillingClient.ProductType.SUBS).build()
             client.queryProductDetailsAsync(QueryProductDetailsParams.newBuilder().setProductList(listOf(product)).build()) { queryResult, result ->
                 activity.runOnUiThread {
                     if (closed) return@runOnUiThread
+                    queryingCatalog = false
+                    val returnedProduct = result.productDetailsList.firstOrNull { it.productId == PRODUCT }
+                    val offers = returnedProduct?.subscriptionOfferDetails.orEmpty()
+                    val unfetched = result.unfetchedProductList.firstOrNull { it.productId == PRODUCT }
+                    catalogReport = buildString {
+                        appendLine("Ürün sorgusu: ${queryResult.responseCode}")
+                        if (unfetched != null) appendLine("Ürün durumu: ${unfetched.statusCode}")
+                        appendLine("Dönen ürün: ${returnedProduct?.productId ?: "yok"}")
+                        if (offers.isEmpty()) appendLine("Dönen plan: yok")
+                        for (plan in offers) {
+                            val periods = plan.pricingPhases.pricingPhaseList.joinToString(", ") { it.billingPeriod }
+                            appendLine("Plan: ${plan.basePlanId} · ${plan.offerId ?: "standart"} · $periods")
+                        }
+                    }.trimEnd()
                     if (queryResult.responseCode != BillingClient.BillingResponseCode.OK) {
                         details = null
                         offer = null
-                        status = "Fiyat alınamadı. Google Play bağlantını kontrol edip tekrar dene."
+                        catalogStatus = "Google Play ürün sorgusu başarısız oldu."
                         changed()
                         return@runOnUiThread
                     }
-                    details = result.productDetailsList.firstOrNull()
-                    offer = details?.subscriptionOfferDetails?.firstOrNull {
-                        it.basePlanId == "monthly" && it.offerId == null &&
+                    details = returnedProduct
+                    offer = offers.firstOrNull {
+                        it.basePlanId == MONTHLY_PLAN && it.offerId == null &&
                             it.pricingPhases.pricingPhaseList.singleOrNull()?.billingPeriod == "P1M"
                     }
-                    status = when {
-                        pending -> "Ödeme onayı bekleniyor."
-                        price == null -> "Bu hesap veya bölge için aylık plan şu anda kullanılamıyor. Daha sonra tekrar dene."
-                        else -> ""
+                    catalogStatus = when {
+                        price != null -> ""
+                        unfetched?.statusCode == UnfetchedProduct.StatusCode.PRODUCT_NOT_FOUND ->
+                            "Google Play abonelik ürününü bulamadı."
+                        unfetched?.statusCode == UnfetchedProduct.StatusCode.NO_ELIGIBLE_OFFER ->
+                            "Bu Google Play hesabı için satın alınabilir plan bulunamadı."
+                        returnedProduct != null -> "Google Play ürünü buldu ancak beklenen aylık plan gelmedi."
+                        else -> "Google Play abonelik ürününün ayrıntılarını döndürmedi."
                     }
                     changed()
                 }
@@ -104,6 +133,9 @@ internal class PremiumBilling(private val activity: Activity, private val change
         }
         if (connecting) return
         connecting = true
+        catalogStatus = "Google Play’e bağlanılıyor…"
+        catalogReport = "Google Play bağlantısı bekleniyor."
+        changed()
         client.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(result: BillingResult) {
                 activity.runOnUiThread {
@@ -111,7 +143,8 @@ internal class PremiumBilling(private val activity: Activity, private val change
                     connecting = false
                     if (result.responseCode == BillingClient.BillingResponseCode.OK) refresh()
                     else {
-                        status = "Google Play satın alma hizmetine ulaşılamadı."
+                        catalogStatus = "Google Play satın alma hizmetine ulaşılamadı."
+                        catalogReport = "Google Play bağlantısı: ${result.responseCode}"
                         changed()
                     }
                 }
@@ -123,7 +156,9 @@ internal class PremiumBilling(private val activity: Activity, private val change
                     connecting = false
                     details = null
                     offer = null
-                    status = "Google Play bağlantısı kesildi."
+                    queryingCatalog = false
+                    catalogStatus = "Google Play bağlantısı kesildi."
+                    catalogReport = "Google Play bağlantısı kesildi."
                     changed()
                 }
             }
@@ -166,6 +201,21 @@ internal class PremiumBilling(private val activity: Activity, private val change
         }
     }
 
+    fun showCatalogDiagnostics() {
+        val installer = if (android.os.Build.VERSION.SDK_INT >= 30) {
+            activity.packageManager.getInstallSourceInfo(activity.packageName).installingPackageName
+        } else {
+            @Suppress("DEPRECATION")
+            activity.packageManager.getInstallerPackageName(activity.packageName)
+        }
+        AlertDialog.Builder(activity, R.style.AstralDialogTheme)
+            .setTitle("Fiyat teşhisi")
+            .setMessage("Paket: ${activity.packageName}\nKurulum kaynağı: ${installer ?: "bilinmiyor"}" +
+                "\nBeklenen ürün: $PRODUCT\nBeklenen plan: $MONTHLY_PLAN · standart · P1M\n\n$catalogReport")
+            .setPositiveButton("Kapat", null)
+            .show()
+    }
+
     fun buy() {
         if (!canBuy) return
         val product = details ?: return
@@ -200,6 +250,7 @@ internal class PremiumBilling(private val activity: Activity, private val change
 
     companion object {
         private const val PRODUCT = "beng_premium"
+        private const val MONTHLY_PLAN = "monthly"
     }
 }
 
@@ -240,8 +291,9 @@ abstract class PremiumScreen : AlarmScreen() {
                 button("Aylık $price · Abone ol", membership) { billing?.buy() }.isEnabled = billing?.canBuy == true
             }
             if (price == null) {
-                label("Aylık abonelik · Fiyat henüz alınamadı", 20f, membership, bold = true)
-                label("Güncel fiyat ve para birimi Google Play’den yüklenir. Fiyat yüklenene kadar ödeme başlatılmaz.", 14f, membership, color = mutedColor)
+                label("Aylık abonelik", 20f, membership, bold = true)
+                label(billing?.catalogStatus ?: "Google Play fiyatı yükleniyor…", 14f, membership, color = mutedColor)
+                button("Fiyat teşhisini göster", membership, primary = false) { billing?.showCatalogDiagnostics() }
                 button("Fiyatı yeniden yükle", membership, primary = false) { refreshPremium() }
             }
             button("Satın alımları geri yükle", membership, primary = false) { refreshPremium() }
