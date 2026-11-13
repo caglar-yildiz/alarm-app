@@ -1,19 +1,19 @@
 plugins {
-    id("com.android.application") version "8.7.3"
+    id("com.android.application") version "8.10.1"
     id("org.jetbrains.kotlin.android") version "2.0.21"
 }
 
 android {
     namespace = "com.caglaryildiz.alarm"
-    compileSdk = 35
-    buildToolsVersion = "35.0.0"
+    compileSdk = 36
+    buildToolsVersion = "36.0.0"
 
     defaultConfig {
         applicationId = "com.caglaryildiz.alarm"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 14
-        versionName = "0.8.0"
+        targetSdk = 36
+        versionCode = 15
+        versionName = "0.8.1"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
