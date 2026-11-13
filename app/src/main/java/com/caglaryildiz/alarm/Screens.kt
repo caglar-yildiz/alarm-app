@@ -398,6 +398,10 @@ class MainActivity : AlarmScreen() {
 }
 
 class RingActivity : AlarmScreen() {
+    private val sensorManager by lazy { getSystemService(android.hardware.SensorManager::class.java) }
+    private var shakeListener: android.hardware.SensorEventListener? = null
+    private val memoryHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private var failedQrToken: String? = null
     private val onRingChanged: () -> Unit = ::render
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -421,10 +425,12 @@ class RingActivity : AlarmScreen() {
 
     override fun onStop() {
         RingService.listeners.remove(onRingChanged)
+        clearMissionCallbacks()
         super.onStop()
     }
 
     private fun render() {
+        clearMissionCallbacks()
         val ring = RingService.active
         if (ring == null) {
             finish()
@@ -438,7 +444,10 @@ class RingActivity : AlarmScreen() {
         header.addView(AstralPlanet(this), LinearLayout.LayoutParams(-1, dp(112)))
         val controls = card()
         val mission = ring.math
-        if (mission == null) {
+        val extra = ring.extra
+        if (extra != null) {
+            showExtraMission(ring, extra, controls)
+        } else if (mission == null) {
             button("Alarmı kapat", controls) { send(RingService.DISMISS, ring) }
         } else {
             val progress = label("", 15f, controls, color = mutedColor)
@@ -465,6 +474,131 @@ class RingActivity : AlarmScreen() {
             }
         }
         if (Alarms(this).canSchedule()) button("5 dakika ertele", controls, primary = false) { send(RingService.SNOOZE, ring) }
+    }
+
+    private fun clearMissionCallbacks() {
+        memoryHandler.removeCallbacksAndMessages(null)
+        shakeListener?.let { sensorManager.unregisterListener(it) }
+        shakeListener = null
+    }
+
+    private fun showExtraMission(ring: Ring, mission: ExtraMission, controls: LinearLayout) {
+        label(mission.task.label, 20f, controls, bold = true)
+        when (mission.task) {
+            AlarmTask.MEMORY -> {
+                val display = label("Diziyi göster, sonra sırayı tekrarla.", 17f, controls)
+                val row = LinearLayout(this)
+                controls.addView(row)
+                val keys = (1..4).map { number ->
+                    button(number.toString(), row, primary = false) {
+                        val correct = mission.tap(number)
+                        display.text = if (correct) "${mission.progress} / ${mission.sequence.size}"
+                            else "Yanlış sıra. Baştan dene veya diziyi yeniden göster."
+                        if (mission.complete) send(RingService.DISMISS, ring)
+                    }.apply {
+                        isEnabled = false
+                        layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
+                    }
+                }
+                button("Diziyi göster", controls, primary = false) {
+                    memoryHandler.removeCallbacksAndMessages(null)
+                    keys.forEach { it.isEnabled = false }
+                    for ((index, number) in mission.sequence.withIndex()) {
+                        memoryHandler.postDelayed({ display.text = number.toString() }, index * 800L)
+                        memoryHandler.postDelayed({ display.text = "•" }, index * 800L + 550L)
+                    }
+                    memoryHandler.postDelayed({
+                        display.text = "Sırayı tekrarla · ${mission.progress} / ${mission.sequence.size}"
+                        keys.forEach { it.isEnabled = true }
+                    }, mission.sequence.size * 800L)
+                }
+            }
+            AlarmTask.TYPING -> {
+                label(mission.phrase, 24f, controls)
+                val input = EditText(this).apply {
+                    hint = "Cümleyi yaz"
+                    setSingleLine()
+                    styleInput(this)
+                    controls.addView(this)
+                }
+                button("Metni kontrol et", controls) {
+                    if (mission.type(input.text.toString())) send(RingService.DISMISS, ring)
+                    else input.error = "Cümleyi ekrandaki gibi yaz."
+                }
+            }
+            AlarmTask.SHAKE -> showShakeMission(ring, mission, controls)
+            AlarmTask.QR -> {
+                label("Bu alarm için kaydettiğin QR kodunu okut.", parent = controls)
+                button("Kamerayı aç", controls) {
+                    @Suppress("DEPRECATION")
+                    startActivityForResult(Intent(this, QrScannerActivity::class.java).putExtra("ringToken", ring.token), 22)
+                }
+                if (failedQrToken == ring.token) {
+                    label("Kamera kullanılamıyor.", parent = controls)
+                    button("Matematikle devam et", controls, primary = false) { useMathFallback(ring) }
+                }
+            }
+            else -> error("Unsupported mission: ${mission.task}")
+        }
+    }
+
+    private fun showShakeMission(ring: Ring, mission: ExtraMission, controls: LinearLayout) {
+        val progress = label("${mission.progress} / ${ExtraMission.SHAKE_COUNT}", 24f, controls)
+        val sensor = sensorManager.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER)
+        val listener = object : android.hardware.SensorEventListener {
+            private var lastShake = 0L
+            private var aboveThreshold = false
+
+            override fun onSensorChanged(event: android.hardware.SensorEvent) {
+                val (x, y, z) = event.values
+                val high = x * x + y * y + z * z >= 23f * 23f
+                val now = android.os.SystemClock.elapsedRealtime()
+                if (high && !aboveThreshold && now - lastShake >= 300 && !mission.complete) {
+                    lastShake = now
+                    mission.shake()
+                    progress.text = "${mission.progress} / ${ExtraMission.SHAKE_COUNT}"
+                    if (mission.complete) send(RingService.DISMISS, ring)
+                }
+                aboveThreshold = high
+            }
+
+            override fun onAccuracyChanged(sensor: android.hardware.Sensor?, accuracy: Int) = Unit
+        }
+        if (sensor != null && sensorManager.registerListener(listener, sensor,
+                android.hardware.SensorManager.SENSOR_DELAY_GAME)) {
+            shakeListener = listener
+        } else {
+            button("Matematikle devam et", controls, primary = false) { useMathFallback(ring) }
+        }
+    }
+
+    private fun useMathFallback(ring: Ring) {
+        ring.extra = null
+        ring.math = MathMission(MathSettings())
+        render()
+    }
+
+    @Deprecated("Receives the locally scanned QR code.")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != 22) return
+        val ring = RingService.active ?: return
+        val mission = ring.extra?.takeIf { it.task == AlarmTask.QR } ?: return
+        if (data?.getStringExtra("ringToken") != ring.token) return
+        when (resultCode) {
+            QrScannerActivity.RESULT_CAMERA_UNAVAILABLE -> {
+                failedQrToken = ring.token
+                if (hasWindowFocus()) render()
+            }
+            RESULT_OK -> {
+                if (mission.scan(data.getStringExtra(QrScannerActivity.CODE).orEmpty())) {
+                    send(RingService.DISMISS, ring)
+                } else {
+                    android.widget.Toast.makeText(this, "Bu alarmın kayıtlı QR kodu değil.",
+                        android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     private fun send(action: String, ring: Ring) {

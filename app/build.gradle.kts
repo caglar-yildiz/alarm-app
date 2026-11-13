@@ -7,13 +7,14 @@ android {
     namespace = "com.caglaryildiz.alarm"
     compileSdk = 35
     buildToolsVersion = "35.0.0"
+    buildFeatures.buildConfig = true
 
     defaultConfig {
         applicationId = "com.caglaryildiz.alarm"
         minSdk = 26
         targetSdk = 35
-        versionCode = 11
-        versionName = "0.5.0"
+        versionCode = 12
+        versionName = "0.6.0"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -23,4 +24,8 @@ android {
 
 kotlin {
     compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+}
+
+dependencies {
+    implementation("com.google.zxing:core:3.5.3")
 }

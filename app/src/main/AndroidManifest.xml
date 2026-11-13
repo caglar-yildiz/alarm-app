@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -15,6 +18,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".AlarmEditorActivity" android:exported="false" />
+        <activity android:name=".QrScannerActivity" android:exported="false" />
         <activity android:name=".RingActivity" android:exported="false"
             android:excludeFromRecents="true" android:launchMode="singleTop" />
         <service android:name=".RingService" android:exported="false"

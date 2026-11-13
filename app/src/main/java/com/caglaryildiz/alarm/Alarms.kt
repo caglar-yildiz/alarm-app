@@ -16,9 +16,13 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
 
-internal enum class AlarmTask(val label: String) {
+internal enum class AlarmTask(val label: String, val premium: Boolean = false) {
     NONE("Görev yok"),
-    MATH("Matematik")
+    MATH("Matematik"),
+    MEMORY("Hafıza dizisi"),
+    TYPING("Metin yazma"),
+    SHAKE("Telefonu salla", premium = true),
+    QR("QR kod okutma", premium = true)
 }
 
 internal data class Alarm(
@@ -31,7 +35,8 @@ internal data class Alarm(
     val date: LocalDate? = null,
     val label: String = "",
     val tone: String? = null,
-    val mathSettings: MathSettings = MathSettings()
+    val mathSettings: MathSettings = MathSettings(),
+    val qrCode: String = ""
 ) {
     fun nextAfter(now: ZonedDateTime): Long? {
         if (days.isEmpty() && date != null) {
@@ -69,7 +74,8 @@ internal class Alarms(private val context: Context) {
                 date = item.optString("date").takeIf { it.isNotEmpty() }?.let(LocalDate::parse),
                 label = item.optString("label"),
                 tone = item.optString("tone").takeIf { it.isNotEmpty() },
-                mathSettings = MathSettings.from(item.optString("mathDifficulty"), item.optInt("mathCount", 1))
+                mathSettings = MathSettings.from(item.optString("mathDifficulty"), item.optInt("mathCount", 1)),
+                qrCode = item.optString("qrCode")
             )
         }
     }
@@ -81,7 +87,7 @@ internal class Alarms(private val context: Context) {
                 .put("days", JSONArray(it.days.sorted())).put("enabled", it.enabled)
                 .put("task", it.task.name).put("snoozeAt", it.snoozeAt)
                 .put("mathDifficulty", it.mathSettings.difficulty.name).put("mathCount", it.mathSettings.count)
-                .put("date", it.date?.toString()).put("label", it.label).put("tone", it.tone))
+                .put("qrCode", it.qrCode).put("date", it.date?.toString()).put("label", it.label).put("tone", it.tone))
         }
         prefs.edit().putString("list", data.toString()).apply()
     }
@@ -166,6 +172,7 @@ class AlarmReceiver : BroadcastReceiver() {
                 context.startForegroundService(Intent(context, RingService::class.java)
                     .putExtra("id", alarm.id)
                     .putExtra("task", alarm.task.name)
+                    .putExtra("qrCode", alarm.qrCode)
                     .putExtra("mathDifficulty", alarm.mathSettings.difficulty.name)
                     .putExtra("mathCount", alarm.mathSettings.count)
                     .putExtra("label", alarm.label)
