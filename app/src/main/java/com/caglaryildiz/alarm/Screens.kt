@@ -218,35 +218,62 @@ abstract class AlarmScreen : Activity() {
 class MainActivity : PremiumScreen() {
     private enum class Tab(val title: String, val icon: Int) {
         ALARMS("Alarmlar", R.drawable.ic_beng_launcher),
+        TOOLS("Araçlar", R.drawable.ic_time_tools),
         WAKE("Uyanıklık", R.drawable.ic_wake_check),
         PREMIUM("Premium", android.R.drawable.star_on)
     }
 
+    private enum class Tool(val title: String) {
+        STOPWATCH("Kronometre"),
+        COUNTDOWNS("Sayaçlar")
+    }
+
     private var tab = Tab.ALARMS
+    private var tool: Tool? = null
+    private val timeTools by lazy { TimeTools(this) }
+    private val toolHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val refreshToolReadout = Runnable(::updateToolReadout)
+    private var toolReadouts = emptyList<Pair<Countdown, TextView>>()
+    private var stopwatchReadout: TextView? = null
+    private var toolsVisible = false
     private val wake by lazy { WakeCheck(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        tab = if (intent.getBooleanExtra("wakeTab", false)) Tab.WAKE
-            else savedInstanceState?.getString("tab")?.let(Tab::valueOf) ?: Tab.ALARMS
+        tab = savedInstanceState?.getString("tab")?.let(Tab::valueOf) ?: Tab.ALARMS
+        tool = savedInstanceState?.getString("tool")?.let(Tool::valueOf)
+        if (savedInstanceState == null) applyNavigationIntent(intent)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        if (intent.getBooleanExtra("wakeTab", false)) {
-            tab = Tab.WAKE
-            render()
+        if (applyNavigationIntent(intent)) render(animateTabChange = true)
+    }
+
+    private fun applyNavigationIntent(intent: Intent): Boolean {
+        return when {
+            intent.getBooleanExtra("wakeTab", false) -> {
+                tab = Tab.WAKE
+                true
+            }
+            intent.getBooleanExtra("timersTab", false) -> {
+                tab = Tab.TOOLS
+                tool = Tool.COUNTDOWNS
+                true
+            }
+            else -> false
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString("tab", tab.name)
+        outState.putString("tool", tool?.name)
         super.onSaveInstanceState(outState)
     }
 
     override fun onPremiumChanged() {
-        if (tab != Tab.ALARMS) render()
+        if (tab == Tab.PREMIUM || tab == Tab.WAKE) render()
     }
 
     private fun navigation(): LinearLayout = LinearLayout(this).apply {
@@ -278,13 +305,156 @@ class MainActivity : PremiumScreen() {
                     importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 }
                 setOnClickListener {
-                    if (tab != item) {
+                    if (tab != item || (item == Tab.TOOLS && tool != null)) {
                         tab = item
+                        if (item == Tab.TOOLS) tool = null
                         render(animateTabChange = true)
                         if (tab == Tab.PREMIUM) refreshPremium()
                     }
                 }
             }, LinearLayout.LayoutParams(0, -2, 1f))
+        }
+    }
+
+    private fun showTools() {
+        when (tool) {
+            null -> {
+                val options = card()
+                for (entry in Tool.entries) {
+                    button(entry.title, options, primary = false) {
+                        tool = entry
+                        render(animateTabChange = true)
+                    }
+                }
+            }
+            Tool.STOPWATCH -> showStopwatch()
+            Tool.COUNTDOWNS -> showCountdowns()
+        }
+    }
+
+    private fun showStopwatch() {
+        val controls = card()
+        stopwatchReadout = timeLabel("", 40f, controls).apply { gravity = Gravity.CENTER }
+        button(if (timeTools.stopwatchRunning) "Duraklat" else "Başlat", controls) {
+            timeTools.toggleStopwatch()
+            render()
+        }
+        button("Sıfırla", controls, primary = false) {
+            timeTools.resetStopwatch()
+            render()
+        }
+    }
+
+    private fun showCountdowns() {
+        timeTools.timers().filter { it.deadline != 0L }.forEach { timeTools.finishIfDue(it.id) }
+        button("+ Sayaç ekle", action = ::addCountdown)
+        val timers = timeTools.timers()
+        if (timers.isEmpty()) label("Henüz sayaç yok.", parent = card(), color = mutedColor)
+        toolReadouts = timers.map { timer ->
+            val item = card()
+            val status = when {
+                timer.deadline != 0L -> "Çalışıyor"
+                timer.remaining == 0L -> "Tamamlandı"
+                timer.remaining < timer.duration -> "Duraklatıldı"
+                else -> "Hazır"
+            }
+            label("${formatTime(timer.duration)} · $status", 16f, item, bold = true)
+            val readout = timeLabel("", 36f, item).apply { gravity = Gravity.CENTER }
+            val action = when {
+                timer.deadline != 0L -> "Duraklat"
+                timer.remaining == 0L -> "Yeniden başlat"
+                timer.remaining < timer.duration -> "Devam et"
+                else -> "Başlat"
+            }
+            button(action, item) {
+                timeTools.toggle(timer.id)
+                render()
+            }
+            val actions = LinearLayout(this).apply { isBaselineAligned = false }
+            item.addView(actions)
+            val reset = button("Sıfırla", actions, primary = false) {
+                timeTools.reset(timer.id)
+                render()
+            }
+            val delete = button("Sil", actions, primary = false, destructive = true) {
+                timeTools.remove(timer.id)
+                render()
+            }
+            reset.layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply {
+                topMargin = dp(8)
+                marginEnd = dp(8)
+            }
+            delete.layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply { topMargin = dp(8) }
+            timer to readout
+        }
+        if (timeTools.notificationsBlocked()) {
+            val settings = card()
+            label("Sayaç tamamlandığında bildirim almak için bildirimleri aç.", 14f, settings, color = mutedColor)
+            button("Bildirim ayarları", settings, primary = false) {
+                startActivity(timeTools.notificationSettings())
+            }
+        }
+    }
+
+    private fun addCountdown() {
+        val fields = column().apply { setPadding(dp(20), dp(8), dp(20), 0) }
+        fun timeField(name: String) = EditText(this).apply {
+            hint = name
+            inputType = InputType.TYPE_CLASS_NUMBER
+            setSingleLine()
+            styleInput(this)
+            fields.addView(this)
+        }
+        val hours = timeField("Saat (0–99)")
+        val minutes = timeField("Dakika (0–59)")
+        val seconds = timeField("Saniye (0–59)")
+        val dialog = android.app.AlertDialog.Builder(this, R.style.AstralDialogTheme)
+            .setTitle("Sayaç ekle")
+            .setView(fields)
+            .setNegativeButton("İptal", null)
+            .setPositiveButton("Başlat", null)
+            .create()
+        dialog.show()
+        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            fun read(field: EditText, max: Int): Int? {
+                val value = field.text.toString().let { if (it.isBlank()) 0 else it.toIntOrNull() }
+                if (value == null || value !in 0..max) {
+                    field.error = "0–$max arasında bir sayı gir."
+                    return null
+                }
+                return value
+            }
+            val h = read(hours, 99) ?: return@setOnClickListener
+            val m = read(minutes, 59) ?: return@setOnClickListener
+            val sec = read(seconds, 59) ?: return@setOnClickListener
+            val duration = (h * 3600L + m * 60 + sec) * 1000
+            if (duration == 0L) {
+                seconds.error = "En az 1 saniye gir."
+                return@setOnClickListener
+            }
+            timeTools.add(duration)
+            dialog.dismiss()
+            render()
+        }
+    }
+
+    private fun updateToolReadout() {
+        val now = android.os.SystemClock.elapsedRealtime()
+        stopwatchReadout?.text = formatTime(timeTools.stopwatchElapsed(now), tenths = true)
+        var running = stopwatchReadout != null && timeTools.stopwatchRunning
+        for ((timer, readout) in toolReadouts) {
+            val remaining = timer.remainingAt(now)
+            if (timer.deadline != 0L && remaining == 0L) {
+                timeTools.finishIfDue(timer.id)
+                render()
+                return
+            }
+            readout.text = formatTime((remaining + 999) / 1000 * 1000)
+            running = running || timer.deadline != 0L
+        }
+        if (toolsVisible && running) {
+            val delay = if (stopwatchReadout != null) 100L else 250L
+            toolHandler.postDelayed(refreshToolReadout, delay)
         }
     }
 
@@ -345,10 +515,13 @@ class MainActivity : PremiumScreen() {
     override fun onStart() {
         super.onStart()
         RingService.listeners.add(onRingChanged)
+        toolsVisible = true
     }
 
     override fun onStop() {
         RingService.listeners.remove(onRingChanged)
+        toolsVisible = false
+        toolHandler.removeCallbacks(refreshToolReadout)
         super.onStop()
     }
 
@@ -360,8 +533,15 @@ class MainActivity : PremiumScreen() {
     }
 
     private fun render(animateTabChange: Boolean = false) {
+        toolHandler.removeCallbacks(refreshToolReadout)
+        stopwatchReadout = null
+        toolReadouts = emptyList()
         layout(
-            if (tab == Tab.ALARMS) getString(R.string.app_name) else tab.title,
+            when (tab) {
+                Tab.ALARMS -> getString(R.string.app_name)
+                Tab.TOOLS -> tool?.title ?: tab.title
+                else -> tab.title
+            },
             navigation(),
             resetScroll = animateTabChange,
             animate = animateTabChange
@@ -377,6 +557,15 @@ class MainActivity : PremiumScreen() {
         when (tab) {
             Tab.PREMIUM -> { showPremium(); return }
             Tab.WAKE -> { showWakeSettings(); return }
+            Tab.TOOLS -> {
+                if (tool != null) button("‹ Araçlar", primary = false) {
+                    tool = null
+                    render(animateTabChange = true)
+                }
+                showTools()
+                updateToolReadout()
+                return
+            }
             Tab.ALARMS -> Unit
         }
         val all = alarms.all().sortedBy { it.time }

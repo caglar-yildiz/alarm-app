@@ -12,8 +12,8 @@ android {
         applicationId = "com.caglaryildiz.alarm"
         minSdk = 26
         targetSdk = 36
-        versionCode = 18
-        versionName = "0.8.3"
+        versionCode = 19
+        versionName = "0.8.4"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
