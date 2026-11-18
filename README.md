@@ -8,7 +8,24 @@ Alarm çalarken alarm ses seviyesi kısılamaz veya kapatılamaz: ses tuşları 
 
 ## Diller
 
-Uygulama Türkçe ve İngilizce destekler (`res/values-tr`, `res/values`). Dil, **Araçlar > Dil** kutucuğundan veya Android 13+ cihazlarda sistem ayarlarındaki uygulama dili ekranından seçilir. Yeni dil eklemek için `res/values-<dil>/strings.xml` dosyasını ekle, `res/xml/locales_config.xml` ve `AppLanguage.supported` listesine dil kodunu yaz. Uygulama içinden dil değişebildiği için AAB'de dil bölmesi kapalıdır.
+Uygulama 14 dil destekler. Diller, uygulama harcamasında öne çıkan pazarlara göre seçildi:
+
+| Dil | Klasör | Başlıca pazarlar |
+| --- | --- | --- |
+| İngilizce (varsayılan) | `values` | ABD, Birleşik Krallık, Kanada, Avustralya |
+| Türkçe | `values-tr` | Türkiye |
+| Almanca | `values-de` | Almanya, İsviçre, Avusturya |
+| Fransızca | `values-fr` | Fransa, Kanada, İsviçre |
+| İspanyolca | `values-es` | Meksika, İspanya |
+| İtalyanca | `values-it` | İtalya |
+| Portekizce (Brezilya) | `values-pt-rBR` | Brezilya |
+| Felemenkçe | `values-nl` | Hollanda |
+| Japonca | `values-ja` | Japonya |
+| Korece | `values-ko` | Güney Kore |
+| Geleneksel Çince | `values-zh-rTW` | Tayvan, Hong Kong |
+| Arapça (sağdan sola) | `values-ar` | Suudi Arabistan, BAE |
+| Tayca | `values-th` | Tayland |
+| Endonezce | `values-in` | Endonezya | Dil, **Araçlar > Dil** kutucuğundan veya Android 13+ cihazlarda sistem ayarlarındaki uygulama dili ekranından seçilir. Yeni dil eklemek için `res/values-<dil>/strings.xml` dosyasını ekle, `res/xml/locales_config.xml` ve `AppLanguage.supported` listesine dil kodunu yaz. Uygulama içinden dil değişebildiği için AAB'de dil bölmesi kapalıdır.
 
 ## Kurulum
 

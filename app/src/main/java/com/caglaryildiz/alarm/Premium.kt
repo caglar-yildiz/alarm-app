@@ -375,7 +375,7 @@ abstract class PremiumScreen : AlarmScreen() {
             val priceRow = LinearLayout(this).apply { gravity = Gravity.BOTTOM }
             plan.addView(priceRow)
             label(price, 34f, priceRow, bold = true).setPadding(0, dp(6), 0, 0)
-            label(getString(R.string.premium_per_month), 16f, priceRow, color = mutedColor).setPadding(dp(6), 0, 0, dp(10))
+            label(getString(R.string.premium_per_month), 16f, priceRow, color = mutedColor).setPaddingRelative(dp(6), 0, 0, dp(10))
             label(getString(R.string.premium_auto_renew), 13f, plan, color = mutedColor)
             button(getString(R.string.premium_subscribe, price), plan) { billing?.buy() }.apply {
                 isEnabled = billing?.canBuy == true
