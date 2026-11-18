@@ -7,6 +7,14 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.net.Uri
 import android.os.Bundle
+import android.content.res.ColorStateList
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
+import android.view.Gravity
+import android.view.View
+import android.widget.LinearLayout
+import android.widget.TextView
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -43,9 +51,9 @@ internal class PremiumBilling(private val activity: Activity, private val change
     private var connecting = false
     private var pending = false
     private var closed = false
-    var catalogStatus = "Google Play fiyatı yükleniyor…"
+    var catalogStatus = activity.getString(R.string.billing_loading_price)
         private set
-    private var catalogReport = "Google Play yanıtı bekleniyor."
+    private var catalogReport = activity.getString(R.string.billing_report_waiting)
     private var queryingCatalog = false
     var status = ""
         private set
@@ -61,17 +69,17 @@ internal class PremiumBilling(private val activity: Activity, private val change
                 purchasing = false
                 if (result.responseCode == BillingClient.BillingResponseCode.OK) {
                     if (purchases.orEmpty().any { it.purchaseState == Purchase.PurchaseState.PENDING }) {
-                        status = "Ödeme onayı bekleniyor."
+                        status = activity.getString(R.string.billing_pending)
                         changed()
                     }
                     refreshPurchases()
                 } else if (result.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
-                    status = "Satın alma iptal edildi. Ücret alınmadı."
+                    status = activity.getString(R.string.billing_canceled)
                     changed()
                 } else if (result.responseCode == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED) {
                     refreshPurchases()
                 } else {
-                    status = "Satın alma tamamlanamadı."
+                    status = activity.getString(R.string.billing_failed)
                     changed()
                 }
             }
@@ -83,8 +91,8 @@ internal class PremiumBilling(private val activity: Activity, private val change
             refreshPurchases()
             if (queryingCatalog) return
             queryingCatalog = true
-            catalogStatus = "Google Play fiyatı yükleniyor…"
-            catalogReport = "Ürün sorgusu devam ediyor."
+            catalogStatus = activity.getString(R.string.billing_loading_price)
+            catalogReport = activity.getString(R.string.billing_report_querying)
             changed()
             val product = QueryProductDetailsParams.Product.newBuilder()
                 .setProductId(PRODUCT).setProductType(BillingClient.ProductType.SUBS).build()
@@ -96,19 +104,19 @@ internal class PremiumBilling(private val activity: Activity, private val change
                     val offers = returnedProduct?.subscriptionOfferDetails.orEmpty()
                     val unfetched = result.unfetchedProductList.firstOrNull { it.productId == PRODUCT }
                     catalogReport = buildString {
-                        appendLine("Ürün sorgusu: ${queryResult.responseCode}")
-                        if (unfetched != null) appendLine("Ürün durumu: ${unfetched.statusCode}")
-                        appendLine("Dönen ürün: ${returnedProduct?.productId ?: "yok"}")
-                        if (offers.isEmpty()) appendLine("Dönen plan: yok")
+                        appendLine(activity.getString(R.string.billing_report_query, queryResult.responseCode))
+                        if (unfetched != null) appendLine(activity.getString(R.string.billing_report_status, unfetched.statusCode))
+                        appendLine(activity.getString(R.string.billing_report_product, returnedProduct?.productId ?: activity.getString(R.string.billing_none)))
+                        if (offers.isEmpty()) appendLine(activity.getString(R.string.billing_report_plan_none))
                         for (plan in offers) {
                             val periods = plan.pricingPhases.pricingPhaseList.joinToString(", ") { it.billingPeriod }
-                            appendLine("Plan: ${plan.basePlanId} · ${plan.offerId ?: "standart"} · $periods")
+                            appendLine(activity.getString(R.string.billing_report_plan, plan.basePlanId, plan.offerId ?: activity.getString(R.string.billing_standard), periods))
                         }
                     }.trimEnd()
                     if (queryResult.responseCode != BillingClient.BillingResponseCode.OK) {
                         details = null
                         offer = null
-                        catalogStatus = "Google Play ürün sorgusu başarısız oldu."
+                        catalogStatus = activity.getString(R.string.billing_query_failed)
                         changed()
                         return@runOnUiThread
                     }
@@ -120,11 +128,11 @@ internal class PremiumBilling(private val activity: Activity, private val change
                     catalogStatus = when {
                         price != null -> ""
                         unfetched?.statusCode == UnfetchedProduct.StatusCode.PRODUCT_NOT_FOUND ->
-                            "Google Play abonelik ürününü bulamadı."
+                            activity.getString(R.string.billing_product_not_found)
                         unfetched?.statusCode == UnfetchedProduct.StatusCode.NO_ELIGIBLE_OFFER ->
-                            "Bu Google Play hesabı için satın alınabilir plan bulunamadı."
-                        returnedProduct != null -> "Google Play ürünü buldu ancak beklenen aylık plan gelmedi."
-                        else -> "Google Play abonelik ürününün ayrıntılarını döndürmedi."
+                            activity.getString(R.string.billing_no_eligible_offer)
+                        returnedProduct != null -> activity.getString(R.string.billing_plan_missing)
+                        else -> activity.getString(R.string.billing_no_details)
                     }
                     changed()
                 }
@@ -133,8 +141,8 @@ internal class PremiumBilling(private val activity: Activity, private val change
         }
         if (connecting) return
         connecting = true
-        catalogStatus = "Google Play’e bağlanılıyor…"
-        catalogReport = "Google Play bağlantısı bekleniyor."
+        catalogStatus = activity.getString(R.string.billing_connecting)
+        catalogReport = activity.getString(R.string.billing_report_connecting)
         changed()
         client.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(result: BillingResult) {
@@ -143,8 +151,8 @@ internal class PremiumBilling(private val activity: Activity, private val change
                     connecting = false
                     if (result.responseCode == BillingClient.BillingResponseCode.OK) refresh()
                     else {
-                        catalogStatus = "Google Play satın alma hizmetine ulaşılamadı."
-                        catalogReport = "Google Play bağlantısı: ${result.responseCode}"
+                        catalogStatus = activity.getString(R.string.billing_unavailable)
+                        catalogReport = activity.getString(R.string.billing_report_connection, result.responseCode)
                         changed()
                     }
                 }
@@ -157,8 +165,8 @@ internal class PremiumBilling(private val activity: Activity, private val change
                     details = null
                     offer = null
                     queryingCatalog = false
-                    catalogStatus = "Google Play bağlantısı kesildi."
-                    catalogReport = "Google Play bağlantısı kesildi."
+                    catalogStatus = activity.getString(R.string.billing_disconnected)
+                    catalogReport = activity.getString(R.string.billing_disconnected)
                     changed()
                 }
             }
@@ -171,7 +179,7 @@ internal class PremiumBilling(private val activity: Activity, private val change
             activity.runOnUiThread {
                 if (closed) return@runOnUiThread
                 if (result.responseCode != BillingClient.BillingResponseCode.OK) {
-                    status = "Abonelik durumu doğrulanamadı. İnternet bağlantını kontrol edip tekrar dene."
+                    status = activity.getString(R.string.billing_verify_failed)
                     changed()
                     return@runOnUiThread
                 }
@@ -179,7 +187,7 @@ internal class PremiumBilling(private val activity: Activity, private val change
                 val active = matching.filter { it.purchaseState == Purchase.PurchaseState.PURCHASED }
                 access.updateSubscription(active.any { it.isAcknowledged })
                 pending = matching.any { it.purchaseState == Purchase.PurchaseState.PENDING }
-                if (pending) status = "Ödeme onayı bekleniyor."
+                if (pending) status = activity.getString(R.string.billing_pending)
                 else if (price != null) status = ""
                 for (purchase in active.filterNot { it.isAcknowledged }) {
                     val acknowledgement = AcknowledgePurchaseParams.newBuilder()
@@ -189,7 +197,7 @@ internal class PremiumBilling(private val activity: Activity, private val change
                             if (!closed) {
                                 if (acknowledgementResult.responseCode == BillingClient.BillingResponseCode.OK) refreshPurchases()
                                 else {
-                                    status = "Satın alma onaylanıyor. Erişim açılmazsa satın alımları geri yükle."
+                                    status = activity.getString(R.string.billing_acknowledging)
                                     changed()
                                 }
                             }
@@ -209,10 +217,10 @@ internal class PremiumBilling(private val activity: Activity, private val change
             activity.packageManager.getInstallerPackageName(activity.packageName)
         }
         AlertDialog.Builder(activity, R.style.AstralDialogTheme)
-            .setTitle("Fiyat teşhisi")
-            .setMessage("Paket: ${activity.packageName}\nKurulum kaynağı: ${installer ?: "bilinmiyor"}" +
-                "\nBeklenen ürün: $PRODUCT\nBeklenen plan: $MONTHLY_PLAN · standart · P1M\n\n$catalogReport")
-            .setPositiveButton("Kapat", null)
+            .setTitle(activity.getString(R.string.billing_diagnostics))
+            .setMessage(activity.getString(R.string.billing_diagnostics_message, activity.packageName,
+                installer ?: activity.getString(R.string.billing_unknown), PRODUCT, MONTHLY_PLAN) + "\n\n$catalogReport")
+            .setPositiveButton(activity.getString(R.string.close), null)
             .show()
     }
 
@@ -228,7 +236,7 @@ internal class PremiumBilling(private val activity: Activity, private val change
             BillingFlowParams.newBuilder().setProductDetailsParamsList(listOf(item)).build())
         if (result.responseCode != BillingClient.BillingResponseCode.OK) {
             purchasing = false
-            status = "Satın alma ekranı açılamadı."
+            status = activity.getString(R.string.billing_launch_failed)
             changed()
         }
     }
@@ -238,7 +246,7 @@ internal class PremiumBilling(private val activity: Activity, private val change
             .appendQueryParameter("sku", PRODUCT)
             .appendQueryParameter("package", activity.packageName).build()
         runCatching { activity.startActivity(Intent(Intent.ACTION_VIEW, url)) }.onFailure {
-            status = "Abonelik yönetimi açılamadı. Play Store > Ödemeler ve abonelikler bölümünü kullan."
+            status = activity.getString(R.string.billing_manage_failed)
             changed()
         }
     }
@@ -266,45 +274,129 @@ abstract class PremiumScreen : AlarmScreen() {
     protected abstract fun onPremiumChanged()
 
     protected fun showPremium() {
-        val membership = card()
-        when {
-            premiumAccess.subscribed -> label("✦  Premium üyeliğin aktif", 23f, membership, bold = true)
-            premiumAccess.preview -> label("✦  Premium test erişimi", 23f, membership, bold = true)
-            else -> label("BENG Premium", 23f, membership, bold = true)
-        }
-        label("Uyanıklık kontrolü", 17f, membership, bold = true)
-        label("Alarmı kapattıktan sonra uyanık olduğunu onaylamazsan alarm tekrar çalar.", 14f, membership, color = mutedColor)
-        label("Şekilleri bul", 17f, membership, bold = true)
-        label("Dört hedef şekli 4 × 4 tabloda sırayla bul.", 14f, membership, color = mutedColor)
-        label("QR kod ve telefonu sallama", 17f, membership, bold = true)
-        label("Alarmı bir QR kod okutarak veya telefonunu sallayarak kapat.", 14f, membership, color = mutedColor)
+        val unlocked = premiumAccess.unlocked
+        showPremiumHero()
 
-        label("Temel alarmlar, matematik, hafıza ve metin görevleri ücretsizdir. Uygulama hesabı gerekmez; abonelik Google Play hesabınla yönetilir.", 14f, membership, color = mutedColor)
+        val features = card()
+        label(getString(if (unlocked) R.string.premium_features_unlocked else R.string.premium_features_title),
+            17f, features, bold = true).accessibilityHeading()
+        featureRow(R.drawable.ic_wake_check, getString(R.string.wake_check),
+            getString(R.string.premium_feature_wake), features, unlocked)
+        featureRow(R.drawable.ic_shapes, getString(R.string.task_shapes),
+            getString(R.string.premium_feature_shapes), features, unlocked)
+        featureRow(R.drawable.ic_qr, getString(R.string.task_qr),
+            getString(R.string.premium_feature_qr), features, unlocked)
+        featureRow(R.drawable.ic_shake, getString(R.string.task_shake),
+            getString(R.string.premium_feature_shake), features, unlocked)
+        featureRow(R.drawable.ic_music, getString(R.string.premium_feature_tones_title),
+            getString(R.string.premium_feature_tones, getString(R.string.tone_nature), getString(R.string.tone_heavy)),
+            features, unlocked)
+
         if (premiumAccess.subscribed) {
-            label("Tüm Premium görevler ve uyanıklık kontrolü kullanımına açık.", 16f, membership)
-            button("Aboneliği yönet / iptal et", membership) { billing?.manage() }
+            val manage = card()
+            label(getString(R.string.premium_active_note), 15f, manage, color = mutedColor)
+            button(getString(R.string.premium_manage), manage, primary = false) { billing?.manage() }
         } else {
-            val price = billing?.price
-            if (price != null) {
-                label("$price / ay", 24f, membership, bold = true)
-                label("Abonelik otomatik yenilenir. Google Play’den iptal edebilirsin.", 14f, membership, color = mutedColor)
-                button("Aylık $price · Abone ol", membership) { billing?.buy() }.isEnabled = billing?.canBuy == true
-            }
-            if (price == null) {
-                label("Aylık abonelik", 20f, membership, bold = true)
-                label(billing?.catalogStatus ?: "Google Play fiyatı yükleniyor…", 14f, membership, color = mutedColor)
-                button("Fiyat teşhisini göster", membership, primary = false) { billing?.showCatalogDiagnostics() }
-                button("Fiyatı yeniden yükle", membership, primary = false) { refreshPremium() }
-            }
-            button("Satın alımları geri yükle", membership, primary = false) { refreshPremium() }
-            if (premiumAccess.previewAvailable && !premiumAccess.preview) {
-                button("Premium’u test için aç", membership, primary = false) {
-                    premiumAccess.enablePreview()
-                    onPremiumChanged()
+            showPlan()
+        }
+
+        val free = card()
+        label(getString(R.string.premium_free_title), 15f, free, bold = true, color = mutedColor)
+        val freeItems = listOf(R.string.premium_free_alarms, R.string.task_math, R.string.task_memory,
+            R.string.task_typing, R.string.tool_stopwatch, R.string.tool_countdowns)
+        for (pair in freeItems.chunked(2)) {
+            val row = LinearLayout(this).apply { isBaselineAligned = false }
+            free.addView(row)
+            for (item in pair) {
+                label("✓  " + getString(item), 14f, row, color = 0xFFDCD6F5.toInt()).apply {
+                    layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
                 }
             }
         }
-        billing?.status?.takeIf { it.isNotBlank() }?.let { label(it, 14f, membership, color = mutedColor) }
+        label(getString(R.string.premium_no_account), 13f, free, color = mutedColor).setPadding(0, dp(8), 0, 0)
+        billing?.status?.takeIf { it.isNotBlank() }?.let { label(it, 14f, color = mutedColor) }
+    }
+
+    private fun showPremiumHero() {
+        val hero = card().apply {
+            background = GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                intArrayOf(0xFF4B2F8F.toInt(), 0xFF2A2F78.toInt(), 0xFF162452.toInt())).apply {
+                cornerRadius = dp(24).toFloat()
+                setStroke(dp(1), 0x99FFD98C.toInt())
+            }
+            setPadding(dp(20), dp(22), dp(20), dp(22))
+            gravity = Gravity.CENTER_HORIZONTAL
+        }
+        hero.addView(TextView(this).apply {
+            text = "✦"
+            textSize = 34f
+            gravity = Gravity.CENTER
+            setTextColor(0xFF3A2A12.toInt())
+            background = GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                intArrayOf(0xFFFFF1C7.toInt(), goldColor, 0xFFE59A4F.toInt())).apply {
+                shape = GradientDrawable.OVAL
+                setStroke(dp(3), 0x55FFFFFF)
+            }
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }, LinearLayout.LayoutParams(dp(76), dp(76)).apply { gravity = Gravity.CENTER_HORIZONTAL })
+        label(getString(R.string.premium_title), 28f, hero, bold = true).apply {
+            gravity = Gravity.CENTER
+            letterSpacing = .04f
+            setPadding(0, dp(14), 0, dp(2))
+            accessibilityHeading()
+        }
+        label(getString(R.string.premium_tagline), 15f, hero, color = 0xFFE4DDFF.toInt()).gravity = Gravity.CENTER
+        val status = when {
+            premiumAccess.subscribed -> getString(R.string.premium_status_active)
+            premiumAccess.preview -> getString(R.string.premium_status_preview)
+            else -> null
+        }
+        if (status != null) {
+            val holder = LinearLayout(this).apply { gravity = Gravity.CENTER }
+            hero.addView(holder, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
+            pill(status, holder, 0xFF9BE8C0.toInt(), 0x403A8A64, 0x889BE8C0.toInt())
+        }
+    }
+
+    private fun showPlan() {
+        val plan = card().apply {
+            background = glass(0xEE2B2559.toInt(), 0xEE3A2350.toInt(), 22).apply {
+                setStroke(dp(2), 0xAAC5BAFF.toInt())
+            }
+            setPadding(dp(18), dp(16), dp(18), dp(16))
+        }
+        val header = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+        plan.addView(header)
+        label(getString(R.string.premium_plan_monthly), 15f, header, bold = true, color = accentColor)
+            .layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
+        pill(getString(R.string.premium_cancel_anytime), header)
+        val price = billing?.price
+        if (price != null) {
+            val priceRow = LinearLayout(this).apply { gravity = Gravity.BOTTOM }
+            plan.addView(priceRow)
+            label(price, 34f, priceRow, bold = true).setPadding(0, dp(6), 0, 0)
+            label(getString(R.string.premium_per_month), 16f, priceRow, color = mutedColor).setPadding(dp(6), 0, 0, dp(10))
+            label(getString(R.string.premium_auto_renew), 13f, plan, color = mutedColor)
+            button(getString(R.string.premium_subscribe, price), plan) { billing?.buy() }.apply {
+                isEnabled = billing?.canBuy == true
+                textSize = 17f
+                typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+                minimumHeight = dp(56)
+                background = RippleDrawable(ColorStateList.valueOf(0x35FFFFFF),
+                    glass(goldColor, 0xFFC3A0FC.toInt(), 20), null)
+            }
+        } else {
+            label(billing?.catalogStatus ?: getString(R.string.billing_loading_price), 14f, plan, color = mutedColor)
+            button(getString(R.string.billing_reload_price), plan) { refreshPremium() }
+            button(getString(R.string.billing_show_diagnostics), plan, primary = false) { billing?.showCatalogDiagnostics() }
+        }
+        button(getString(R.string.billing_restore), plan, primary = false) { refreshPremium() }
+        if (premiumAccess.previewAvailable && !premiumAccess.preview) {
+            button(getString(R.string.premium_enable_preview), plan, primary = false) {
+                premiumAccess.enablePreview()
+                onPremiumChanged()
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -321,8 +413,8 @@ class PremiumActivity : PremiumScreen() {
     }
 
     override fun onPremiumChanged() {
-        layout("Premium")
+        layout(getString(R.string.tab_premium))
         showPremium()
-        button("Alarm ayarına dön", primary = false) { finish() }
+        button(getString(R.string.premium_back_to_alarm), primary = false) { finish() }
     }
 }

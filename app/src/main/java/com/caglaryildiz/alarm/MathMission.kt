@@ -2,10 +2,10 @@ package com.caglaryildiz.alarm
 
 import kotlin.random.Random
 
-internal enum class MathDifficulty(val label: String) {
-    EASY("Kolay"),
-    MEDIUM("Orta"),
-    HARD("Zor")
+internal enum class MathDifficulty(val labelRes: Int) {
+    EASY(R.string.difficulty_easy),
+    MEDIUM(R.string.difficulty_medium),
+    HARD(R.string.difficulty_hard)
 }
 
 internal data class MathSettings(
@@ -33,7 +33,8 @@ internal class MathMission(private val settings: MathSettings, private val rando
     }
     private var solved = 0
     val question get() = questions.getOrNull(solved)
-    val progress get() = "Soru ${minOf(solved + 1, settings.count)} / ${settings.count}"
+    val current get() = minOf(solved + 1, settings.count)
+    val total get() = settings.count
 
     fun submit(answer: Int?): MathResult {
         val current = question ?: return MathResult.COMPLETE

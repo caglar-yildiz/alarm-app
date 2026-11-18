@@ -11,7 +11,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 
-internal class WakeCheck(private val context: Context) {
+internal class WakeCheck(base: Context) {
+    private val context = AppLanguage.wrap(base)
     private val prefs = context.createDeviceProtectedStorageContext()
         .getSharedPreferences("wake_checks", Context.MODE_PRIVATE)
     private val alarms = context.getSystemService(AlarmManager::class.java)
@@ -92,21 +93,21 @@ internal class WakeCheck(private val context: Context) {
             PROMPT -> {
                 if (System.currentTimeMillis() >= deadline) return
                 notifications.createNotificationChannel(NotificationChannel(
-                    CHANNEL, "Uyanıklık kontrolü", NotificationManager.IMPORTANCE_HIGH))
+                    CHANNEL, context.getString(R.string.wake_check), NotificationManager.IMPORTANCE_HIGH))
                 val open = PendingIntent.getActivity(context, 1,
-                    Intent(context, MainActivity::class.java).putExtra("wakeTab", true)
+                    Intent(context, MainActivity::class.java).putExtra("wakeCheck", true)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
                 val notification = Notification.Builder(context, CHANNEL)
                     .setSmallIcon(R.drawable.ic_wake_check)
-                    .setContentTitle("Uyanık mısın?")
-                    .setContentText("Onay vermezsen alarm yeniden çalacak.")
+                    .setContentTitle(context.getString(R.string.wake_prompt_title))
+                    .setContentText(context.getString(R.string.wake_prompt_text))
                     .setContentIntent(open)
                     .setVisibility(Notification.VISIBILITY_PUBLIC)
                     .setTimeoutAfter((deadline - System.currentTimeMillis()).coerceAtLeast(1))
                     .addAction(Notification.Action.Builder(
                         android.graphics.drawable.Icon.createWithResource(context, android.R.drawable.ic_menu_agenda),
-                        "Uyanığım", operation(id, CONFIRM, deadline)).build())
+                        context.getString(R.string.wake_confirm), operation(id, CONFIRM, deadline)).build())
                     .build()
                 notifications.notify(id, NOTIFICATION_ID, notification)
             }

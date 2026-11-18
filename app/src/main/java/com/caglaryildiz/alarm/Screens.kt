@@ -3,6 +3,7 @@ package com.caglaryildiz.alarm
 import android.Manifest
 import android.app.Activity
 import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -30,20 +31,19 @@ import android.widget.TextView
 import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
-internal val weekdays = arrayOf("Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar")
 internal val clockFormat = DateTimeFormatter.ofPattern("HH:mm")
 
-private val midnight = 0xFF0B1021.toInt()
+internal val midnight = 0xFF0B1021.toInt()
 internal val mutedColor = 0xFFC0C4E1.toInt()
-private val accentColor = 0xFFC5BAFF.toInt()
-internal val dateFormat = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag("tr-TR"))
-private val nextAlarmFormat = DateTimeFormatter.ofPattern("EEEE · HH:mm", Locale.forLanguageTag("tr-TR"))
+internal val accentColor = 0xFFC5BAFF.toInt()
+internal val goldColor = 0xFFFFD98C.toInt()
 
 abstract class AlarmScreen : Activity() {
     protected lateinit var panel: LinearLayout
     private var scroll: ScrollView? = null
+
+    override fun attachBaseContext(newBase: Context) = super.attachBaseContext(AppLanguage.wrap(newBase))
 
     protected fun layout(
         title: String? = null,
@@ -127,7 +127,7 @@ abstract class AlarmScreen : Activity() {
         panel.addView(this, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
     }
 
-    private fun glass(from: Int, to: Int, radius: Int) =
+    protected fun glass(from: Int, to: Int, radius: Int) =
         GradientDrawable(GradientDrawable.Orientation.TL_BR, intArrayOf(from, to)).apply {
             cornerRadius = dp(radius).toFloat()
             setStroke(dp(1), 0x748C8CD8)
@@ -213,19 +213,95 @@ abstract class AlarmScreen : Activity() {
         setOnClickListener { action() }
         parent.addView(this, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(8) })
     }
+
+    /** A round, softly lit badge that holds a line icon. */
+    protected fun iconBadge(
+        icon: Int,
+        parent: LinearLayout,
+        size: Int = 52,
+        from: Int = 0xFF5B4BC4.toInt(),
+        to: Int = 0xFF2B3C86.toInt(),
+        tint: Int = Color.WHITE
+    ) = android.widget.ImageView(this).apply {
+        setImageResource(icon)
+        setColorFilter(tint)
+        val inset = dp(size) / 4
+        setPadding(inset, inset, inset, inset)
+        background = GradientDrawable(GradientDrawable.Orientation.TL_BR, intArrayOf(from, to)).apply {
+            shape = GradientDrawable.OVAL
+            setStroke(dp(1), 0x66FFFFFF)
+        }
+        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        parent.addView(this, LinearLayout.LayoutParams(dp(size), dp(size)))
+    }
+
+    /** A small rounded tag, e.g. a status or a Premium marker. */
+    protected fun pill(
+        text: String,
+        parent: LinearLayout,
+        color: Int = 0xFFE7DFFF.toInt(),
+        fill: Int = 0x604E407B,
+        stroke: Int = 0x668C8CD8
+    ) = TextView(this).apply {
+        this.text = text
+        textSize = 12f
+        setTextColor(color)
+        typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+        setSingleLine()
+        ellipsize = TextUtils.TruncateAt.END
+        setPadding(dp(10), dp(4), dp(10), dp(4))
+        background = GradientDrawable().apply {
+            setColor(fill)
+            cornerRadius = dp(14).toFloat()
+            setStroke(dp(1), stroke)
+        }
+        parent.addView(this, LinearLayout.LayoutParams(-2, -2))
+    }
+
+    protected fun premiumPill(parent: LinearLayout) =
+        pill(getString(R.string.premium_badge), parent, goldColor, 0x40FFD98C, 0x99FFD98C.toInt())
+
+    /** Icon, title and description in one row, used for feature lists. */
+    protected fun featureRow(
+        icon: Int,
+        title: String,
+        description: String,
+        parent: LinearLayout,
+        included: Boolean = false
+    ): LinearLayout {
+        val row = LinearLayout(this).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(0, dp(8), 0, dp(8))
+        }
+        parent.addView(row, LinearLayout.LayoutParams(-1, -2))
+        iconBadge(icon, row, 44, 0xFF4A3C9E.toInt(), 0xFF243567.toInt(), 0xFFE9E2FF.toInt())
+        val text = column()
+        row.addView(text, LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = dp(14) })
+        label(title, 16f, text, bold = true).setPadding(0, 0, 0, dp(2))
+        label(description, 13.5f, text, color = mutedColor).setPadding(0, 0, 0, 0)
+        if (included) {
+            row.addView(android.widget.ImageView(this).apply {
+                setImageResource(R.drawable.ic_check)
+                setColorFilter(0xFF9BE8C0.toInt())
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }, LinearLayout.LayoutParams(dp(22), dp(22)).apply { marginStart = dp(8) })
+        }
+        return row
+    }
 }
 
 class MainActivity : PremiumScreen() {
-    private enum class Tab(val title: String, val icon: Int) {
-        ALARMS("Alarmlar", R.drawable.ic_beng_launcher),
-        TOOLS("Araçlar", R.drawable.ic_time_tools),
-        WAKE("Uyanıklık", R.drawable.ic_wake_check),
-        PREMIUM("Premium", android.R.drawable.star_on)
+    private enum class Tab(val titleRes: Int, val icon: Int) {
+        ALARMS(R.string.tab_alarms, R.drawable.ic_beng_launcher),
+        TOOLS(R.string.tab_tools, R.drawable.ic_time_tools),
+        PREMIUM(R.string.tab_premium, R.drawable.ic_crown)
     }
 
-    private enum class Tool(val title: String) {
-        STOPWATCH("Kronometre"),
-        COUNTDOWNS("Sayaçlar")
+    private enum class Tool(val titleRes: Int, val icon: Int) {
+        STOPWATCH(R.string.tool_stopwatch, R.drawable.ic_stopwatch),
+        COUNTDOWNS(R.string.tool_countdowns, R.drawable.ic_hourglass),
+        WAKE(R.string.wake_check, R.drawable.ic_wake_check),
+        LANGUAGE(R.string.tool_language, R.drawable.ic_language)
     }
 
     private var tab = Tab.ALARMS
@@ -235,13 +311,14 @@ class MainActivity : PremiumScreen() {
     private val refreshToolReadout = Runnable(::updateToolReadout)
     private var toolReadouts = emptyList<Pair<Countdown, TextView>>()
     private var stopwatchReadout: TextView? = null
+    private var stopwatchTile: TextView? = null
     private var toolsVisible = false
     private val wake by lazy { WakeCheck(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        tab = savedInstanceState?.getString("tab")?.let(Tab::valueOf) ?: Tab.ALARMS
-        tool = savedInstanceState?.getString("tool")?.let(Tool::valueOf)
+        tab = Tab.entries.firstOrNull { it.name == savedInstanceState?.getString("tab") } ?: Tab.ALARMS
+        tool = Tool.entries.firstOrNull { it.name == savedInstanceState?.getString("tool") }
         if (savedInstanceState == null) applyNavigationIntent(intent)
     }
 
@@ -253,8 +330,9 @@ class MainActivity : PremiumScreen() {
 
     private fun applyNavigationIntent(intent: Intent): Boolean {
         return when {
-            intent.getBooleanExtra("wakeTab", false) -> {
-                tab = Tab.WAKE
+            intent.getBooleanExtra("wakeCheck", false) || intent.getBooleanExtra("wakeTab", false) -> {
+                tab = Tab.TOOLS
+                tool = Tool.WAKE
                 true
             }
             intent.getBooleanExtra("timersTab", false) -> {
@@ -273,7 +351,7 @@ class MainActivity : PremiumScreen() {
     }
 
     override fun onPremiumChanged() {
-        if (tab == Tab.PREMIUM || tab == Tab.WAKE) render()
+        if (tab == Tab.PREMIUM || tab == Tab.TOOLS) render()
     }
 
     private fun navigation(): LinearLayout = LinearLayout(this).apply {
@@ -283,6 +361,7 @@ class MainActivity : PremiumScreen() {
         setBackgroundColor(0xFF161B34.toInt())
         for (item in Tab.entries) {
             val selected = item == tab
+            val title = getString(item.titleRes)
             addView(LinearLayout(this@MainActivity).apply {
                 orientation = LinearLayout.VERTICAL
                 gravity = Gravity.CENTER
@@ -290,14 +369,18 @@ class MainActivity : PremiumScreen() {
                 setPadding(dp(4), dp(8), dp(4), dp(8))
                 isSelected = selected
                 isFocusable = true
-                contentDescription = if (item == Tab.WAKE) "Uyanıklık, Premium" else item.title
+                contentDescription = title
                 if (selected) setBackgroundColor(0xFF29264C.toInt())
                 addView(android.widget.ImageView(this@MainActivity).apply {
                     setImageResource(item.icon)
-                    if (item != Tab.ALARMS) setColorFilter(if (selected) accentColor else mutedColor)
+                    if (item != Tab.ALARMS) setColorFilter(when {
+                        item == Tab.PREMIUM && selected -> goldColor
+                        selected -> accentColor
+                        else -> mutedColor
+                    })
                     importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 }, LinearLayout.LayoutParams(dp(26), dp(26)))
-                label(if (item == Tab.WAKE) "${item.title} ✦" else item.title, 12f, this, bold = selected, color = if (selected) accentColor else mutedColor).apply {
+                label(title, 12f, this, bold = selected, color = if (selected) accentColor else mutedColor).apply {
                     gravity = Gravity.CENTER
                     includeFontPadding = false
                     setPadding(0, dp(6), 0, 0)
@@ -316,30 +399,132 @@ class MainActivity : PremiumScreen() {
         }
     }
 
+    private fun openTool(entry: Tool) {
+        if (entry == Tool.LANGUAGE) {
+            pickLanguage()
+            return
+        }
+        tab = Tab.TOOLS
+        tool = entry
+        render(animateTabChange = true)
+    }
+
     private fun showTools() {
         when (tool) {
-            null -> {
-                val options = card()
-                for (entry in Tool.entries) {
-                    button(entry.title, options, primary = false) {
-                        tool = entry
-                        render(animateTabChange = true)
-                    }
-                }
-            }
+            null, Tool.LANGUAGE -> showToolGrid()
             Tool.STOPWATCH -> showStopwatch()
             Tool.COUNTDOWNS -> showCountdowns()
+            Tool.WAKE -> showWakeCheck()
         }
+    }
+
+    /** Tools as a two-column grid: icon on top, name and live status below. */
+    private fun showToolGrid() {
+        label(getString(R.string.tools_subtitle), 15f, color = mutedColor)
+        for (pair in Tool.entries.chunked(2)) {
+            val row = LinearLayout(this).apply { isBaselineAligned = false }
+            panel.addView(row, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(12) })
+            pair.forEachIndexed { index, entry -> toolTile(entry, row, first = index == 0) }
+            if (pair.size == 1) row.addView(View(this), LinearLayout.LayoutParams(0, 0, 1f))
+        }
+    }
+
+    private fun toolTile(entry: Tool, row: LinearLayout, first: Boolean) {
+        val title = getString(entry.titleRes)
+        val status = toolStatus(entry)
+        val frame = android.widget.FrameLayout(this).apply {
+            background = RippleDrawable(ColorStateList.valueOf(0x35FFFFFF),
+                glass(0xDD242F58.toInt(), 0xD137204F.toInt(), 22), null)
+            isClickable = true
+            isFocusable = true
+            minimumHeight = dp(168)
+            contentDescription = "$title, $status"
+            setOnClickListener { openTool(entry) }
+        }
+        row.addView(frame, LinearLayout.LayoutParams(0, -1, 1f).apply {
+            if (first) marginEnd = dp(6) else marginStart = dp(6)
+        })
+        val content = column().apply {
+            gravity = Gravity.CENTER_HORIZONTAL
+            setPadding(dp(12), dp(22), dp(12), dp(16))
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+        }
+        frame.addView(content, android.widget.FrameLayout.LayoutParams(-1, -2))
+        val (from, to) = when (entry) {
+            Tool.STOPWATCH -> 0xFF3E7BD8.toInt() to 0xFF3B3594.toInt()
+            Tool.COUNTDOWNS -> 0xFF7A55E0.toInt() to 0xFF3A2C86.toInt()
+            Tool.WAKE -> 0xFFE0A14F.toInt() to 0xFF7A3F8F.toInt()
+            Tool.LANGUAGE -> 0xFF3AA6A0.toInt() to 0xFF2B4C86.toInt()
+        }
+        iconBadge(entry.icon, content, 60, from, to)
+        label(title, 17f, content, bold = true).apply {
+            gravity = Gravity.CENTER
+            setPadding(0, dp(12), 0, dp(2))
+        }
+        val subtitle = label(status, 13f, content, color = mutedColor).apply {
+            gravity = Gravity.CENTER
+            maxLines = 2
+            ellipsize = TextUtils.TruncateAt.END
+            setPadding(0, 0, 0, 0)
+        }
+        if (entry == Tool.STOPWATCH && timeTools.stopwatchRunning) stopwatchTile = subtitle
+        if (entry == Tool.WAKE && !premiumAccess.unlocked) {
+            val badgeHolder = LinearLayout(this).apply { gravity = Gravity.CENTER }
+            content.addView(badgeHolder, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
+            premiumPill(badgeHolder)
+        }
+    }
+
+    private fun toolStatus(entry: Tool): String = when (entry) {
+        Tool.STOPWATCH -> {
+            val elapsed = timeTools.stopwatchElapsed(android.os.SystemClock.elapsedRealtime())
+            when {
+                timeTools.stopwatchRunning -> formatTime(elapsed)
+                elapsed > 0 -> getString(R.string.tool_status_paused, formatTime(elapsed))
+                else -> getString(R.string.tool_stopwatch_desc)
+            }
+        }
+        Tool.COUNTDOWNS -> {
+            val timers = timeTools.timers()
+            val running = timers.count { it.deadline != 0L }
+            when {
+                timers.isEmpty() -> getString(R.string.tool_countdowns_desc)
+                running > 0 -> resources.getQuantityString(R.plurals.countdowns_running, running, running)
+                else -> resources.getQuantityString(R.plurals.countdowns_saved, timers.size, timers.size)
+            }
+        }
+        Tool.WAKE -> when {
+            !premiumAccess.unlocked -> getString(R.string.wake_tile_locked)
+            wake.enabled -> getString(R.string.wake_status_on, wake.delay)
+            else -> getString(R.string.wake_status_off)
+        }
+        Tool.LANGUAGE -> AppLanguage.displayName(this, AppLanguage.current(this))
+    }
+
+    private fun pickLanguage() {
+        val tags = AppLanguage.supported
+        val current = tags.indexOf(AppLanguage.current(this)).coerceAtLeast(0)
+        android.app.AlertDialog.Builder(this, R.style.AstralDialogTheme)
+            .setTitle(getString(R.string.tool_language))
+            .setSingleChoiceItems(tags.map { AppLanguage.displayName(this, it) }.toTypedArray(), current) { dialog, index ->
+                dialog.dismiss()
+                if (index != current) AppLanguage.set(this, tags[index])
+            }
+            .setNegativeButton(getString(R.string.cancel), null)
+            .show()
     }
 
     private fun showStopwatch() {
         val controls = card()
-        stopwatchReadout = timeLabel("", 40f, controls).apply { gravity = Gravity.CENTER }
-        button(if (timeTools.stopwatchRunning) "Duraklat" else "Başlat", controls) {
+        val header = LinearLayout(this).apply { gravity = Gravity.CENTER }
+        controls.addView(header, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(8) })
+        iconBadge(R.drawable.ic_stopwatch, header, 56, 0xFF3E7BD8.toInt(), 0xFF3B3594.toInt())
+        stopwatchReadout = timeLabel("", 44f, controls).apply { gravity = Gravity.CENTER }
+        button(getString(if (timeTools.stopwatchRunning) R.string.pause else R.string.start), controls) {
             timeTools.toggleStopwatch()
             render()
         }
-        button("Sıfırla", controls, primary = false) {
+        button(getString(R.string.reset), controls, primary = false) {
             timeTools.resetStopwatch()
             render()
         }
@@ -347,36 +532,36 @@ class MainActivity : PremiumScreen() {
 
     private fun showCountdowns() {
         timeTools.timers().filter { it.deadline != 0L }.forEach { timeTools.finishIfDue(it.id) }
-        button("+ Sayaç ekle", action = ::addCountdown)
+        button(getString(R.string.countdown_add_button), action = ::addCountdown)
         val timers = timeTools.timers()
-        if (timers.isEmpty()) label("Henüz sayaç yok.", parent = card(), color = mutedColor)
+        if (timers.isEmpty()) label(getString(R.string.countdown_empty), parent = card(), color = mutedColor)
         toolReadouts = timers.map { timer ->
             val item = card()
-            val status = when {
-                timer.deadline != 0L -> "Çalışıyor"
-                timer.remaining == 0L -> "Tamamlandı"
-                timer.remaining < timer.duration -> "Duraklatıldı"
-                else -> "Hazır"
-            }
+            val status = getString(when {
+                timer.deadline != 0L -> R.string.countdown_running
+                timer.remaining == 0L -> R.string.countdown_done
+                timer.remaining < timer.duration -> R.string.countdown_paused
+                else -> R.string.countdown_ready
+            })
             label("${formatTime(timer.duration)} · $status", 16f, item, bold = true)
             val readout = timeLabel("", 36f, item).apply { gravity = Gravity.CENTER }
-            val action = when {
-                timer.deadline != 0L -> "Duraklat"
-                timer.remaining == 0L -> "Yeniden başlat"
-                timer.remaining < timer.duration -> "Devam et"
-                else -> "Başlat"
-            }
+            val action = getString(when {
+                timer.deadline != 0L -> R.string.pause
+                timer.remaining == 0L -> R.string.restart
+                timer.remaining < timer.duration -> R.string.resume
+                else -> R.string.start
+            })
             button(action, item) {
                 timeTools.toggle(timer.id)
                 render()
             }
             val actions = LinearLayout(this).apply { isBaselineAligned = false }
             item.addView(actions)
-            val reset = button("Sıfırla", actions, primary = false) {
+            val reset = button(getString(R.string.reset), actions, primary = false) {
                 timeTools.reset(timer.id)
                 render()
             }
-            val delete = button("Sil", actions, primary = false, destructive = true) {
+            val delete = button(getString(R.string.delete), actions, primary = false, destructive = true) {
                 timeTools.remove(timer.id)
                 render()
             }
@@ -389,8 +574,8 @@ class MainActivity : PremiumScreen() {
         }
         if (timeTools.notificationsBlocked()) {
             val settings = card()
-            label("Sayaç tamamlandığında bildirim almak için bildirimleri aç.", 14f, settings, color = mutedColor)
-            button("Bildirim ayarları", settings, primary = false) {
+            label(getString(R.string.countdown_notifications_hint), 14f, settings, color = mutedColor)
+            button(getString(R.string.notification_settings), settings, primary = false) {
                 startActivity(timeTools.notificationSettings())
             }
         }
@@ -405,21 +590,21 @@ class MainActivity : PremiumScreen() {
             styleInput(this)
             fields.addView(this)
         }
-        val hours = timeField("Saat (0–99)")
-        val minutes = timeField("Dakika (0–59)")
-        val seconds = timeField("Saniye (0–59)")
+        val hours = timeField(getString(R.string.countdown_hours))
+        val minutes = timeField(getString(R.string.countdown_minutes))
+        val seconds = timeField(getString(R.string.countdown_seconds))
         val dialog = android.app.AlertDialog.Builder(this, R.style.AstralDialogTheme)
-            .setTitle("Sayaç ekle")
+            .setTitle(getString(R.string.countdown_add))
             .setView(fields)
-            .setNegativeButton("İptal", null)
-            .setPositiveButton("Başlat", null)
+            .setNegativeButton(getString(R.string.cancel), null)
+            .setPositiveButton(getString(R.string.start), null)
             .create()
         dialog.show()
         dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             fun read(field: EditText, max: Int): Int? {
                 val value = field.text.toString().let { if (it.isBlank()) 0 else it.toIntOrNull() }
                 if (value == null || value !in 0..max) {
-                    field.error = "0–$max arasında bir sayı gir."
+                    field.error = getString(R.string.countdown_range_error, max)
                     return null
                 }
                 return value
@@ -429,7 +614,7 @@ class MainActivity : PremiumScreen() {
             val sec = read(seconds, 59) ?: return@setOnClickListener
             val duration = (h * 3600L + m * 60 + sec) * 1000
             if (duration == 0L) {
-                seconds.error = "En az 1 saniye gir."
+                seconds.error = getString(R.string.countdown_min_error)
                 return@setOnClickListener
             }
             timeTools.add(duration)
@@ -441,7 +626,8 @@ class MainActivity : PremiumScreen() {
     private fun updateToolReadout() {
         val now = android.os.SystemClock.elapsedRealtime()
         stopwatchReadout?.text = formatTime(timeTools.stopwatchElapsed(now), tenths = true)
-        var running = stopwatchReadout != null && timeTools.stopwatchRunning
+        stopwatchTile?.text = formatTime(timeTools.stopwatchElapsed(now))
+        var running = (stopwatchReadout != null || stopwatchTile != null) && timeTools.stopwatchRunning
         for ((timer, readout) in toolReadouts) {
             val remaining = timer.remainingAt(now)
             if (timer.deadline != 0L && remaining == 0L) {
@@ -458,51 +644,109 @@ class MainActivity : PremiumScreen() {
         }
     }
 
-    private fun showWakeSettings() {
-        val settings = card()
-        label("✦ Premium", 14f, settings, bold = true, color = accentColor)
-        label("Alarmı kapattıktan sonra bir bildirim alırsın. 60 saniye içinde uyanık olduğunu onaylamazsan alarm tekrar çalar.",
-            16f, settings)
+    /** Pending "are you awake?" confirmations; shown wherever the user lands first. */
+    private fun showWakeConfirmations(): Boolean {
+        if (!premiumAccess.unlocked) return false
+        val pending = wake.activeIds().mapNotNull { id -> alarms.all().firstOrNull { it.id == id } }
+        if (pending.isEmpty()) return false
+        val prompt = card().apply {
+            background = glass(0xEE6B4A2A.toInt(), 0xEE4A2A5E.toInt(), 20)
+        }
+        label(getString(R.string.wake_prompt_title), 20f, prompt, bold = true).accessibilityHeading()
+        label(getString(R.string.wake_prompt_text), 14f, prompt, color = 0xFFF1E6D6.toInt())
+        for (alarm in pending) {
+            button(getString(R.string.wake_confirm_for, alarm.label.ifBlank { alarm.time.format(clockFormat) }), prompt) {
+                wake.confirm(alarm.id)
+                render()
+            }
+        }
+        return true
+    }
+
+    private fun showWakeCheck() {
+        val hero = card()
+        val top = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+        hero.addView(top, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(4) })
+        iconBadge(R.drawable.ic_wake_check, top, 60, 0xFFE0A14F.toInt(), 0xFF7A3F8F.toInt())
+        val titles = column()
+        top.addView(titles, LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = dp(14) })
+        label(getString(R.string.wake_headline), 19f, titles, bold = true)
+        val badges = LinearLayout(this)
+        titles.addView(badges)
+        if (!premiumAccess.unlocked) premiumPill(badges)
+        else if (wake.enabled) pill(getString(R.string.wake_status_on, wake.delay), badges, 0xFF9BE8C0.toInt(), 0x403A8A64, 0x889BE8C0.toInt())
+        else pill(getString(R.string.wake_status_off), badges)
+        label(getString(R.string.wake_description), 15f, hero, color = mutedColor).setPadding(0, dp(12), 0, dp(4))
+
+        showWakeConfirmations()
+
+        val how = card()
+        label(getString(R.string.wake_how_title), 17f, how, bold = true).accessibilityHeading()
+        val steps = listOf(
+            getString(R.string.wake_step_1),
+            getString(R.string.wake_step_2, wake.delay),
+            getString(R.string.wake_step_3)
+        )
+        steps.forEachIndexed { index, text ->
+            val row = LinearLayout(this).apply {
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(0, dp(6), 0, dp(6))
+            }
+            how.addView(row)
+            row.addView(TextView(this).apply {
+                this.text = (index + 1).toString()
+                gravity = Gravity.CENTER
+                textSize = 14f
+                setTextColor(midnight)
+                typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+                background = GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                    intArrayOf(0xFF9BDFFF.toInt(), 0xFFC3A0FC.toInt())).apply { shape = GradientDrawable.OVAL }
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }, LinearLayout.LayoutParams(dp(28), dp(28)))
+            label(text, 15f, row).layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = dp(12) }
+        }
+
         if (!premiumAccess.unlocked) {
-            button("Premium’u incele", settings) {
+            button(getString(R.string.premium_explore)) {
                 tab = Tab.PREMIUM
                 render(animateTabChange = true)
                 refreshPremium()
             }
             return
         }
-        for (id in wake.activeIds()) {
-            val alarm = alarms.all().firstOrNull { it.id == id } ?: continue
-            button("Uyanığım · ${alarm.label.ifBlank { alarm.time.format(clockFormat) }}", settings) {
-                wake.confirm(id)
-                render()
-            }
-        }
+        val settings = card()
         settings.addView(Switch(this).apply {
-            text = "Uyanıklık kontrolü"
-            contentDescription = "Uyanıklık kontrolü, Premium özellik"
+            text = getString(R.string.wake_check)
+            textSize = 17f
+            setTextColor(Color.WHITE)
+            contentDescription = getString(R.string.premium_feature_description, getString(R.string.wake_check))
             stylePlanetToggle()
-            minHeight = dp(48)
+            minHeight = dp(52)
             isChecked = wake.enabled
             setOnCheckedChangeListener { _, enabled ->
                 wake.enabled = enabled
                 render()
             }
         })
-        button("Kontrol gecikmesi · ${wake.delay} dk", settings, primary = false) {
-            val delays = listOf(1, 3, 5, 10)
-            android.app.AlertDialog.Builder(this, R.style.AstralDialogTheme)
-                .setTitle("Kontrol gecikmesi")
-                .setSingleChoiceItems(delays.map { "$it dakika" }.toTypedArray(), delays.indexOf(wake.delay)) { dialog, index ->
-                    wake.delay = delays[index]
-                    dialog.dismiss()
-                    render()
-                }.setNegativeButton("Vazgeç", null).show()
+        label(getString(R.string.wake_delay), 15f, settings, color = mutedColor).setPadding(0, dp(10), 0, 0)
+        val delays = LinearLayout(this).apply { isBaselineAligned = false }
+        settings.addView(delays)
+        listOf(1, 3, 5, 10).forEachIndexed { index, minutes ->
+            button(getString(R.string.minutes_short, minutes), delays, primary = minutes == wake.delay) {
+                wake.delay = minutes
+                render()
+            }.apply {
+                contentDescription = resources.getQuantityString(R.plurals.minutes, minutes, minutes)
+                layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply {
+                    topMargin = dp(8)
+                    if (index > 0) marginStart = dp(6)
+                }
+            }
         }
         if (wake.enabled && !wake.canPrompt()) {
-            label("Kontrolü göndermek için bildirim ve alarm izinlerini aç.", 14f, settings, color = mutedColor)
+            label(getString(R.string.wake_permissions_needed), 14f, settings, color = mutedColor)
             if (wake.isChannelBlocked()) {
-                button("Uyanıklık bildirimlerini aç", settings, primary = false) {
+                button(getString(R.string.wake_enable_notifications), settings, primary = false) {
                     startActivity(wake.channelSettingsIntent())
                 }
             }
@@ -535,12 +779,13 @@ class MainActivity : PremiumScreen() {
     private fun render(animateTabChange: Boolean = false) {
         toolHandler.removeCallbacks(refreshToolReadout)
         stopwatchReadout = null
+        stopwatchTile = null
         toolReadouts = emptyList()
         layout(
             when (tab) {
                 Tab.ALARMS -> getString(R.string.app_name)
-                Tab.TOOLS -> tool?.title ?: tab.title
-                else -> tab.title
+                Tab.TOOLS -> getString(tool?.takeIf { it != Tool.LANGUAGE }?.titleRes ?: tab.titleRes)
+                else -> getString(tab.titleRes)
             },
             navigation(),
             resetScroll = animateTabChange,
@@ -548,17 +793,16 @@ class MainActivity : PremiumScreen() {
         )
         RingService.active?.let { ring ->
             val ringing = card()
-            label("Alarm çalıyor", 20f, ringing, bold = true).accessibilityHeading()
+            label(getString(R.string.alarm_ringing), 20f, ringing, bold = true).accessibilityHeading()
             if (ring.label.isNotBlank()) label(ring.label, parent = ringing)
-            button("Çalan alarmı aç", ringing) {
+            button(getString(R.string.open_ringing_alarm), ringing) {
                 startActivity(Intent(this, RingActivity::class.java))
             }
         }
         when (tab) {
             Tab.PREMIUM -> { showPremium(); return }
-            Tab.WAKE -> { showWakeSettings(); return }
             Tab.TOOLS -> {
-                if (tool != null) button("‹ Araçlar", primary = false) {
+                if (tool != null && tool != Tool.LANGUAGE) button(getString(R.string.back_to_tools), primary = false) {
                     tool = null
                     render(animateTabChange = true)
                 }
@@ -568,15 +812,16 @@ class MainActivity : PremiumScreen() {
             }
             Tab.ALARMS -> Unit
         }
+        showWakeConfirmations()
         val all = alarms.all().sortedBy { it.time }
         showNextAlarm(all)
-        button("+  Alarm ekle") { openEditor(null) }
+        button(getString(R.string.add_alarm)) { openEditor(null) }
         showMissingPermissions()
-        label("Alarmlarım", 22f, bold = true).apply {
+        label(getString(R.string.my_alarms), 22f, bold = true).apply {
             setPadding(0, dp(24), 0, dp(2))
             accessibilityHeading()
         }
-        if (all.isEmpty()) label("Henüz alarm eklenmedi.", parent = card(), color = mutedColor)
+        if (all.isEmpty()) label(getString(R.string.no_alarms), parent = card(), color = mutedColor)
         all.forEach(::showAlarm)
     }
 
@@ -593,14 +838,37 @@ class MainActivity : PremiumScreen() {
         hero.addView(row)
         val details = column()
         row.addView(details, LinearLayout.LayoutParams(0, -2, 1f))
-        label("Sonraki alarm", 15f, details, color = mutedColor)
+        label(getString(R.string.next_alarm), 15f, details, color = mutedColor)
         val summary = when {
-            next == null -> "Alarm planlanmadı"
-            !alarms.canSchedule() -> "Alarm izni gerekli"
-            else -> Instant.ofEpochMilli(next).atZone(now.zone).format(nextAlarmFormat)
+            next == null -> getString(R.string.no_alarm_planned)
+            !alarms.canSchedule() -> getString(R.string.alarm_permission_needed)
+            else -> Instant.ofEpochMilli(next).atZone(now.zone).format(nextAlarmFormat())
         }
         label(summary, 22f, details, bold = true)
         row.addView(AstralPlanet(this), LinearLayout.LayoutParams(dp(112), dp(96)).apply { marginStart = dp(4) })
+
+        // Wake check stays visible from the home screen: status at a glance, one tap to its settings.
+        val wakeOn = premiumAccess.unlocked && wake.enabled
+        val chipRow = LinearLayout(this).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            isClickable = true
+            isFocusable = true
+            minimumHeight = dp(40)
+            setOnClickListener { openTool(Tool.WAKE) }
+        }
+        hero.addView(chipRow, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(4) })
+        val chip = if (wakeOn) {
+            pill(getString(R.string.wake_chip_on, wake.delay), chipRow, 0xFF9BE8C0.toInt(), 0x403A8A64, 0x889BE8C0.toInt())
+        } else {
+            pill(getString(R.string.wake_chip_off), chipRow, goldColor, 0x30FFD98C, 0x88FFD98C.toInt())
+        }
+        chip.setCompoundDrawablesRelativeWithIntrinsicBounds(
+            getDrawable(R.drawable.ic_wake_check)?.mutate()?.apply {
+                setTint(chip.currentTextColor)
+                setBounds(0, 0, dp(16), dp(16))
+            }, null, null, null)
+        chip.compoundDrawablePadding = dp(6)
+        chipRow.contentDescription = chip.text
     }
 
     private fun showMissingPermissions() {
@@ -611,20 +879,20 @@ class MainActivity : PremiumScreen() {
         if (!exactAlarmMissing && !notificationsMissing && !fullScreenMissing) return
 
         val permissions = card()
-        label("Eksik izinler", 18f, permissions, bold = true).apply { accessibilityHeading() }
+        label(getString(R.string.missing_permissions), 18f, permissions, bold = true).apply { accessibilityHeading() }
         if (exactAlarmMissing) {
-            label("Alarmların tam saatinde çalması için zamanlama izni gerekli.", 14f, permissions, color = mutedColor)
-            button("Alarm iznini aç", permissions, primary = false) {
+            label(getString(R.string.permission_exact_alarm), 14f, permissions, color = mutedColor)
+            button(getString(R.string.permission_exact_alarm_button), permissions, primary = false) {
                 openSettings(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
             }
         }
         if (notificationsMissing) {
-            label("Alarmı bildirimden açabilmek için bildirim izni gerekli.", 14f, permissions, color = mutedColor)
-            button("Bildirimlere izin ver", permissions, primary = false) { requestNotifications() }
+            label(getString(R.string.permission_notifications), 14f, permissions, color = mutedColor)
+            button(getString(R.string.permission_notifications_button), permissions, primary = false) { requestNotifications() }
         }
         if (fullScreenMissing) {
-            label("Alarm ekranının kilitliyken açılması için tam ekran izni gerekli.", 14f, permissions, color = mutedColor)
-            button("Kilit ekranı iznini aç", permissions, primary = false) {
+            label(getString(R.string.permission_full_screen), 14f, permissions, color = mutedColor)
+            button(getString(R.string.permission_full_screen_button), permissions, primary = false) {
                 openSettings(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT)
             }
         }
@@ -656,11 +924,11 @@ class MainActivity : PremiumScreen() {
     private fun showAlarm(alarm: Alarm) {
         val time = alarm.time.format(clockFormat)
         val repeat = when {
-            alarm.days.isEmpty() -> alarm.date?.format(dateFormat) ?: "Bir kez"
-            alarm.days.size == 7 -> "Her gün"
-            alarm.days == setOf(6, 7) -> "Hafta sonu"
-            alarm.days == (1..5).toSet() -> "Hafta içi"
-            else -> "${alarm.days.size} gün"
+            alarm.days.isEmpty() -> alarm.date?.format(dateFormat()) ?: getString(R.string.repeat_once)
+            alarm.days.size == 7 -> getString(R.string.repeat_every_day)
+            alarm.days == setOf(6, 7) -> getString(R.string.repeat_weekend)
+            alarm.days == (1..5).toSet() -> getString(R.string.repeat_weekdays)
+            else -> resources.getQuantityString(R.plurals.day_count, alarm.days.size, alarm.days.size)
         }
         val alarmCard = card().apply {
             setPadding(dp(14), dp(6), dp(14), dp(9))
@@ -686,7 +954,7 @@ class MainActivity : PremiumScreen() {
         }
         val dateExpired = alarm.date != null && alarm.nextAfter(ZonedDateTime.now()) == null
         row.addView(Switch(this).apply {
-            contentDescription = "$time alarmı"
+            contentDescription = getString(R.string.alarm_switch_description, time)
             stylePlanetToggle()
             minWidth = dp(48)
             minHeight = dp(48)
@@ -704,11 +972,11 @@ class MainActivity : PremiumScreen() {
         val tags = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         alarmCard.addView(tags)
         addAlarmTag(tags, repeat, description = alarm.days.takeIf { it.isNotEmpty() }
-            ?.sorted()?.joinToString(", ") { weekdays[it - 1] })
-        if (alarm.task != AlarmTask.NONE) addAlarmTag(tags, alarm.task.label)
-        if (dateExpired && alarm.enabled) label("Alarm tarihi geçti", 13f, alarmCard, color = mutedColor)
+            ?.sorted()?.joinToString(", ") { weekdayName(it) })
+        if (alarm.task != AlarmTask.NONE) addAlarmTag(tags, getString(alarm.task.labelRes))
+        if (dateExpired && alarm.enabled) label(getString(R.string.alarm_date_passed), 13f, alarmCard, color = mutedColor)
         if (alarm.snoozeAt > 0) {
-            button("Ertelemeyi iptal et", alarmCard, primary = false) {
+            button(getString(R.string.cancel_snooze), alarmCard, primary = false) {
                 alarms.save(alarm.copy(snoozeAt = 0))
                 render()
             }
@@ -748,309 +1016,5 @@ class MainActivity : PremiumScreen() {
         startActivity(Intent(this, AlarmEditorActivity::class.java)
             .putExtra("id", alarm?.id)
             .putExtra("enableOnSave", enableOnSave))
-    }
-}
-
-class MissionPreviewActivity : RingActivity()
-
-open class RingActivity : AlarmScreen() {
-    private val isPreview get() = this is MissionPreviewActivity
-    private var previewRing: Ring? = null
-    private var previewTone: android.media.MediaPlayer? = null
-    private val soundTimeout = android.os.Handler(android.os.Looper.getMainLooper())
-    private fun currentRing() = if (isPreview) previewRing else RingService.active
-    private val sensorManager by lazy { getSystemService(android.hardware.SensorManager::class.java) }
-    private var shakeListener: android.hardware.SensorEventListener? = null
-    private val memoryHandler = android.os.Handler(android.os.Looper.getMainLooper())
-    private var failedQrToken: String? = null
-    private val onRingChanged: () -> Unit = {
-        if (isPreview && RingService.active != null) {
-            stopPreviewSound()
-            finish()
-        } else render()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (isPreview) {
-            val task = AlarmTask.entries.firstOrNull { it.name == intent.getStringExtra("task") } ?: AlarmTask.NONE
-            previewRing = Ring("preview",
-                if (task == AlarmTask.MATH) MathMission(MathSettings.from(intent.getStringExtra("mathDifficulty"), intent.getIntExtra("mathCount", 1))) else null,
-                if (task != AlarmTask.MATH && task != AlarmTask.NONE) ExtraMission(task, intent.getStringExtra("qrCode").orEmpty()) else null,
-                intent.getStringExtra("label").orEmpty(), intent.getStringExtra("tone")?.let(Uri::parse))
-            return
-        }
-        if (Build.VERSION.SDK_INT >= 27) {
-            setShowWhenLocked(true)
-            setTurnScreenOn(true)
-        } else {
-            @Suppress("DEPRECATION")
-            window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
-        }
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        RingService.listeners.add(onRingChanged)
-        if (isPreview && RingService.active == null) startPreviewSound()
-        render()
-    }
-
-    override fun onStop() {
-        RingService.listeners.remove(onRingChanged)
-        clearMissionCallbacks()
-        stopPreviewSound()
-        super.onStop()
-    }
-
-    private fun startPreviewSound() {
-        stopPreviewSound()
-        previewTone = playAlarmTone(this, previewRing?.tone)
-        if (previewTone != null) {
-            soundTimeout.postDelayed(::stopPreviewSound, 30_000)
-        } else {
-            android.widget.Toast.makeText(this, "Alarm sesi oynatılamadı.", android.widget.Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun stopPreviewSound() {
-        soundTimeout.removeCallbacksAndMessages(null)
-        previewTone?.release()
-        previewTone = null
-    }
-
-    private fun render() {
-        clearMissionCallbacks()
-        val ring = currentRing()
-        if (ring == null) {
-            finish()
-            return
-        }
-        layout(getString(R.string.app_name))
-        val header = card()
-        label(if (isPreview) "Önizleme" else "Alarm çalıyor", 22f, header, bold = true).gravity = Gravity.CENTER
-        if (ring.label.isNotBlank()) label(ring.label, 16f, header, color = mutedColor).gravity = Gravity.CENTER
-        timeLabel(ring.startedAt.format(clockFormat), 60f, header).gravity = Gravity.CENTER
-        header.addView(AstralPlanet(this), LinearLayout.LayoutParams(-1, dp(112)))
-        if (isPreview) {
-            label("Bu bir denemedir. Alarmların değişmez; ses en fazla 30 saniye çalar.", 14f, header, color = mutedColor)
-            button("Önizlemeyi kapat", header, primary = false) {
-                stopPreviewSound()
-                finish()
-            }
-        }
-        val controls = card()
-        val mission = ring.math
-        val extra = ring.extra
-        if (extra != null) {
-            showExtraMission(ring, extra, controls)
-        } else if (mission == null) {
-            button("Alarmı kapat", controls) { send(RingService.DISMISS, ring) }
-        } else {
-            val progress = label("", 15f, controls, color = mutedColor)
-            val question = label("", 32f, controls, bold = true).apply { gravity = Gravity.CENTER }
-            val answer = EditText(this).apply {
-                hint = "Cevap"
-                inputType = InputType.TYPE_CLASS_NUMBER
-                styleInput(this)
-                controls.addView(this)
-            }
-            fun showQuestion() {
-                progress.text = mission.progress
-                question.text = mission.question?.let { "${it.expression} = ?" }
-                answer.text.clear()
-                answer.error = null
-            }
-            showQuestion()
-            button("Cevabı kontrol et", controls) {
-                when (mission.submit(answer.text.toString().toIntOrNull())) {
-                    MathResult.INCORRECT -> answer.error = "Tekrar dene"
-                    MathResult.NEXT -> showQuestion()
-                    MathResult.COMPLETE -> send(RingService.DISMISS, ring)
-                }
-            }
-        }
-        if (!isPreview && Alarms(this).canSchedule()) button("5 dakika ertele", controls, primary = false) { send(RingService.SNOOZE, ring) }
-    }
-
-    private fun clearMissionCallbacks() {
-        memoryHandler.removeCallbacksAndMessages(null)
-        shakeListener?.let { sensorManager.unregisterListener(it) }
-        shakeListener = null
-    }
-
-    private fun showExtraMission(ring: Ring, mission: ExtraMission, controls: LinearLayout) {
-        label(mission.task.label, 20f, controls, bold = true)
-        when (mission.task) {
-            AlarmTask.MEMORY -> {
-                label("Diziyi göster, sonra sırayı tekrarla.", 17f, controls)
-                val display = label("•", 64f, controls, bold = true).apply {
-                    gravity = Gravity.CENTER
-                    minHeight = dp(104)
-                }
-                val status = label("Hazır olduğunda diziyi göster.", 16f, controls)
-                val row = LinearLayout(this)
-                controls.addView(row)
-                val keys = (1..4).map { number ->
-                    button(number.toString(), row, primary = false) {
-                        val correct = mission.tap(number)
-                        status.text = if (correct) "${mission.progress} / ${mission.sequence.size}"
-                            else "Yanlış sıra. Baştan dene veya diziyi yeniden göster."
-                        if (mission.complete) send(RingService.DISMISS, ring)
-                    }.apply {
-                        textSize = 30f
-                        minimumHeight = dp(64)
-                        isEnabled = false
-                        layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
-                    }
-                }
-                button("Diziyi göster", controls, primary = false) {
-                    memoryHandler.removeCallbacksAndMessages(null)
-                    mission.resetSequence()
-                    status.text = "Sırayı aklında tut"
-                    keys.forEach { it.isEnabled = false }
-                    for ((index, number) in mission.sequence.withIndex()) {
-                        memoryHandler.postDelayed({ display.text = number.toString() }, index * 800L)
-                        memoryHandler.postDelayed({ display.text = "•" }, index * 800L + 550L)
-                    }
-                    memoryHandler.postDelayed({
-                        display.text = "•"
-                        status.text = "Sırayı tekrarla · ${mission.progress} / ${mission.sequence.size}"
-                        keys.forEach { it.isEnabled = true }
-                    }, mission.sequence.size * 800L)
-                }
-            }
-            AlarmTask.SHAPES -> {
-                val shapes = mission.shapes
-                label("Şekilleri soldan sağa sırayla tabloda bul. Her şekil için bir kutuya dokun.", 16f, controls)
-                label(shapes.targets.joinToString("  ") { ShapeMission.symbols[it] }, 36f, controls).apply {
-                    gravity = Gravity.CENTER
-                    contentDescription = shapes.targets.joinToString(", ") { ShapeMission.names[it] }
-                }
-                val status = label("${shapes.progress} / 4 · ${ShapeMission.names[shapes.targets[shapes.progress.coerceAtMost(3)]]} bul", 18f, controls)
-                repeat(4) { rowIndex ->
-                    val row = LinearLayout(this).apply { isBaselineAligned = false }
-                    controls.addView(row)
-                    repeat(4) { columnIndex ->
-                        val index = rowIndex * 4 + columnIndex
-                        val tile = button(ShapeMission.symbols[shapes.board[index]], row, primary = false) { }
-                        tile.apply {
-                            textSize = 32f
-                            minWidth = 0
-                            minimumHeight = dp(60)
-                            contentDescription = "${rowIndex + 1}. satır, ${columnIndex + 1}. sütun: ${ShapeMission.names[shapes.board[index]]}"
-                            isEnabled = index !in shapes.selected
-                            alpha = if (isEnabled) 1f else .35f
-                            layoutParams = LinearLayout.LayoutParams(0, dp(64), 1f).apply { setMargins(dp(2), dp(2), dp(2), dp(2)) }
-                            setOnClickListener {
-                                if (mission.pickShape(index)) {
-                                    isEnabled = false
-                                    alpha = .35f
-                                    if (mission.complete) send(RingService.DISMISS, ring)
-                                    else status.text = "${shapes.progress} / 4 · ${ShapeMission.names[shapes.targets[shapes.progress]]} bul"
-                                } else status.text = "Sıradaki şekil: ${ShapeMission.names[shapes.targets[shapes.progress]]}"
-                            }
-                        }
-                    }
-                }
-            }
-            AlarmTask.TYPING -> {
-                label(mission.phrase, 24f, controls)
-                val input = EditText(this).apply {
-                    hint = "Cümleyi yaz"
-                    setSingleLine()
-                    styleInput(this)
-                    controls.addView(this)
-                }
-                button("Metni kontrol et", controls) {
-                    if (mission.type(input.text.toString())) send(RingService.DISMISS, ring)
-                    else input.error = "Cümleyi ekrandaki gibi yaz."
-                }
-            }
-            AlarmTask.SHAKE -> showShakeMission(ring, mission, controls)
-            AlarmTask.QR -> {
-                label("Bu alarm için kaydettiğin QR kodunu okut.", parent = controls)
-                button("Kamerayı aç", controls) {
-                    @Suppress("DEPRECATION")
-                    startActivityForResult(Intent(this, QrScannerActivity::class.java).putExtra("ringToken", ring.token), 22)
-                }
-                if (failedQrToken == ring.token) {
-                    label("Kamera kullanılamıyor.", parent = controls)
-                    button("Matematikle devam et", controls, primary = false) { useMathFallback(ring) }
-                }
-            }
-            else -> error("Unsupported mission: ${mission.task}")
-        }
-    }
-
-    private fun showShakeMission(ring: Ring, mission: ExtraMission, controls: LinearLayout) {
-        val progress = label("${mission.progress} / ${ExtraMission.SHAKE_COUNT}", 24f, controls)
-        val sensor = sensorManager.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER)
-        val listener = object : android.hardware.SensorEventListener {
-            private var lastShake = 0L
-            private var aboveThreshold = false
-
-            override fun onSensorChanged(event: android.hardware.SensorEvent) {
-                val (x, y, z) = event.values
-                val high = x * x + y * y + z * z >= 23f * 23f
-                val now = android.os.SystemClock.elapsedRealtime()
-                if (high && !aboveThreshold && now - lastShake >= 300 && !mission.complete) {
-                    lastShake = now
-                    mission.shake()
-                    progress.text = "${mission.progress} / ${ExtraMission.SHAKE_COUNT}"
-                    if (mission.complete) send(RingService.DISMISS, ring)
-                }
-                aboveThreshold = high
-            }
-
-            override fun onAccuracyChanged(sensor: android.hardware.Sensor?, accuracy: Int) = Unit
-        }
-        if (sensor != null && sensorManager.registerListener(listener, sensor,
-                android.hardware.SensorManager.SENSOR_DELAY_GAME)) {
-            shakeListener = listener
-        } else {
-            button("Matematikle devam et", controls, primary = false) { useMathFallback(ring) }
-        }
-    }
-
-    private fun useMathFallback(ring: Ring) {
-        ring.extra = null
-        ring.math = MathMission(MathSettings())
-        render()
-    }
-
-    @Deprecated("Receives the locally scanned QR code.")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode != 22) return
-        val ring = currentRing() ?: return
-        val mission = ring.extra?.takeIf { it.task == AlarmTask.QR } ?: return
-        if (data?.getStringExtra("ringToken") != ring.token) return
-        when (resultCode) {
-            QrScannerActivity.RESULT_CAMERA_UNAVAILABLE -> {
-                failedQrToken = ring.token
-                if (hasWindowFocus()) render()
-            }
-            RESULT_OK -> {
-                if (mission.scan(data.getStringExtra(QrScannerActivity.CODE).orEmpty())) {
-                    send(RingService.DISMISS, ring)
-                } else {
-                    android.widget.Toast.makeText(this, "Bu alarmın kayıtlı QR kodu değil.",
-                        android.widget.Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-
-    private fun send(action: String, ring: Ring) {
-        if (isPreview) {
-            stopPreviewSound()
-            android.widget.Toast.makeText(this, "Önizleme tamamlandı", android.widget.Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
-        startService(Intent(this, RingService::class.java).setAction(action).putExtra("token", ring.token))
     }
 }

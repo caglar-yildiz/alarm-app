@@ -5,9 +5,13 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.graphics.drawable.Icon
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
@@ -16,6 +20,7 @@ import android.os.IBinder
 import android.os.Looper
 import java.time.LocalTime
 import java.util.UUID
+import kotlin.math.ceil
 
 internal data class Ring(
     val id: String,
@@ -33,8 +38,27 @@ class RingService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     private var player: MediaPlayer? = null
     private val timeout = Runnable { advance() }
+    private val audio by lazy { getSystemService(AudioManager::class.java) }
+    private var originalAlarmVolume = -1
+    private var lockedAlarmVolume = -1
+    private var volumeReceiverRegistered = false
+    private val volumeGuard = object : Runnable {
+        override fun run() {
+            enforceAlarmVolume()
+            handler.postDelayed(this, VOLUME_GUARD_INTERVAL)
+        }
+    }
+    private val volumeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.getIntExtra(EXTRA_VOLUME_STREAM_TYPE, AudioManager.STREAM_ALARM) == AudioManager.STREAM_ALARM) {
+                enforceAlarmVolume()
+            }
+        }
+    }
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    override fun attachBaseContext(base: Context) = super.attachBaseContext(AppLanguage.wrap(base))
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
@@ -75,7 +99,7 @@ class RingService : Service() {
                         intent.getIntExtra("mathCount", 1)))
                 } else null
                 val extra = when (task) {
-                    AlarmTask.MEMORY, AlarmTask.TYPING, AlarmTask.SHAKE, AlarmTask.QR, AlarmTask.SHAPES -> ExtraMission(task, qrCode)
+                    AlarmTask.MEMORY, AlarmTask.TYPING, AlarmTask.SHAKE, AlarmTask.QR, AlarmTask.SHAPES -> ExtraMission.create(this, task, qrCode)
                     else -> null
                 }
                 val rawTone = intent.getStringExtra("tone")?.let(Uri::parse)
@@ -96,7 +120,7 @@ class RingService : Service() {
     private fun show(ring: Ring) {
         active = ring
         val manager = getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannel(NotificationChannel(CHANNEL, "Çalan alarmlar",
+        manager.createNotificationChannel(NotificationChannel(CHANNEL, getString(R.string.channel_ringing),
             NotificationManager.IMPORTANCE_HIGH).apply {
             setSound(null, null)
             lockscreenVisibility = Notification.VISIBILITY_PUBLIC
@@ -107,6 +131,7 @@ class RingService : Service() {
         } else {
             startForeground(NOTIFICATION_ID, notification)
         }
+        lockAlarmVolume()
         play(ring.tone, ring.crescendo)
         handler.postDelayed(timeout, 10 * 60_000L)
         notifyScreen()
@@ -125,13 +150,13 @@ class RingService : Service() {
         )
         val openAlarm = Notification.Action.Builder(
             Icon.createWithResource(this, android.R.drawable.ic_lock_idle_alarm),
-            "Alarmı aç",
+            getString(R.string.notification_open_alarm),
             screen
         ).build()
         return Notification.Builder(this, CHANNEL)
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-            .setContentTitle(ring.label.ifBlank { "Alarm çalıyor" })
-            .setContentText("Kapatmak veya ertelemek için alarmı aç")
+            .setContentTitle(ring.label.ifBlank { getString(R.string.alarm_ringing) })
+            .setContentText(getString(R.string.notification_ringing_text))
             .setCategory(Notification.CATEGORY_ALARM)
             .setVisibility(Notification.VISIBILITY_PUBLIC)
             .setOngoing(true)
@@ -178,6 +203,58 @@ class RingService : Service() {
         handler.postDelayed(runnable, 1000L)
     }
 
+    /**
+     * While an alarm rings, the alarm stream must not be turned down or muted from the
+     * volume keys, the volume panel or another app. The level at ring start (raised to a
+     * safe minimum) is held until the last queued alarm ends, then the user's level returns.
+     */
+    private fun lockAlarmVolume() {
+        if (originalAlarmVolume < 0) {
+            originalAlarmVolume = audio.getStreamVolume(AudioManager.STREAM_ALARM)
+        }
+        val max = audio.getStreamMaxVolume(AudioManager.STREAM_ALARM)
+        val floor = ceil(max * MIN_ALARM_VOLUME_RATIO).toInt().coerceIn(1, max)
+        lockedAlarmVolume = maxOf(originalAlarmVolume, floor)
+        enforceAlarmVolume()
+        if (!volumeReceiverRegistered) {
+            val filter = IntentFilter(VOLUME_CHANGED_ACTION)
+            if (Build.VERSION.SDK_INT >= 33) {
+                registerReceiver(volumeReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+            } else {
+                registerReceiver(volumeReceiver, filter)
+            }
+            volumeReceiverRegistered = true
+        }
+        handler.removeCallbacks(volumeGuard)
+        handler.postDelayed(volumeGuard, VOLUME_GUARD_INTERVAL)
+    }
+
+    private fun enforceAlarmVolume() {
+        if (lockedAlarmVolume < 0) return
+        runCatching {
+            if (audio.isStreamMute(AudioManager.STREAM_ALARM)) {
+                audio.adjustStreamVolume(AudioManager.STREAM_ALARM, AudioManager.ADJUST_UNMUTE, 0)
+            }
+            if (audio.getStreamVolume(AudioManager.STREAM_ALARM) < lockedAlarmVolume) {
+                audio.setStreamVolume(AudioManager.STREAM_ALARM, lockedAlarmVolume, 0)
+            }
+        }
+    }
+
+    private fun unlockAlarmVolume() {
+        handler.removeCallbacks(volumeGuard)
+        if (volumeReceiverRegistered) {
+            runCatching { unregisterReceiver(volumeReceiver) }
+            volumeReceiverRegistered = false
+        }
+        if (originalAlarmVolume >= 0) {
+            val restore = originalAlarmVolume
+            runCatching { audio.setStreamVolume(AudioManager.STREAM_ALARM, restore, 0) }
+        }
+        originalAlarmVolume = -1
+        lockedAlarmVolume = -1
+    }
+
     private fun stopCrescendo() {
         crescendoRunnable?.let { handler.removeCallbacks(it) }
         crescendoRunnable = null
@@ -193,6 +270,7 @@ class RingService : Service() {
             show(next)
         } else {
             active = null
+            unlockAlarmVolume()
             notifyScreen()
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
@@ -205,6 +283,7 @@ class RingService : Service() {
         handler.removeCallbacks(timeout)
         stopCrescendo()
         player?.release()
+        unlockAlarmVolume()
         if (active != null) {
             active = null
             notifyScreen()
@@ -215,6 +294,10 @@ class RingService : Service() {
     companion object {
         private const val CHANNEL = "ringing"
         private const val NOTIFICATION_ID = 1
+        private const val VOLUME_CHANGED_ACTION = "android.media.VOLUME_CHANGED_ACTION"
+        private const val EXTRA_VOLUME_STREAM_TYPE = "android.media.EXTRA_VOLUME_STREAM_TYPE"
+        private const val VOLUME_GUARD_INTERVAL = 400L
+        private const val MIN_ALARM_VOLUME_RATIO = .6f
         private const val RESTORE_NOTIFICATION = "com.caglaryildiz.alarm.RESTORE_RING_NOTIFICATION"
         internal val listeners = mutableSetOf<() -> Unit>()
         internal const val DISMISS = "com.caglaryildiz.alarm.DISMISS"

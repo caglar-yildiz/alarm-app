@@ -26,7 +26,7 @@ internal data class Countdown(
 }
 
 internal class TimeTools(context: Context) {
-    private val app = context.applicationContext
+    private val app = AppLanguage.wrap(context.applicationContext)
     private val prefs = app.createDeviceProtectedStorageContext().getSharedPreferences("time_tools", Context.MODE_PRIVATE)
     private val alarms = app.getSystemService(AlarmManager::class.java)
     private val notifications = app.getSystemService(NotificationManager::class.java)
@@ -116,7 +116,7 @@ internal class TimeTools(context: Context) {
         if (timer.deadline == 0L || timer.deadline > SystemClock.elapsedRealtime()) return false
         alarms.cancel(operation(id))
         replace(timer.copy(remaining = 0, deadline = 0))
-        notifications.createNotificationChannel(NotificationChannel(CHANNEL, "Sayaçlar", NotificationManager.IMPORTANCE_HIGH))
+        notifications.createNotificationChannel(NotificationChannel(CHANNEL, app.getString(R.string.tool_countdowns), NotificationManager.IMPORTANCE_HIGH))
         if (notifications.areNotificationsEnabled() && (Build.VERSION.SDK_INT < 33 ||
                 app.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) ==
                 android.content.pm.PackageManager.PERMISSION_GRANTED)) {
@@ -125,8 +125,8 @@ internal class TimeTools(context: Context) {
             val content = PendingIntent.getActivity(app, 0, open, PendingIntent.FLAG_IMMUTABLE)
             notifications.notify(id, NOTIFICATION_ID, Notification.Builder(app, CHANNEL)
                 .setSmallIcon(R.drawable.ic_time_tools)
-                .setContentTitle("Sayaç tamamlandı")
-                .setContentText("${formatTime(timer.duration)} süren geri sayım bitti.")
+                .setContentTitle(app.getString(R.string.countdown_finished_title))
+                .setContentText(app.getString(R.string.countdown_finished_text, formatTime(timer.duration)))
                 .setContentIntent(content)
                 .setAutoCancel(true)
                 .build())

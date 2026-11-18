@@ -12,19 +12,19 @@ import android.util.Log
 
 internal data class BuiltInTone(
     val id: String,
-    val title: String,
-    val description: String,
+    val titleRes: Int,
+    val descriptionRes: Int,
     val rawResId: Int,
     val premium: Boolean = false
 )
 
 internal object BuiltInTones {
     val list = listOf(
-        BuiltInTone("beng_digital", "Dijital Saat", "Klasik çalar saat bip sesi", R.raw.beng_digital, premium = false),
-        BuiltInTone("beng_gentle", "Sakin Sabah", "Hafif ve huzurlu marimba/çan melodisi", R.raw.beng_gentle, premium = false),
-        BuiltInTone("beng_energetic", "Enerjik Uyanış", "Ritmik ve dinamik sabah alarmı", R.raw.beng_energetic, premium = false),
-        BuiltInTone("beng_nature", "Doğa & Kuş Sesi", "Kuş cıvıltıları ve dingin sabah", R.raw.beng_nature, premium = true),
-        BuiltInTone("beng_heavy", "Derin Uyku Sireni", "Ağır uykudan kesin uyandıran siren", R.raw.beng_heavy, premium = true)
+        BuiltInTone("beng_digital", R.string.tone_digital, R.string.tone_digital_desc, R.raw.beng_digital, premium = false),
+        BuiltInTone("beng_gentle", R.string.tone_gentle, R.string.tone_gentle_desc, R.raw.beng_gentle, premium = false),
+        BuiltInTone("beng_energetic", R.string.tone_energetic, R.string.tone_energetic_desc, R.raw.beng_energetic, premium = false),
+        BuiltInTone("beng_nature", R.string.tone_nature, R.string.tone_nature_desc, R.raw.beng_nature, premium = true),
+        BuiltInTone("beng_heavy", R.string.tone_heavy, R.string.tone_heavy_desc, R.raw.beng_heavy, premium = true)
     )
 
     fun toUri(tone: BuiltInTone): Uri = Uri.parse("beng://tone/${tone.id}")
@@ -45,12 +45,12 @@ internal object BuiltInTones {
 }
 
 internal fun resolveToneTitle(context: Context, uriString: String?): String {
-    if (uriString.isNullOrBlank()) return "Cihazın varsayılan alarm sesi"
-    val uri = runCatching { Uri.parse(uriString) }.getOrNull() ?: return "Özel alarm sesi"
+    if (uriString.isNullOrBlank()) return context.getString(R.string.tone_device_default)
+    val uri = runCatching { Uri.parse(uriString) }.getOrNull() ?: return context.getString(R.string.tone_custom)
     val builtIn = BuiltInTones.fromUri(uri)
     if (builtIn != null) {
         val badge = if (builtIn.premium) " ✦" else ""
-        return "${builtIn.title}$badge"
+        return "${context.getString(builtIn.titleRes)}$badge"
     }
     if (uri.scheme == "content") {
         var name: String? = null
@@ -66,7 +66,7 @@ internal fun resolveToneTitle(context: Context, uriString: String?): String {
     }
     return runCatching {
         RingtoneManager.getRingtone(context, uri)?.getTitle(context)
-    }.getOrNull() ?: "Özel alarm sesi"
+    }.getOrNull() ?: context.getString(R.string.tone_custom)
 }
 
 internal fun playAlarmTone(
