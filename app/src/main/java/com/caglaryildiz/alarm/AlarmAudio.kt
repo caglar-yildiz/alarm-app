@@ -24,7 +24,12 @@ internal object BuiltInTones {
         BuiltInTone("beng_gentle", R.string.tone_gentle, R.string.tone_gentle_desc, R.raw.beng_gentle, premium = false),
         BuiltInTone("beng_energetic", R.string.tone_energetic, R.string.tone_energetic_desc, R.raw.beng_energetic, premium = false),
         BuiltInTone("beng_nature", R.string.tone_nature, R.string.tone_nature_desc, R.raw.beng_nature, premium = true),
-        BuiltInTone("beng_heavy", R.string.tone_heavy, R.string.tone_heavy_desc, R.raw.beng_heavy, premium = true)
+        BuiltInTone("beng_heavy", R.string.tone_heavy, R.string.tone_heavy_desc, R.raw.beng_heavy, premium = true),
+        // Extra-loud tones for heavy sleepers: bright, soft-clipped waveforms in the most audible range.
+        BuiltInTone("beng_klaxon", R.string.tone_klaxon, R.string.tone_klaxon_desc, R.raw.beng_klaxon, premium = true),
+        BuiltInTone("beng_wail", R.string.tone_wail, R.string.tone_wail_desc, R.raw.beng_wail, premium = true),
+        BuiltInTone("beng_bell", R.string.tone_bell, R.string.tone_bell_desc, R.raw.beng_bell, premium = true),
+        BuiltInTone("beng_pulse", R.string.tone_pulse, R.string.tone_pulse_desc, R.raw.beng_pulse, premium = true)
     )
 
     fun toUri(tone: BuiltInTone): Uri = Uri.parse("beng://tone/${tone.id}")

@@ -19,17 +19,33 @@ import java.util.Locale
  */
 internal object AppLanguage {
     /** Empty tag means "follow the device language". */
-    val supported = listOf("", "tr", "en")
+    val supported = listOf(
+        "", "en", "tr", "de", "fr", "es", "it", "pt-BR", "nl",
+        "ja", "ko", "zh-TW", "ar", "th", "id"
+    )
 
     private fun prefs(context: Context) = context.createDeviceProtectedStorageContext()
         .getSharedPreferences("language", Context.MODE_PRIVATE)
 
     fun current(context: Context): String {
-        if (Build.VERSION.SDK_INT >= 33) {
+        val tag = if (Build.VERSION.SDK_INT >= 33) {
             val locales = context.getSystemService(LocaleManager::class.java).applicationLocales
-            return if (locales.isEmpty) "" else locales[0].language
+            if (locales.isEmpty) "" else locales[0].toLanguageTag()
+        } else {
+            prefs(context).getString("tag", "").orEmpty()
         }
-        return prefs(context).getString("tag", "").orEmpty()
+        return match(tag)
+    }
+
+    /** Maps a stored or system tag (e.g. "pt", "zh-Hant-TW", "in") onto one of [supported]. */
+    private fun match(tag: String): String {
+        if (tag.isEmpty() || tag in supported) return tag
+        val locale = Locale.forLanguageTag(tag)
+        val language = if (locale.language == "in") "id" else locale.language
+        val regional = "$language-${locale.country}"
+        return supported.firstOrNull { it.equals(regional, ignoreCase = true) }
+            ?: supported.firstOrNull { it.substringBefore('-') == language }
+            ?: tag
     }
 
     fun set(activity: Activity, tag: String) {
@@ -56,7 +72,9 @@ internal object AppLanguage {
     fun displayName(context: Context, tag: String): String {
         if (tag.isEmpty()) return context.getString(R.string.language_system)
         val locale = Locale.forLanguageTag(tag)
-        return locale.getDisplayLanguage(locale).replaceFirstChar { it.titlecase(locale) }
+        // A region is only shown where it tells variants apart (Português (Brasil), 中文 (台灣)).
+        val name = if (locale.country.isEmpty()) locale.getDisplayLanguage(locale) else locale.getDisplayName(locale)
+        return name.replaceFirstChar { it.titlecase(locale) }
     }
 }
 
