@@ -98,7 +98,7 @@
     <string name="premium_feature_qr">Apágala solo escaneando un código QR, por ejemplo en el baño.</string>
     <string name="premium_feature_shake">Agita el teléfono hasta que la alarma se rinda.</string>
     <string name="premium_feature_tones_title">Sonidos de alarma Premium</string>
-    <string name="premium_feature_tones">%1$s y %2$s.</string>
+    <string name="premium_feature_tones">Sonidos relajantes de naturaleza y 5 tonos extrafuertes para los más dormilones.</string>
     <string name="premium_plan_monthly">Plan mensual</string>
     <string name="premium_cancel_anytime">Cancela cuando quieras</string>
     <string name="premium_per_month">/ mes</string>
@@ -168,6 +168,14 @@
     <string name="tone_nature_desc">Cantos de pájaros y una mañana serena</string>
     <string name="tone_heavy">Sirena de sueño profundo</string>
     <string name="tone_heavy_desc">Una sirena que despierta incluso a los más dormilones</string>
+    <string name="tone_klaxon">Bocinazo</string>
+    <string name="tone_klaxon_desc">Extrafuerte · golpes de bocina de dos tonos</string>
+    <string name="tone_wail">Sirena ascendente</string>
+    <string name="tone_wail_desc">Extrafuerte · sirena que sube y baja</string>
+    <string name="tone_bell">Campana rápida</string>
+    <string name="tone_bell_desc">Extrafuerte · campana metálica de martilleo rápido</string>
+    <string name="tone_pulse">Pitido penetrante</string>
+    <string name="tone_pulse_desc">Extrafuerte · cuatro pitidos agudos y secos</string>
     <string name="tone_device_default">Sonido de alarma predeterminado</string>
     <string name="tone_custom">Sonido de alarma personalizado</string>
     <string name="tone_current_choice">Selección actual: %s</string>

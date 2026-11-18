@@ -98,7 +98,7 @@
     <string name="premium_feature_qr">Nur durch Scannen eines QR-Codes beenden, z. B. im Badezimmer.</string>
     <string name="premium_feature_shake">Schüttle dein Handy, bis der Wecker aufgibt.</string>
     <string name="premium_feature_tones_title">Premium-Wecktöne</string>
-    <string name="premium_feature_tones">%1$s und %2$s.</string>
+    <string name="premium_feature_tones">Beruhigende Naturklänge und 5 extralaute Töne für Tiefschläfer.</string>
     <string name="premium_plan_monthly">Monatsabo</string>
     <string name="premium_cancel_anytime">Jederzeit kündbar</string>
     <string name="premium_per_month">/ Monat</string>
@@ -168,6 +168,14 @@
     <string name="tone_nature_desc">Vogelgezwitscher und ein ruhiger Morgen</string>
     <string name="tone_heavy">Tiefschlaf-Sirene</string>
     <string name="tone_heavy_desc">Eine Sirene, die selbst Tiefschläfer weckt</string>
+    <string name="tone_klaxon">Hupenstoß</string>
+    <string name="tone_klaxon_desc">Extralaut · zweitönige Hupenstöße</string>
+    <string name="tone_wail">Steigende Sirene</string>
+    <string name="tone_wail_desc">Extralaut · auf- und abschwellende Sirene</string>
+    <string name="tone_bell">Schnellglocke</string>
+    <string name="tone_bell_desc">Extralaut · schnelle, metallische Hammerglocke</string>
+    <string name="tone_pulse">Schrillpuls</string>
+    <string name="tone_pulse_desc">Extralaut · scharfe, hohe Vierfach-Pieptöne</string>
     <string name="tone_device_default">Standard-Weckton des Geräts</string>
     <string name="tone_custom">Eigener Weckton</string>
     <string name="tone_current_choice">Aktuelle Auswahl: %s</string>

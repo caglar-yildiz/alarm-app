@@ -98,7 +98,7 @@
     <string name="premium_feature_qr">QR 코드를 스캔해야만 끌 수 있어요. 예를 들어 욕실에 붙여 두세요.</string>
     <string name="premium_feature_shake">알람이 포기할 때까지 휴대폰을 흔드세요.</string>
     <string name="premium_feature_tones_title">프리미엄 알람음</string>
-    <string name="premium_feature_tones">%1$s 및 %2$s.</string>
+    <string name="premium_feature_tones">편안한 자연의 소리와 깊이 잠드는 분을 위한 초대형 음량 알람음 5종.</string>
     <string name="premium_plan_monthly">월간 요금제</string>
     <string name="premium_cancel_anytime">언제든지 해지 가능</string>
     <string name="premium_per_month">/ 월</string>
@@ -168,6 +168,14 @@
     <string name="tone_nature_desc">새소리와 평화로운 아침</string>
     <string name="tone_heavy">깊은 잠 사이렌</string>
     <string name="tone_heavy_desc">깊이 잠든 사람도 깨우는 사이렌</string>
+    <string name="tone_klaxon">클랙슨</string>
+    <string name="tone_klaxon_desc">초대형 음량 · 두 음의 경적 연타</string>
+    <string name="tone_wail">상승 사이렌</string>
+    <string name="tone_wail_desc">초대형 음량 · 오르내리는 사이렌</string>
+    <string name="tone_bell">고속 벨</string>
+    <string name="tone_bell_desc">초대형 음량 · 빠르게 울리는 금속 벨</string>
+    <string name="tone_pulse">날카로운 펄스</string>
+    <string name="tone_pulse_desc">초대형 음량 · 날카롭고 높은 4연속 비프</string>
     <string name="tone_device_default">기기 기본 알람음</string>
     <string name="tone_custom">사용자 지정 알람음</string>
     <string name="tone_current_choice">현재 선택: %s</string>

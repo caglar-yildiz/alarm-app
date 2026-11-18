@@ -98,7 +98,7 @@
     <string name="premium_feature_qr">Arrête l’alarme uniquement en scannant un code QR, par ex. dans la salle de bain.</string>
     <string name="premium_feature_shake">Secoue ton téléphone jusqu’à ce que l’alarme abandonne.</string>
     <string name="premium_feature_tones_title">Sonneries Premium</string>
-    <string name="premium_feature_tones">%1$s et %2$s.</string>
+    <string name="premium_feature_tones">Des sons de nature apaisants et 5 sonneries très fortes pour les gros dormeurs.</string>
     <string name="premium_plan_monthly">Forfait mensuel</string>
     <string name="premium_cancel_anytime">Résiliable à tout moment</string>
     <string name="premium_per_month">/ mois</string>
@@ -168,6 +168,14 @@
     <string name="tone_nature_desc">Chants d’oiseaux et matin paisible</string>
     <string name="tone_heavy">Sirène sommeil profond</string>
     <string name="tone_heavy_desc">Une sirène qui réveille même les gros dormeurs</string>
+    <string name="tone_klaxon">Klaxon</string>
+    <string name="tone_klaxon_desc">Très fort · coups de klaxon à deux tons</string>
+    <string name="tone_wail">Sirène montante</string>
+    <string name="tone_wail_desc">Très fort · sirène qui monte et descend</string>
+    <string name="tone_bell">Cloche rapide</string>
+    <string name="tone_bell_desc">Très fort · cloche métallique à frappe rapide</string>
+    <string name="tone_pulse">Bip perçant</string>
+    <string name="tone_pulse_desc">Très fort · quatre bips aigus et secs</string>
     <string name="tone_device_default">Sonnerie d’alarme par défaut</string>
     <string name="tone_custom">Sonnerie personnalisée</string>
     <string name="tone_current_choice">Choix actuel : %s</string>

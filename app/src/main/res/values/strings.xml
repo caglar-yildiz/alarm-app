@@ -99,7 +99,7 @@
     <string name="premium_feature_qr">Dismiss only by scanning a QR code, e.g. in the bathroom.</string>
     <string name="premium_feature_shake">Shake your phone until the alarm gives up.</string>
     <string name="premium_feature_tones_title">Premium alarm tones</string>
-    <string name="premium_feature_tones">%1$s and %2$s.</string>
+    <string name="premium_feature_tones">Soothing nature sounds plus 5 extra-loud tones for heavy sleepers.</string>
     <string name="premium_plan_monthly">Monthly plan</string>
     <string name="premium_cancel_anytime">Cancel anytime</string>
     <string name="premium_per_month">/ month</string>
@@ -169,6 +169,14 @@
     <string name="tone_nature_desc">Birdsong and a tranquil morning</string>
     <string name="tone_heavy">Deep Sleep Siren</string>
     <string name="tone_heavy_desc">A siren that wakes even heavy sleepers</string>
+    <string name="tone_klaxon">Klaxon Blast</string>
+    <string name="tone_klaxon_desc">Extra loud · two-tone horn bursts</string>
+    <string name="tone_wail">Rising Wail</string>
+    <string name="tone_wail_desc">Extra loud · siren that sweeps up and down</string>
+    <string name="tone_bell">Rapid Fire Bell</string>
+    <string name="tone_bell_desc">Extra loud · fast, metallic hammer bell</string>
+    <string name="tone_pulse">Piercing Pulse</string>
+    <string name="tone_pulse_desc">Extra loud · sharp high-pitched quad beeps</string>
     <string name="tone_device_default">Device default alarm sound</string>
     <string name="tone_custom">Custom alarm sound</string>
     <string name="tone_current_choice">Current choice: %s</string>

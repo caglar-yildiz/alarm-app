@@ -289,7 +289,7 @@ abstract class PremiumScreen : AlarmScreen() {
         featureRow(R.drawable.ic_shake, getString(R.string.task_shake),
             getString(R.string.premium_feature_shake), features, unlocked)
         featureRow(R.drawable.ic_music, getString(R.string.premium_feature_tones_title),
-            getString(R.string.premium_feature_tones, getString(R.string.tone_nature), getString(R.string.tone_heavy)),
+            getString(R.string.premium_feature_tones),
             features, unlocked)
 
         if (premiumAccess.subscribed) {

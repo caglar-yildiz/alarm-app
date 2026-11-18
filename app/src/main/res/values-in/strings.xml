@@ -98,7 +98,7 @@
     <string name="premium_feature_qr">Matikan hanya dengan memindai kode QR, misalnya di kamar mandi.</string>
     <string name="premium_feature_shake">Guncang ponselmu sampai alarm menyerah.</string>
     <string name="premium_feature_tones_title">Nada alarm Premium</string>
-    <string name="premium_feature_tones">%1$s dan %2$s.</string>
+    <string name="premium_feature_tones">Suara alam yang menenangkan dan 5 nada ekstra keras untuk yang tidurnya nyenyak.</string>
     <string name="premium_plan_monthly">Paket bulanan</string>
     <string name="premium_cancel_anytime">Batalkan kapan saja</string>
     <string name="premium_per_month">/ bulan</string>
@@ -168,6 +168,14 @@
     <string name="tone_nature_desc">Kicau burung dan pagi yang tenang</string>
     <string name="tone_heavy">Sirene Tidur Nyenyak</string>
     <string name="tone_heavy_desc">Sirene yang membangunkan bahkan yang tidur paling nyenyak</string>
+    <string name="tone_klaxon">Klakson</string>
+    <string name="tone_klaxon_desc">Ekstra keras · tiupan klakson dua nada</string>
+    <string name="tone_wail">Sirene Naik-Turun</string>
+    <string name="tone_wail_desc">Ekstra keras · sirene yang naik dan turun</string>
+    <string name="tone_bell">Bel Cepat</string>
+    <string name="tone_bell_desc">Ekstra keras · bel logam dengan pukulan cepat</string>
+    <string name="tone_pulse">Bip Tajam</string>
+    <string name="tone_pulse_desc">Ekstra keras · empat bip tinggi yang tajam</string>
     <string name="tone_device_default">Nada alarm bawaan perangkat</string>
     <string name="tone_custom">Nada alarm kustom</string>
     <string name="tone_current_choice">Pilihan saat ini: %s</string>

@@ -98,7 +98,7 @@
     <string name="premium_feature_qr">Alarmı yalnızca bir QR kod okutarak kapat, örneğin banyoda.</string>
     <string name="premium_feature_shake">Alarm susana kadar telefonunu salla.</string>
     <string name="premium_feature_tones_title">Premium alarm sesleri</string>
-    <string name="premium_feature_tones">%1$s ve %2$s.</string>
+    <string name="premium_feature_tones">Sakinleştirici doğa sesi ve ağır uyuyanlar için 5 ekstra yüksek ton.</string>
     <string name="premium_plan_monthly">Aylık plan</string>
     <string name="premium_cancel_anytime">İstediğin zaman iptal et</string>
     <string name="premium_per_month">/ ay</string>
@@ -168,6 +168,14 @@
     <string name="tone_nature_desc">Kuş cıvıltıları ve dingin sabah</string>
     <string name="tone_heavy">Derin Uyku Sireni</string>
     <string name="tone_heavy_desc">Ağır uykudan kesin uyandıran siren</string>
+    <string name="tone_klaxon">Korna Patlaması</string>
+    <string name="tone_klaxon_desc">Çok yüksek · iki tonlu korna darbeleri</string>
+    <string name="tone_wail">Yükselen Siren</string>
+    <string name="tone_wail_desc">Çok yüksek · inip çıkan siren</string>
+    <string name="tone_bell">Hızlı Zil</string>
+    <string name="tone_bell_desc">Çok yüksek · seri, metalik çekiç zili</string>
+    <string name="tone_pulse">Delici Bip</string>
+    <string name="tone_pulse_desc">Çok yüksek · keskin, tiz dörtlü bip</string>
     <string name="tone_device_default">Cihazın varsayılan alarm sesi</string>
     <string name="tone_custom">Özel alarm sesi</string>
     <string name="tone_current_choice">Mevcut seçim: %s</string>

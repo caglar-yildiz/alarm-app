@@ -98,7 +98,7 @@
     <string name="premium_feature_qr">Desligue só lendo um QR code, por exemplo no banheiro.</string>
     <string name="premium_feature_shake">Chacoalhe o celular até o alarme desistir.</string>
     <string name="premium_feature_tones_title">Sons de alarme Premium</string>
-    <string name="premium_feature_tones">%1$s e %2$s.</string>
+    <string name="premium_feature_tones">Sons relaxantes da natureza e 5 toques extra altos para quem tem sono pesado.</string>
     <string name="premium_plan_monthly">Plano mensal</string>
     <string name="premium_cancel_anytime">Cancele quando quiser</string>
     <string name="premium_per_month">/ mês</string>
@@ -168,6 +168,14 @@
     <string name="tone_nature_desc">Canto de pássaros e uma manhã serena</string>
     <string name="tone_heavy">Sirene de sono pesado</string>
     <string name="tone_heavy_desc">Uma sirene que acorda até quem tem sono pesado</string>
+    <string name="tone_klaxon">Buzina</string>
+    <string name="tone_klaxon_desc">Extra alto · buzinadas de dois tons</string>
+    <string name="tone_wail">Sirene crescente</string>
+    <string name="tone_wail_desc">Extra alto · sirene que sobe e desce</string>
+    <string name="tone_bell">Sino rápido</string>
+    <string name="tone_bell_desc">Extra alto · sino metálico de batidas rápidas</string>
+    <string name="tone_pulse">Bipe penetrante</string>
+    <string name="tone_pulse_desc">Extra alto · quatro bipes agudos e secos</string>
     <string name="tone_device_default">Som de alarme padrão do dispositivo</string>
     <string name="tone_custom">Som de alarme personalizado</string>
     <string name="tone_current_choice">Seleção atual: %s</string>

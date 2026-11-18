@@ -98,7 +98,7 @@
     <string name="premium_feature_qr">Spegnila solo scansionando un codice QR, ad esempio in bagno.</string>
     <string name="premium_feature_shake">Scuoti il telefono finché la sveglia non si arrende.</string>
     <string name="premium_feature_tones_title">Suonerie Premium</string>
-    <string name="premium_feature_tones">%1$s e %2$s.</string>
+    <string name="premium_feature_tones">Suoni rilassanti della natura e 5 suonerie extra forti per chi dorme pesante.</string>
     <string name="premium_plan_monthly">Piano mensile</string>
     <string name="premium_cancel_anytime">Disdici quando vuoi</string>
     <string name="premium_per_month">/ mese</string>
@@ -168,6 +168,14 @@
     <string name="tone_nature_desc">Cinguettii e un mattino sereno</string>
     <string name="tone_heavy">Sirena sonno profondo</string>
     <string name="tone_heavy_desc">Una sirena che sveglia anche chi dorme pesante</string>
+    <string name="tone_klaxon">Clacson</string>
+    <string name="tone_klaxon_desc">Extra forte · colpi di clacson a due toni</string>
+    <string name="tone_wail">Sirena crescente</string>
+    <string name="tone_wail_desc">Extra forte · sirena che sale e scende</string>
+    <string name="tone_bell">Campana rapida</string>
+    <string name="tone_bell_desc">Extra forte · campana metallica a colpi rapidi</string>
+    <string name="tone_pulse">Bip penetrante</string>
+    <string name="tone_pulse_desc">Extra forte · quattro bip acuti e secchi</string>
     <string name="tone_device_default">Suoneria sveglia predefinita</string>
     <string name="tone_custom">Suoneria personalizzata</string>
     <string name="tone_current_choice">Scelta attuale: %s</string>

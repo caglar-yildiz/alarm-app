@@ -98,7 +98,7 @@
     <string name="premium_feature_qr">Zet hem alleen uit door een QR-code te scannen, bijvoorbeeld in de badkamer.</string>
     <string name="premium_feature_shake">Schud je telefoon tot de wekker opgeeft.</string>
     <string name="premium_feature_tones_title">Premium-wektonen</string>
-    <string name="premium_feature_tones">%1$s en %2$s.</string>
+    <string name="premium_feature_tones">Rustgevende natuurgeluiden en 5 extra luide tonen voor diepe slapers.</string>
     <string name="premium_plan_monthly">Maandabonnement</string>
     <string name="premium_cancel_anytime">Altijd opzegbaar</string>
     <string name="premium_per_month">/ maand</string>
@@ -168,6 +168,14 @@
     <string name="tone_nature_desc">Vogelgezang en een rustige ochtend</string>
     <string name="tone_heavy">Diepeslaap-sirene</string>
     <string name="tone_heavy_desc">Een sirene die zelfs diepe slapers wekt</string>
+    <string name="tone_klaxon">Claxonstoot</string>
+    <string name="tone_klaxon_desc">Extra luid · tweetonige claxonstoten</string>
+    <string name="tone_wail">Stijgende sirene</string>
+    <string name="tone_wail_desc">Extra luid · sirene die op en neer gaat</string>
+    <string name="tone_bell">Snelle bel</string>
+    <string name="tone_bell_desc">Extra luid · snelle, metalen hamerbel</string>
+    <string name="tone_pulse">Schelle puls</string>
+    <string name="tone_pulse_desc">Extra luid · scherpe, hoge viervoudige piepjes</string>
     <string name="tone_device_default">Standaard wektoon van het apparaat</string>
     <string name="tone_custom">Eigen wektoon</string>
     <string name="tone_current_choice">Huidige keuze: %s</string>

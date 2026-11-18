@@ -98,7 +98,7 @@
     <string name="premium_feature_qr">ปิดได้ด้วยการสแกน QR โค้ดเท่านั้น เช่น ในห้องน้ำ</string>
     <string name="premium_feature_shake">เขย่าโทรศัพท์จนกว่าการปลุกจะยอมแพ้</string>
     <string name="premium_feature_tones_title">เสียงปลุกพรีเมียม</string>
-    <string name="premium_feature_tones">%1$s และ %2$s</string>
+    <string name="premium_feature_tones">เสียงธรรมชาติที่ผ่อนคลาย และเสียงปลุกดังพิเศษ 5 แบบสำหรับคนหลับลึก</string>
     <string name="premium_plan_monthly">แพ็กเกจรายเดือน</string>
     <string name="premium_cancel_anytime">ยกเลิกได้ทุกเมื่อ</string>
     <string name="premium_per_month">/ เดือน</string>
@@ -168,6 +168,14 @@
     <string name="tone_nature_desc">เสียงนกร้องและยามเช้าที่เงียบสงบ</string>
     <string name="tone_heavy">ไซเรนปลุกคนหลับลึก</string>
     <string name="tone_heavy_desc">ไซเรนที่ปลุกได้แม้คนหลับลึก</string>
+    <string name="tone_klaxon">แตรรถ</string>
+    <string name="tone_klaxon_desc">ดังพิเศษ · เสียงแตรสองโทนเป็นช่วงๆ</string>
+    <string name="tone_wail">ไซเรนขึ้นลง</string>
+    <string name="tone_wail_desc">ดังพิเศษ · ไซเรนที่ดังขึ้นลงต่อเนื่อง</string>
+    <string name="tone_bell">กระดิ่งรัว</string>
+    <string name="tone_bell_desc">ดังพิเศษ · กระดิ่งโลหะตีรัวเร็ว</string>
+    <string name="tone_pulse">บี๊บแหลม</string>
+    <string name="tone_pulse_desc">ดังพิเศษ · เสียงบี๊บแหลมสี่ครั้งติด</string>
     <string name="tone_device_default">เสียงปลุกเริ่มต้นของอุปกรณ์</string>
     <string name="tone_custom">เสียงปลุกที่กำหนดเอง</string>
     <string name="tone_current_choice">ที่เลือกอยู่: %s</string>

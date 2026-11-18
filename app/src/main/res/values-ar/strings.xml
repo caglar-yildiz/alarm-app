@@ -98,7 +98,7 @@
     <string name="premium_feature_qr">لا يتوقف إلا بمسح رمز QR، في الحمّام مثلًا.</string>
     <string name="premium_feature_shake">هزّ هاتفك حتى يستسلم المنبّه.</string>
     <string name="premium_feature_tones_title">نغمات منبّه بريميوم</string>
-    <string name="premium_feature_tones">%1$s و%2$s.</string>
+    <string name="premium_feature_tones">أصوات طبيعة مريحة و5 نغمات عالية جدًا لأصحاب النوم الثقيل.</string>
     <string name="premium_plan_monthly">الخطة الشهرية</string>
     <string name="premium_cancel_anytime">ألغِ في أي وقت</string>
     <string name="premium_per_month">/ شهر</string>
@@ -168,6 +168,14 @@
     <string name="tone_nature_desc">تغريد الطيور وصباح هادئ</string>
     <string name="tone_heavy">صافرة النوم العميق</string>
     <string name="tone_heavy_desc">صافرة توقظ حتى أثقل النائمين</string>
+    <string name="tone_klaxon">بوق السيارة</string>
+    <string name="tone_klaxon_desc">عالٍ جدًا · نفخات بوق بنغمتين</string>
+    <string name="tone_wail">صافرة متصاعدة</string>
+    <string name="tone_wail_desc">عالٍ جدًا · صافرة ترتفع وتنخفض</string>
+    <string name="tone_bell">جرس سريع</string>
+    <string name="tone_bell_desc">عالٍ جدًا · جرس معدني بطرقات سريعة</string>
+    <string name="tone_pulse">نبض حاد</string>
+    <string name="tone_pulse_desc">عالٍ جدًا · أربع صفارات حادة وعالية</string>
     <string name="tone_device_default">نغمة المنبّه الافتراضية للجهاز</string>
     <string name="tone_custom">نغمة منبّه مخصصة</string>
     <string name="tone_current_choice">الاختيار الحالي: %s</string>
