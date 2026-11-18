@@ -63,6 +63,21 @@ kontrolü başlatmaz. Premium görevleri denemek ücretsizdir; kaydederken
 abonelik kontrol edilir. Şekilleri bul görevinde dört farklı hedef şekil,
 4 × 4 tabloda soldan sağa sırayla seçilir; yanlış kutu ilerletmez.
 
+## Hava durumu sekmesi
+
+Alt menüdeki **Hava** sekmesi ücretsizdir. Kullanıcı şehrini adıyla arar (Android'in yerleşik
+Geocoder'ı, konum izni yok); ardından o anki hava, günün önerisi, rüzgar/nem/yağış, sonraki 24 saat
+ve 7 günlük tahmin gösterilir. Veriler [MET Norway](https://api.met.no/) Locationforecast 2.0'dan
+gelir: ücretsizdir, ticari uygulamalarda kullanılabilir (CC BY 4.0, ekranda kaynak belirtilir).
+MET kurallarına göre istekler uygulamayı tanıtan bir `User-Agent` ile gönderilir, yanıt `Expires`
+süresi dolana kadar önbellekten okunur ve `If-Modified-Since` kullanılır. Saatler cihazın saat
+diliminde gösterilir. Google hizmetleri olmayan cihazlarda (ör. bazı Huawei modelleri) şehir araması
+çalışmayabilir.
+
+Telefonda deneme: **Hava** sekmesini aç, bir şehir ara ve seç. Uçak modunda son tahminin ve
+"İnternet bağlantısı yok" uyarısının göründüğünü, **Yenile** ve **Şehri değiştir** düğmelerinin
+çalıştığını kontrol et.
+
 ## Google Play aboneliğini açma ve yayın
 
 1. Play Console'da ödeme profilini tamamla. Uygulama paket kimliği

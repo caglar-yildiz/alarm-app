@@ -31,6 +31,8 @@ kotlin {
 
 dependencies {
     testImplementation("junit:junit:4.13.2")
+    // The Android stub of org.json throws in local unit tests; use the real one there.
+    testImplementation("org.json:json:20240303")
     implementation("com.android.billingclient:billing:8.0.0")
     implementation("com.google.zxing:core:3.5.3")
 }
