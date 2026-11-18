@@ -290,9 +290,10 @@ abstract class AlarmScreen : Activity() {
     }
 }
 
-class MainActivity : PremiumScreen() {
+class MainActivity : WeatherScreen() {
     private enum class Tab(val titleRes: Int, val icon: Int) {
         ALARMS(R.string.tab_alarms, R.drawable.ic_beng_launcher),
+        WEATHER(R.string.tab_weather, R.drawable.ic_weather),
         TOOLS(R.string.tab_tools, R.drawable.ic_time_tools),
         PREMIUM(R.string.tab_premium, R.drawable.ic_crown)
     }
@@ -352,6 +353,10 @@ class MainActivity : PremiumScreen() {
 
     override fun onPremiumChanged() {
         if (tab == Tab.PREMIUM || tab == Tab.TOOLS) render()
+    }
+
+    override fun onWeatherChanged() {
+        if (tab == Tab.WEATHER) render()
     }
 
     private fun navigation(): LinearLayout = LinearLayout(this).apply {
@@ -784,6 +789,7 @@ class MainActivity : PremiumScreen() {
         layout(
             when (tab) {
                 Tab.ALARMS -> getString(R.string.app_name)
+                Tab.WEATHER -> getString(R.string.weather_title)
                 Tab.TOOLS -> getString(tool?.takeIf { it != Tool.LANGUAGE }?.titleRes ?: tab.titleRes)
                 else -> getString(tab.titleRes)
             },
@@ -801,6 +807,7 @@ class MainActivity : PremiumScreen() {
         }
         when (tab) {
             Tab.PREMIUM -> { showPremium(); return }
+            Tab.WEATHER -> { showWeather(); return }
             Tab.TOOLS -> {
                 if (tool != null && tool != Tool.LANGUAGE) button(getString(R.string.back_to_tools), primary = false) {
                     tool = null

@@ -263,4 +263,50 @@
         <item>Perdeyi aç ve güne başla</item>
         <item>Bir bardak su iç</item>
     </string-array>
+    <!-- Hava durumu -->
+    <string name="tab_weather">Hava</string>
+    <string name="weather_title">Hava durumu</string>
+    <string name="weather_intro_title">Güne havayı bilerek başla</string>
+    <string name="weather_intro_body">Şehrini seç; bugünün havasını, sonraki 24 saati ve haftayı tek bakışta gör. Konum izni gerekmez.</string>
+    <string name="weather_search_hint">Şehir ara (ör. İstanbul)</string>
+    <string name="weather_search">Ara</string>
+    <string name="weather_searching">Aranıyor…</string>
+    <string name="weather_no_results">Şehir bulunamadı. Farklı bir yazımla dene.</string>
+    <string name="weather_search_failed">Şehir araması şu an yapılamıyor. İnternet bağlantını kontrol et.</string>
+    <string name="weather_change_city">Şehri değiştir</string>
+    <string name="weather_refresh">Yenile</string>
+    <string name="weather_loading">Hava durumu yükleniyor…</string>
+    <string name="weather_updating">Güncelleniyor…</string>
+    <string name="weather_offline">İnternet bağlantısı yok. Son alınan tahmin gösteriliyor.</string>
+    <string name="weather_failed">Hava durumu alınamadı. Biraz sonra tekrar dene.</string>
+    <string name="weather_failed_offline">İnternet bağlantısı yok. Bağlanıp tekrar dene.</string>
+    <string name="weather_high_low">En yüksek %1$s · En düşük %2$s</string>
+    <string name="weather_today_for">BUGÜN İÇİN</string>
+    <string name="weather_wind">Rüzgar</string>
+    <string name="weather_wind_value">%d km/sa</string>
+    <string name="weather_humidity">Nem</string>
+    <string name="weather_percent">%%%d</string>
+    <string name="weather_precip">Bugün yağış</string>
+    <string name="weather_next_hours">Sonraki 24 saat</string>
+    <string name="weather_days">7 günlük tahmin</string>
+    <string name="weather_now">Şimdi</string>
+    <string name="weather_today">Bugün</string>
+    <string name="weather_tomorrow">Yarın</string>
+    <string name="weather_updated">Güncellendi %1$s · Hava verisi: MET Norway</string>
+    <string name="weather_tip_thunder">Gök gürültülü sağanak bekleniyor. Dışarıdaki planlarına dikkat et.</string>
+    <string name="weather_tip_snow">Kar geliyor. Sıkı giyin, yola biraz erken çık.</string>
+    <string name="weather_tip_rain">Yağmur bekleniyor, şemsiyeni unutma.</string>
+    <string name="weather_tip_hot">Sıcak bir gün. Yanına su almayı unutma.</string>
+    <string name="weather_tip_cold">Hava soğuk. Kat kat giyin.</string>
+    <string name="weather_tip_wind">Rüzgarlı bir gün. Montunu yanına al.</string>
+    <string name="weather_tip_clear">Gökyüzü açık. Dışarı çıkmak için harika bir gün.</string>
+    <string name="weather_tip_calm">Sakin bir gün görünüyor. İyi günler!</string>
+    <string name="sky_clear">Açık</string>
+    <string name="sky_partly">Parçalı bulutlu</string>
+    <string name="sky_cloudy">Bulutlu</string>
+    <string name="sky_fog">Sisli</string>
+    <string name="sky_rain">Yağmurlu</string>
+    <string name="sky_sleet">Karla karışık yağmur</string>
+    <string name="sky_snow">Karlı</string>
+    <string name="sky_thunder">Gök gürültülü sağanak</string>
 </resources>
