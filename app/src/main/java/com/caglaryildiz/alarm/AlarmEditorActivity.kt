@@ -80,11 +80,11 @@ class AlarmEditorActivity : AlarmScreen() {
         orbit.selectingMinutes = savedInstanceState?.getBoolean("selectingMinutes") ?: false
         val tabs = LinearLayout(this)
         schedule.addView(tabs)
-        hourButton = button("Saat", tabs, primary = false) {
+        hourButton = button(getString(R.string.editor_hour), tabs, primary = false) {
             orbit.selectingMinutes = false
             updateTimeFields()
         }
-        minuteButton = button("Dakika", tabs, primary = false) {
+        minuteButton = button(getString(R.string.editor_minute), tabs, primary = false) {
             orbit.selectingMinutes = true
             updateTimeFields()
         }
@@ -95,26 +95,26 @@ class AlarmEditorActivity : AlarmScreen() {
             }
         }
         schedule.addView(orbit, LinearLayout.LayoutParams(-1, dp(268)))
-        dateButton = button("", section("Tarih"), primary = false, action = ::pickDate)
-        repeatButton = button("", section("Tekrar edilen günler"), primary = false, action = ::pickDays)
-        val soundSection = section("Alarm sesi")
+        dateButton = button("", section(getString(R.string.editor_date)), primary = false, action = ::pickDate)
+        repeatButton = button("", section(getString(R.string.editor_repeat_days)), primary = false, action = ::pickDays)
+        val soundSection = section(getString(R.string.editor_sound))
         toneButton = button("", soundSection, primary = false, action = ::pickTone)
         crescendoButton = button("", soundSection, primary = false, action = ::toggleCrescendo)
-        val taskSection = section("Kapatma görevi")
+        val taskSection = section(getString(R.string.editor_task))
         taskButton = button("", taskSection, primary = false, action = ::pickTask)
         qrButton = button("", taskSection, primary = false, action = ::registerQrCode)
         difficultyButton = button("", taskSection, primary = false, action = ::pickDifficulty)
         questionCountButton = button("", taskSection, primary = false, action = ::pickQuestionCount)
 
-        button("Alarmı ve görevi önizle", taskSection, primary = false, action = ::openPreview)
+        button(getString(R.string.editor_preview), taskSection, primary = false, action = ::openPreview)
 
-        button("Kaydet", action = ::save)
-        button("Vazgeç", primary = false) { finish() }
+        button(getString(R.string.save), action = ::save)
+        button(getString(R.string.cancel), primary = false) { finish() }
         original?.let { existing ->
-            button("Alarmı sil", primary = false, destructive = true) {
-                AlertDialog.Builder(this, R.style.AstralDialogTheme).setTitle("Alarm silinsin mi?")
-                    .setNegativeButton("Vazgeç", null)
-                    .setPositiveButton("Sil") { _, _ ->
+            button(getString(R.string.editor_delete), primary = false, destructive = true) {
+                AlertDialog.Builder(this, R.style.AstralDialogTheme).setTitle(getString(R.string.editor_delete_confirm))
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .setPositiveButton(getString(R.string.delete)) { _, _ ->
                         alarms.delete(existing)
                         finish()
                     }.show()
@@ -128,8 +128,8 @@ class AlarmEditorActivity : AlarmScreen() {
         panel.isFocusableInTouchMode = true
         panel.requestFocus()
         nameInput = EditText(this).apply {
-            hint = "Alarm adı gir"
-            contentDescription = "Alarm adı"
+            hint = getString(R.string.editor_name_hint)
+            contentDescription = getString(R.string.editor_name)
             setSingleLine()
             imeOptions = android.view.inputmethod.EditorInfo.IME_ACTION_DONE
             textSize = 23f
@@ -157,30 +157,31 @@ class AlarmEditorActivity : AlarmScreen() {
         updateTimeFields()
         dateButton.isEnabled = days.isEmpty()
         dateButton.text = when {
-            days.isNotEmpty() -> "Tarih, tekrar günlerine göre belirlenir"
-            date != null -> date?.format(dateFormat)
+            days.isNotEmpty() -> getString(R.string.editor_date_by_days)
+            date != null -> date?.format(dateFormat())
             else -> {
                 val now = ZonedDateTime.now()
                 val today = now.toLocalDate().atTime(time).atZone(now.zone).isAfter(now)
-                if (today) "Otomatik · Bugün bir kez" else "Otomatik · Yarın bir kez"
+                getString(if (today) R.string.editor_auto_today else R.string.editor_auto_tomorrow)
             }
         }
         repeatButton.text = when (days.size) {
-            0 -> "Tek sefer"
-            7 -> "Her gün"
-            else -> days.sorted().joinToString(" · ") { weekdays[it - 1].take(3) }
+            0 -> getString(R.string.repeat_once)
+            7 -> getString(R.string.repeat_every_day)
+            else -> days.sorted().joinToString(" · ") { weekdayName(it, short = true) }
         }
-        taskButton.text = if (task.premium) "${task.label}  ✦" else task.label
-        taskButton.contentDescription = task.label + if (task.premium) ", Premium özellik" else ""
+        val taskLabel = getString(task.labelRes)
+        taskButton.text = if (task.premium) "$taskLabel  ✦" else taskLabel
+        taskButton.contentDescription = if (task.premium) getString(R.string.premium_feature_description, taskLabel) else taskLabel
         qrButton.visibility = if (task == AlarmTask.QR) android.view.View.VISIBLE else android.view.View.GONE
-        qrButton.text = if (qrCode.isBlank()) "QR kodu kaydet" else "Kayıtlı QR kodu değiştir"
+        qrButton.text = getString(if (qrCode.isBlank()) R.string.editor_qr_save else R.string.editor_qr_change)
         val showMathSettings = if (task == AlarmTask.MATH) android.view.View.VISIBLE else android.view.View.GONE
         difficultyButton.visibility = showMathSettings
         questionCountButton.visibility = showMathSettings
-        difficultyButton.text = "Zorluk · ${mathSettings.difficulty.label}"
-        questionCountButton.text = "Soru sayısı · ${mathSettings.count}"
-        toneButton.text = "Ses · ${resolveToneTitle(this, tone)}"
-        crescendoButton.text = if (crescendo) "Kademeli ses artışı · Açık (Yumuşak uyanış)" else "Kademeli ses artışı · Kapalı (Doğrudan tam ses)"
+        difficultyButton.text = getString(R.string.editor_difficulty_value, getString(mathSettings.difficulty.labelRes))
+        questionCountButton.text = getString(R.string.editor_question_count_value, mathSettings.count)
+        toneButton.text = getString(R.string.editor_tone_value, resolveToneTitle(this, tone))
+        crescendoButton.text = getString(if (crescendo) R.string.editor_crescendo_on else R.string.editor_crescendo_off)
     }
 
     private fun toggleCrescendo() {
@@ -196,7 +197,7 @@ class AlarmEditorActivity : AlarmScreen() {
             updateFields()
         }, selected.year, selected.monthValue - 1, selected.dayOfMonth).apply {
             datePicker.minDate = today.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
-            setButton(AlertDialog.BUTTON_NEUTRAL, "Bugün veya yarın") { _, _ ->
+            setButton(AlertDialog.BUTTON_NEUTRAL, getString(R.string.editor_today_or_tomorrow)) { _, _ ->
                 date = null
                 updateFields()
             }
@@ -209,9 +210,9 @@ class AlarmEditorActivity : AlarmScreen() {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(12), dp(4), dp(12), dp(8))
         }
-        val checkboxes = weekdays.mapIndexed { index, name ->
+        val checkboxes = (1..7).mapIndexed { index, day ->
             CheckBox(dialogContext).apply {
-                text = name
+                text = weekdayName(day)
                 minHeight = dp(44)
                 isChecked = index + 1 in days
                 choices.addView(this)
@@ -219,24 +220,24 @@ class AlarmEditorActivity : AlarmScreen() {
         }
         val scroll = ScrollView(dialogContext).apply { addView(choices) }
         val dialog = AlertDialog.Builder(dialogContext)
-            .setTitle("Tekrar edilen günler")
+            .setTitle(getString(R.string.editor_repeat_days))
             .setView(scroll)
-            .setNegativeButton("Vazgeç", null)
-            .setNeutralButton("Tek sefer") { _, _ -> updateDays(emptySet()) }
-            .setPositiveButton("Uygula") { _, _ ->
+            .setNegativeButton(getString(R.string.cancel), null)
+            .setNeutralButton(getString(R.string.repeat_once)) { _, _ -> updateDays(emptySet()) }
+            .setPositiveButton(getString(R.string.apply)) { _, _ ->
                 updateDays(checkboxes.indices.filter { checkboxes[it].isChecked }.map { it + 1 }.toSet())
             }
             .create()
 
-        button("Hepsini seç", choices, primary = false) {
+        button(getString(R.string.editor_select_all), choices, primary = false) {
             updateDays((1..7).toSet())
             dialog.dismiss()
         }
-        button("Hafta sonu", choices, primary = false) {
+        button(getString(R.string.repeat_weekend), choices, primary = false) {
             updateDays(setOf(6, 7))
             dialog.dismiss()
         }
-        button("Hafta içi", choices, primary = false) {
+        button(getString(R.string.repeat_weekdays), choices, primary = false) {
             updateDays((1..5).toSet())
             dialog.dismiss()
         }
@@ -250,20 +251,20 @@ class AlarmEditorActivity : AlarmScreen() {
 
     private fun pickTask() {
         AlertDialog.Builder(this, R.style.AstralDialogTheme)
-            .setTitle("Kapatma görevi")
+            .setTitle(getString(R.string.editor_task))
             .setSingleChoiceItems(AlarmTask.entries.map {
-                if (it.premium) "${it.label}  ✦" else it.label
+                if (it.premium) "${getString(it.labelRes)}  ✦" else getString(it.labelRes)
             }.toTypedArray(), task.ordinal) { dialog, index ->
                 dialog.dismiss()
                 selectTask(AlarmTask.entries[index])
             }
-            .setNegativeButton("Vazgeç", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
     private fun openPreview() {
         if (task == AlarmTask.QR && qrCode.isBlank()) {
-            Toast.makeText(this, "QR önizlemesi için önce bir QR kod kaydet.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.editor_qr_preview_needs_code), Toast.LENGTH_SHORT).show()
             return
         }
         startActivity(android.content.Intent(this, MissionPreviewActivity::class.java)
@@ -277,7 +278,7 @@ class AlarmEditorActivity : AlarmScreen() {
 
     private fun selectTask(selected: AlarmTask) {
         if (selected == AlarmTask.SHAKE && !ExtraMission.hasAccelerometer(this)) {
-            Toast.makeText(this, "Bu cihazda hareket sensörü yok.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.editor_no_motion_sensor), Toast.LENGTH_SHORT).show()
             return
         }
         task = selected
@@ -305,7 +306,7 @@ class AlarmEditorActivity : AlarmScreen() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 21) {
             if (resultCode == QrScannerActivity.RESULT_CAMERA_UNAVAILABLE) {
-                Toast.makeText(this, "Kamera açılamadı.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.camera_failed), Toast.LENGTH_SHORT).show()
             } else if (resultCode == RESULT_OK) {
                 qrCode = data?.getStringExtra(QrScannerActivity.CODE).orEmpty()
                 updateFields()
@@ -330,42 +331,42 @@ class AlarmEditorActivity : AlarmScreen() {
     private fun pickDifficulty() {
         val levels = MathDifficulty.entries
         AlertDialog.Builder(this, R.style.AstralDialogTheme)
-            .setTitle("Matematik zorluğu")
-            .setSingleChoiceItems(levels.map { it.label }.toTypedArray(), mathSettings.difficulty.ordinal) { dialog, index ->
+            .setTitle(getString(R.string.editor_math_difficulty))
+            .setSingleChoiceItems(levels.map { getString(it.labelRes) }.toTypedArray(), mathSettings.difficulty.ordinal) { dialog, index ->
                 mathSettings = mathSettings.copy(difficulty = levels[index])
                 updateFields()
                 dialog.dismiss()
             }
-            .setNegativeButton("Vazgeç", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
     private fun pickQuestionCount() {
         val counts = MathSettings.counts.toList()
         AlertDialog.Builder(this, R.style.AstralDialogTheme)
-            .setTitle("Soru sayısı")
-            .setSingleChoiceItems(counts.map { "$it soru" }.toTypedArray(), counts.indexOf(mathSettings.count)) { dialog, index ->
+            .setTitle(getString(R.string.editor_question_count))
+            .setSingleChoiceItems(counts.map { resources.getQuantityString(R.plurals.question_count, it, it) }.toTypedArray(), counts.indexOf(mathSettings.count)) { dialog, index ->
                 mathSettings = mathSettings.copy(count = counts[index])
                 updateFields()
                 dialog.dismiss()
             }
-            .setNegativeButton("Vazgeç", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
     private fun pickTone() {
         val options = linkedMapOf<Uri?, String>()
-        options[null] = "Cihazın varsayılan alarm sesi"
+        options[null] = getString(R.string.tone_device_default)
 
         for (builtIn in BuiltInTones.list) {
             val badge = if (builtIn.premium) " ✦" else ""
-            options[BuiltInTones.toUri(builtIn)] = "${builtIn.title}$badge · ${builtIn.description}"
+            options[BuiltInTones.toUri(builtIn)] = "${getString(builtIn.titleRes)}$badge · ${getString(builtIn.descriptionRes)}"
         }
 
         val savedToneUri = tone?.let { runCatching { Uri.parse(it) }.getOrNull() }
         if (savedToneUri != null && savedToneUri !in options) {
             val label = resolveToneTitle(this, tone)
-            options[savedToneUri] = "Mevcut seçim: $label"
+            options[savedToneUri] = getString(R.string.tone_current_choice, label)
         }
 
         val manager = RingtoneManager(applicationContext).apply {
@@ -376,7 +377,7 @@ class AlarmEditorActivity : AlarmScreen() {
                 while (cursor.moveToNext()) {
                     val uri = manager.getRingtoneUri(cursor.position) ?: continue
                     if (uri !in options) {
-                        options[uri] = "Sistem: " + cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX)
+                        options[uri] = getString(R.string.tone_system, cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX))
                     }
                 }
             }
@@ -384,11 +385,11 @@ class AlarmEditorActivity : AlarmScreen() {
 
         val uris = options.keys.toList()
         val titles = options.values.toMutableList()
-        titles.add("📁 Telefonundan müzik / ses dosyası seç…")
+        titles.add(getString(R.string.tone_pick_file))
 
         var selected = uris.indexOf(savedToneUri).coerceAtLeast(0)
         AlertDialog.Builder(this, R.style.AstralDialogTheme)
-            .setTitle("Alarm sesi")
+            .setTitle(getString(R.string.editor_sound))
             .setSingleChoiceItems(titles.toTypedArray(), selected) { dialog, index ->
                 if (index == titles.lastIndex) {
                     stopPreview()
@@ -402,7 +403,7 @@ class AlarmEditorActivity : AlarmScreen() {
                         @Suppress("DEPRECATION")
                         startActivityForResult(intent, REQUEST_PICK_AUDIO)
                     }.onFailure {
-                        Toast.makeText(this, "Dosya seçici açılamadı.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, getString(R.string.tone_picker_failed), Toast.LENGTH_SHORT).show()
                     }
                     return@setSingleChoiceItems
                 }
@@ -410,13 +411,13 @@ class AlarmEditorActivity : AlarmScreen() {
                 stopPreview()
                 if (RingService.active == null) preview = playAlarmTone(this, uris[index], loop = false)
             }
-            .setNegativeButton("Vazgeç", null)
-            .setPositiveButton("Uygula") { _, _ ->
+            .setNegativeButton(getString(R.string.cancel), null)
+            .setPositiveButton(getString(R.string.apply)) { _, _ ->
                 if (selected < uris.size) {
                     val chosenUri = uris[selected]
                     val builtIn = BuiltInTones.fromUri(chosenUri)
                     if (builtIn?.premium == true && !PremiumAccess(this).unlocked) {
-                        Toast.makeText(this, "Bu ses Premium üyelere özeldir.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, getString(R.string.tone_premium_only), Toast.LENGTH_SHORT).show()
                         startActivity(Intent(this, PremiumActivity::class.java))
                         return@setPositiveButton
                     }
@@ -460,12 +461,12 @@ class AlarmEditorActivity : AlarmScreen() {
         }
         val selectedBuiltIn = tone?.let { runCatching { Uri.parse(it) }.getOrNull() }?.let(BuiltInTones::fromUri)
         if (selectedBuiltIn?.premium == true && !PremiumAccess(this).unlocked) {
-            Toast.makeText(this, "Seçtiğin alarm sesi Premium üyelere özeldir.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.tone_selected_premium_only), Toast.LENGTH_SHORT).show()
             startActivity(Intent(this, PremiumActivity::class.java))
             return
         }
         if (task == AlarmTask.QR && qrCode.isBlank()) {
-            Toast.makeText(this, "Önce alarmı kapatacak QR kodunu kaydet.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.editor_qr_required), Toast.LENGTH_SHORT).show()
             return
         }
         val existing = original?.let { edited -> alarms.all().firstOrNull { it.id == edited.id } }
@@ -487,7 +488,7 @@ class AlarmEditorActivity : AlarmScreen() {
             snoozeAt = 0
         )
         if (updated.nextAfter(ZonedDateTime.now()) == null) {
-            Toast.makeText(this, "Gelecekte bir tarih ve saat seç.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, getString(R.string.editor_future_required), Toast.LENGTH_LONG).show()
             return
         }
         alarms.save(updated)

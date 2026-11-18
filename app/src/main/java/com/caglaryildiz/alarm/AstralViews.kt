@@ -114,7 +114,8 @@ internal class OrbitTimeView(
     }
 
     private fun updateDescription() {
-        contentDescription = if (selectingMinutes) "Dakika: ${time.minute}" else "Saat: ${time.hour}"
+        contentDescription = if (selectingMinutes) context.getString(R.string.orbit_minute, time.minute)
+            else context.getString(R.string.orbit_hour, time.hour)
     }
 
     override fun onInitializeAccessibilityNodeInfo(info: AccessibilityNodeInfo) {

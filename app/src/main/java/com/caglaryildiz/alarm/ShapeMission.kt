@@ -19,6 +19,6 @@ internal class ShapeMission(random: Random = Random.Default) {
 
     companion object {
         val symbols = listOf("●", "▲", "■", "◆")
-        val names = listOf("Daire", "Üçgen", "Kare", "Elmas")
+        val nameRes = listOf(R.string.shape_circle, R.string.shape_triangle, R.string.shape_square, R.string.shape_diamond)
     }
 }

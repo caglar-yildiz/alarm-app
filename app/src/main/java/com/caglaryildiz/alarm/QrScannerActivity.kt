@@ -26,12 +26,12 @@ class QrScannerActivity : AlarmScreen(), SurfaceHolder.Callback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (intent.hasExtra("ringToken")) setShowOnLockScreen()
-        layout("QR kod okut")
-        status = label("Kodu kameraya göster.")
+        layout(getString(R.string.qr_title))
+        status = label(getString(R.string.qr_hint))
         surface = SurfaceView(this)
         panel.addView(surface, LinearLayout.LayoutParams(-1, dp(330)))
         surface.holder.addCallback(this)
-        button("Vazgeç", primary = false) { finish() }
+        button(getString(R.string.cancel), primary = false) { finish() }
     }
 
     private fun setShowOnLockScreen() {
@@ -83,7 +83,7 @@ class QrScannerActivity : AlarmScreen(), SurfaceHolder.Callback {
             opened.startPreview()
         } catch (error: Exception) {
             closeCamera()
-            status.text = "Kamera açılamadı."
+            status.text = getString(R.string.camera_failed)
             setResult(RESULT_CAMERA_UNAVAILABLE, resultIntent())
             finish()
         }

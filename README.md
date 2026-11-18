@@ -4,6 +4,12 @@ Tek seferlik ve haftalık alarmlar kurabileceğin yerel bir Android uygulaması.
 
 Alarm düzenleyicisinde alarm adı, saat, tek seferlik tarih veya haftalık tekrar günleri, cihaz alarm sesi ve kapatma görevi ayrı ayrı değiştirilebilir.
 
+Alarm çalarken alarm ses seviyesi kısılamaz veya kapatılamaz: ses tuşları alarm ekranında yok sayılır, başka bir yoldan kısılırsa ses geri yükseltilir. Ses, en az azami seviyenin %60'ında çalar; alarm bittiğinde kullanıcının önceki ses seviyesi geri gelir.
+
+## Diller
+
+Uygulama Türkçe ve İngilizce destekler (`res/values-tr`, `res/values`). Dil, **Araçlar > Dil** kutucuğundan veya Android 13+ cihazlarda sistem ayarlarındaki uygulama dili ekranından seçilir. Yeni dil eklemek için `res/values-<dil>/strings.xml` dosyasını ekle, `res/xml/locales_config.xml` ve `AppLanguage.supported` listesine dil kodunu yaz. Uygulama içinden dil değişebildiği için AAB'de dil bölmesi kapalıdır.
+
 ## Kurulum
 
 JDK 17 ve Android SDK Platform 36 ile projeyi Android Studio'da aç. Minimum desteklenen sürüm Android 8.0 (API 26).
@@ -42,7 +48,8 @@ hesabıyla yapılır. Lisans testinde Play Console'daki paket kimliğiyle
 imzalanmış bir iç test sürümü kullanılır. Yerel test APK'sında Premium
 ekranındaki test düğmesi ödeme olmadan özellikleri açar.
 
-Premium üyeler Uyanıklık sekmesindeki kontrolü tüm alarmlar için açabilir. Alarm kapatıldığında
+Premium üyeler **Araçlar > Uyanıklık kontrolü** kutucuğundan kontrolü tüm alarmlar için
+açabilir; durum ana ekrandaki "Sonraki alarm" kartında da görünür. Alarm kapatıldığında
 seçilen gecikme sonunda bildirim gösterilir. 60 saniye içinde onay
 gelmezse alarm yeniden çalar. Test ederken bildirim ve kesin alarm
 izinlerini ver, kilit ekranında hem onay hem yanıtsız senaryoyu dene.

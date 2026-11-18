@@ -4,10 +4,9 @@ import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorManager
 
-internal class ExtraMission(val task: AlarmTask, val qrCode: String) {
+internal class ExtraMission(val task: AlarmTask, val qrCode: String, val phrase: String) {
     val shapes = ShapeMission()
     val sequence = List(4) { (1..4).random() }
-    val phrase = listOf("Bugün yeni bir gün", "Perdeyi aç ve güne başla", "Bir bardak su iç").random()
     var progress = 0
         private set
     var complete = false
@@ -47,6 +46,9 @@ internal class ExtraMission(val task: AlarmTask, val qrCode: String) {
 
     companion object {
         const val SHAKE_COUNT = 12
+
+        fun create(context: Context, task: AlarmTask, qrCode: String) = ExtraMission(task, qrCode,
+            context.resources.getStringArray(R.array.typing_phrases).random())
 
         fun hasAccelerometer(context: Context) =
             context.getSystemService(SensorManager::class.java).getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null

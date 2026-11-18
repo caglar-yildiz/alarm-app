@@ -16,14 +16,14 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
 
-internal enum class AlarmTask(val label: String, val premium: Boolean = false) {
-    NONE("Görev yok"),
-    MATH("Matematik"),
-    MEMORY("Hafıza dizisi"),
-    TYPING("Metin yazma"),
-    SHAKE("Telefonu salla", premium = true),
-    QR("QR kod okutma", premium = true),
-    SHAPES("Şekilleri bul", premium = true)
+internal enum class AlarmTask(val labelRes: Int, val premium: Boolean = false) {
+    NONE(R.string.task_none),
+    MATH(R.string.task_math),
+    MEMORY(R.string.task_memory),
+    TYPING(R.string.task_typing),
+    SHAKE(R.string.task_shake, premium = true),
+    QR(R.string.task_qr, premium = true),
+    SHAPES(R.string.task_shapes, premium = true)
 }
 
 internal data class Alarm(
