@@ -82,14 +82,27 @@ abonelik kontrol edilir. Şekilleri bul görevinde dört farklı hedef şekil,
 
 ## Hava durumu sekmesi
 
-Alt menüdeki **Hava** sekmesi ücretsizdir. Kullanıcı şehrini adıyla arar (Android'in yerleşik
-Geocoder'ı, konum izni yok); ardından o anki hava, günün önerisi, rüzgar/nem/yağış, sonraki 24 saat
-ve 7 günlük tahmin gösterilir. Veriler [MET Norway](https://api.met.no/) Locationforecast 2.0'dan
+Alt menüdeki **Hava** sekmesi ücretsizdir; konum izni istemez. Seçim yapıldıktan sonra o anki hava,
+günün önerisi, rüzgar/nem/yağış, sonraki 24 saat ve 7 günlük tahmin gösterilir.
+
+**Yer araması** yazarken sonuç verir:
+
+- Türkiye'nin 81 ili ve 974 ilçesi koordinatlarıyla uygulamaya gömülüdür (`assets/places_tr.tsv`,
+  [GeoNames](https://www.geonames.org/), CC BY 4.0). Bu kısım internetsiz çalışır.
+- Arama Türkçe harflerden ve büyük/küçük harften bağımsızdır: "istan", "İstan" ve "ıstan" aynı sonucu verir.
+- "istan" yazınca önce **İstanbul**, sonra **İstanbul / Esenyurt** gibi ilçeler nüfusa göre listelenir.
+- "esen" doğrudan ilçeleri bulur; "istanbul esen" ya da "İstanbul/Esen" aramayı daraltır.
+- Yerel sonuç az olduğunda (ör. yurt dışı şehirler) Android Geocoder'ı otomatik devreye girer.
+- Mantık `PlaceSearch.kt` içinde, testleri `PlaceSearchTest.kt` içindedir.
+- Veriyi yeniden üretmek için GeoNames `TR.zip` dosyasındaki `ADM1`/`ADM2` kayıtları ve il/ilçe
+  merkezleri (`PPLA`, `PPLA2`) kullanılır.
+
+Tahmin verileri [MET Norway](https://api.met.no/) Locationforecast 2.0'dan
 gelir: ücretsizdir, ticari uygulamalarda kullanılabilir (CC BY 4.0, ekranda kaynak belirtilir).
 MET kurallarına göre istekler uygulamayı tanıtan bir `User-Agent` ile gönderilir, yanıt `Expires`
 süresi dolana kadar önbellekten okunur ve `If-Modified-Since` kullanılır. Saatler cihazın saat
-diliminde gösterilir. Google hizmetleri olmayan cihazlarda (ör. bazı Huawei modelleri) şehir araması
-çalışmayabilir.
+diliminde gösterilir. Google hizmetleri olmayan cihazlarda (ör. bazı Huawei modelleri) yalnızca
+yurt dışı araması çalışmayabilir; Türkiye il ve ilçeleri her cihazda bulunur.
 
 Telefonda deneme: **Hava** sekmesini aç, bir şehir ara ve seç. Uçak modunda son tahminin ve
 "İnternet bağlantısı yok" uyarısının göründüğünü, **Yenile** ve **Şehri değiştir** düğmelerinin

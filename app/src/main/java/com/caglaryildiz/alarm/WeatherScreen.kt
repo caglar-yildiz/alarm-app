@@ -83,18 +83,33 @@ abstract class WeatherScreen : PremiumScreen() {
 
     // region City picker
 
+    private var resultsBox: LinearLayout? = null
+    private var introViews = emptyList<View>()
+
+    private fun updateIntroVisibility() {
+        val visibility = if (weatherQuery.isBlank()) View.VISIBLE else View.GONE
+        introViews.forEach { it.visibility = visibility }
+    }
+    private val searchHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val worldSearch = Runnable { searchWorldwide() }
+
     private fun showPlacePicker(canCancel: Boolean) {
         val intro = card().apply {
             gravity = Gravity.CENTER_HORIZONTAL
             setPadding(dp(18), dp(20), dp(18), dp(18))
         }
-        intro.addView(WeatherGlyph(this, Sky.PARTLY, night = false, floating = true),
-            LinearLayout.LayoutParams(dp(112), dp(112)))
-        label(getString(R.string.weather_intro_title), 21f, intro, bold = true).apply {
+        val glyph = WeatherGlyph(this, Sky.PARTLY, night = false, floating = true)
+        intro.addView(glyph, LinearLayout.LayoutParams(dp(112), dp(112)))
+        val title = label(getString(R.string.weather_intro_title), 21f, intro, bold = true).apply {
             gravity = Gravity.CENTER
             accessibilityHeading()
         }
-        label(getString(R.string.weather_intro_body), 14.5f, intro, color = mutedColor).gravity = Gravity.CENTER
+        val body = label(getString(R.string.weather_intro_body), 14.5f, intro, color = mutedColor).apply {
+            gravity = Gravity.CENTER
+        }
+        // While typing, the introduction steps aside so results stay above the keyboard.
+        introViews = listOf(glyph, title, body)
+        updateIntroVisibility()
 
         val input = EditText(this).apply {
             setText(weatherQuery)
@@ -109,36 +124,86 @@ abstract class WeatherScreen : PremiumScreen() {
             addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
-                override fun afterTextChanged(s: Editable?) { weatherQuery = s?.toString().orEmpty() }
+                override fun afterTextChanged(s: Editable?) {
+                    val query = s?.toString().orEmpty()
+                    if (query == weatherQuery) return
+                    weatherQuery = query
+                    onQueryChanged()
+                }
             })
         }
         intro.addView(input, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(14) })
         input.setOnEditorActionListener { view, action, _ ->
             if (action == EditorInfo.IME_ACTION_SEARCH) {
-                searchPlaces(view)
+                getSystemService(InputMethodManager::class.java)?.hideSoftInputFromWindow(view.windowToken, 0)
+                searchWorldwide()
                 true
             } else false
         }
-        button(getString(if (weatherSearching) R.string.weather_searching else R.string.weather_search), intro) {
-            searchPlaces(input)
-        }.isEnabled = !weatherSearching
 
-        when {
-            weatherSearchFailed -> label(getString(R.string.weather_search_failed), 14.5f, card(), color = mutedColor)
-            weatherResults?.isEmpty() == true -> label(getString(R.string.weather_no_results), 14.5f, card(), color = mutedColor)
-            else -> weatherResults?.let { results ->
-                val list = card().apply { setPadding(dp(6), dp(6), dp(6), dp(6)) }
-                results.forEach { placeRow(it, list) }
-            }
-        }
+        resultsBox = column().also { panel.addView(it, LinearLayout.LayoutParams(-1, -2)) }
+        renderResults()
+
         if (canCancel) button(getString(R.string.cancel), primary = false) {
+            searchHandler.removeCallbacks(worldSearch)
             weatherPicking = false
             weatherResults = null
+            weatherQuery = ""
             onWeatherChanged()
+        }
+        if (!canCancel) input.requestFocus()
+    }
+
+    /** Local results update on every keystroke; the worldwide geocoder only runs when they fall short. */
+    private fun onQueryChanged() {
+        searchHandler.removeCallbacks(worldSearch)
+        weatherResults = null
+        weatherSearchFailed = false
+        val query = weatherQuery.trim()
+        val local = localMatches(query)
+        updateIntroVisibility()
+        renderResults(local)
+        if (query.length >= 3 && local.size < 3) searchHandler.postDelayed(worldSearch, 700)
+    }
+
+    private fun localMatches(query: String): List<LocalPlace> =
+        if (query.isEmpty()) emptyList() else PlaceSearch.search(PlaceSearch.places(this), query)
+
+    private fun renderResults(local: List<LocalPlace> = localMatches(weatherQuery.trim())) {
+        val box = resultsBox ?: return
+        box.removeAllViews()
+        val query = weatherQuery.trim()
+        // Worldwide results that are not just a repeat of a bundled place.
+        val world = weatherResults.orEmpty().filter { found ->
+            local.none { kotlin.math.abs(it.lat - found.lat) < .05 && kotlin.math.abs(it.lon - found.lon) < .05 }
+        }
+        if (local.isNotEmpty() || world.isNotEmpty()) {
+            val list = column().apply {
+                background = glass(0xDD242F58.toInt(), 0xD137204F.toInt(), 20)
+                setPadding(dp(6), dp(6), dp(6), dp(6))
+            }
+            box.addView(list, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
+            local.forEach { place ->
+                val country = PlaceSearch.toWeatherPlace(place, locale).region
+                val subtitle = getString(if (place.isProvince) R.string.weather_place_province
+                    else R.string.weather_place_district, country)
+                placeRow(place.title, subtitle, PlaceSearch.toWeatherPlace(place, locale), list)
+            }
+            world.forEach { placeRow(it.name, it.region, it, list) }
+        }
+        val status = when {
+            weatherSearching -> getString(R.string.weather_searching)
+            weatherSearchFailed && local.isEmpty() -> getString(R.string.weather_search_failed)
+            query.length >= 2 && local.isEmpty() && weatherResults?.isEmpty() == true -> getString(R.string.weather_no_results)
+            else -> null
+        }
+        if (status != null) label(status, 14.5f, box, color = mutedColor).apply {
+            gravity = Gravity.CENTER
+            setPadding(0, dp(12), 0, 0)
         }
     }
 
-    private fun placeRow(place: WeatherPlace, parent: LinearLayout) {
+    private fun placeRow(title: String, subtitle: String, place: WeatherPlace, parent: LinearLayout) {
         val row = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(14), dp(10), dp(14), dp(10))
@@ -146,38 +211,44 @@ abstract class WeatherScreen : PremiumScreen() {
             gravity = Gravity.CENTER_VERTICAL
             isClickable = true
             isFocusable = true
-            contentDescription = listOf(place.name, place.region).filter { it.isNotBlank() }.joinToString(", ")
+            contentDescription = listOf(title, subtitle).filter { it.isNotBlank() }.joinToString(", ")
             background = RippleDrawable(ColorStateList.valueOf(0x35FFFFFF), null,
                 GradientDrawable().apply { setColor(0xFFFFFFFF.toInt()); cornerRadius = dp(14).toFloat() })
             setOnClickListener { choosePlace(place) }
         }
         parent.addView(row, LinearLayout.LayoutParams(-1, -2))
-        label(place.name, 16.5f, row, bold = true).apply {
+        label(title, 16.5f, row, bold = true).apply {
             setPadding(0, 0, 0, 0)
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
-        if (place.region.isNotBlank()) label(place.region, 13.5f, row, color = mutedColor).apply {
+        if (subtitle.isNotBlank()) label(subtitle, 13.5f, row, color = mutedColor).apply {
             setPadding(0, dp(2), 0, 0)
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
     }
 
-    private fun searchPlaces(input: View) {
+    /** Asks the platform geocoder, for places outside the bundled list (e.g. other countries). */
+    private fun searchWorldwide() {
+        searchHandler.removeCallbacks(worldSearch)
         val query = weatherQuery.trim()
         if (query.length < 2 || weatherSearching) return
-        getSystemService(InputMethodManager::class.java)?.hideSoftInputFromWindow(input.windowToken, 0)
         weatherSearching = true
         weatherSearchFailed = false
-        onWeatherChanged()
+        renderResults()
         WeatherClient.search(applicationContext, query, locale) { places ->
             weatherSearching = false
-            weatherSearchFailed = places == null
-            weatherResults = places
-            if (!isFinishing && !isDestroyed) onWeatherChanged()
+            if (isFinishing || isDestroyed) return@search
+            if (weatherQuery.trim() == query) {
+                weatherSearchFailed = places == null
+                weatherResults = places
+            }
+            renderResults()
         }
     }
 
     private fun choosePlace(place: WeatherPlace) {
+        searchHandler.removeCallbacks(worldSearch)
+        getSystemService(InputMethodManager::class.java)?.hideSoftInputFromWindow(panel.windowToken, 0)
         weatherStore.savePlace(place)
         weatherPicking = false
         weatherResults = null
