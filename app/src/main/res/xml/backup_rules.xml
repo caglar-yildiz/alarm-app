@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 11 and older. Alarms, settings, the free-trial record and the weather place are backed up.
+     The Premium cache is left out: subscriptions are always re-read from Google Play. -->
+<full-backup-content>
+    <include domain="sharedpref" path="." />
+    <include domain="device_sharedpref" path="." />
+    <exclude domain="device_sharedpref" path="premium_preview.xml" />
+</full-backup-content>
