@@ -12,8 +12,8 @@ android {
         applicationId = "com.caglaryildiz.alarm"
         minSdk = 26
         targetSdk = 36
-        versionCode = 21
-        versionName = "0.10.0"
+        versionCode = 22
+        versionName = "0.11.0"
     }
     bundle {
         // The in-app language picker needs every translation installed, not only the device language.
