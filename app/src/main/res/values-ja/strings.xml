@@ -131,7 +131,7 @@
     <string name="billing_show_diagnostics">価格の診断を表示</string>
     <string name="billing_restore">購入を復元</string>
     <string name="billing_diagnostics">価格の診断</string>
-    <string name="billing_diagnostics_message">パッケージ: %1$s\nインストール元: %2$s\n想定する商品: %3$s\n想定するプラン: %4$s · 標準 · P1M</string>
+    <string name="billing_diagnostics_message">パッケージ: %1$s\nインストール元: %2$s\n想定する商品: %3$s\n想定するプラン: %4$s · 標準</string>
     <string name="billing_unknown">不明</string>
     <string name="billing_none">なし</string>
     <string name="billing_standard">標準</string>
@@ -292,6 +292,22 @@
     <string name="sky_thunder">雷雨</string>
     <string name="weather_place_province">県 · %s</string>
     <string name="weather_place_district">地区 · %s</string>
+    <string name="premium_plan_choose">プランを選択</string>
+    <string name="premium_plan_yearly">年額プラン</string>
+    <string name="premium_per_year">/ 年</string>
+    <string name="premium_save">%d%%お得</string>
+    <string name="premium_yearly_per_month">月あたり %s（年払い）</string>
+    <string name="premium_subscribe_yearly">プレミアムに登録 · %s / 年</string>
+    <string name="trial_title">プレミアムを7日間無料で試す</string>
+    <string name="trial_body">カード不要、アカウント不要。この端末ですぐに始まります。無料体験は端末と Google アカウントごとに1回です。</string>
+    <string name="trial_start">無料体験を始める</string>
+    <string name="trial_checking">無料体験の対象か確認中…</string>
+    <string name="trial_started">プレミアムが7日間有効になりました。お楽しみください！</string>
+    <string name="trial_ends">無料体験は %s に終了します。プレミアムを続けるには登録してください。</string>
+    <string name="trial_ended">無料体験は終了しました。プレミアムを続けるにはプランを選んでください。</string>
+    <plurals name="trial_days_left">
+        <item quantity="other">無料体験 · 残り%d日</item>
+    </plurals>
     <plurals name="countdowns_running">
         <item quantity="other">%d件作動中</item>
     </plurals>

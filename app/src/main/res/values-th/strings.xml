@@ -131,7 +131,7 @@
     <string name="billing_show_diagnostics">แสดงการวินิจฉัยราคา</string>
     <string name="billing_restore">กู้คืนการซื้อ</string>
     <string name="billing_diagnostics">การวินิจฉัยราคา</string>
-    <string name="billing_diagnostics_message">แพ็กเกจ: %1$s\nติดตั้งจาก: %2$s\nสินค้าที่คาดไว้: %3$s\nแพ็กเกจที่คาดไว้: %4$s · มาตรฐาน · P1M</string>
+    <string name="billing_diagnostics_message">แพ็กเกจ: %1$s\nติดตั้งจาก: %2$s\nสินค้าที่คาดไว้: %3$s\nแพ็กเกจที่คาดไว้: %4$s · มาตรฐาน</string>
     <string name="billing_unknown">ไม่ทราบ</string>
     <string name="billing_none">ไม่มี</string>
     <string name="billing_standard">มาตรฐาน</string>
@@ -292,6 +292,22 @@
     <string name="sky_thunder">พายุฝนฟ้าคะนอง</string>
     <string name="weather_place_province">จังหวัด · %s</string>
     <string name="weather_place_district">อำเภอ · %s</string>
+    <string name="premium_plan_choose">เลือกแพ็กเกจ</string>
+    <string name="premium_plan_yearly">แพ็กเกจรายปี</string>
+    <string name="premium_per_year">/ ปี</string>
+    <string name="premium_save">ประหยัด %d%%</string>
+    <string name="premium_yearly_per_month">%s / เดือน เรียกเก็บรายปี</string>
+    <string name="premium_subscribe_yearly">สมัครพรีเมียม · %s / ปี</string>
+    <string name="trial_title">ทดลองใช้พรีเมียมฟรี 7 วัน</string>
+    <string name="trial_body">ไม่ต้องใช้บัตร ไม่ต้องมีบัญชี เริ่มได้ทันทีบนโทรศัพท์เครื่องนี้ ทดลองใช้ฟรีได้หนึ่งครั้งต่อโทรศัพท์และบัญชี Google</string>
+    <string name="trial_start">เริ่มทดลองใช้ฟรี</string>
+    <string name="trial_checking">กำลังตรวจสอบสิทธิ์ทดลองใช้…</string>
+    <string name="trial_started">เปิดพรีเมียมแล้ว 7 วัน ขอให้สนุก!</string>
+    <string name="trial_ends">การทดลองใช้ฟรีจะสิ้นสุดวันที่ %s สมัครเพื่อใช้พรีเมียมต่อ</string>
+    <string name="trial_ended">การทดลองใช้ฟรีสิ้นสุดแล้ว เลือกแพ็กเกจเพื่อใช้พรีเมียมต่อ</string>
+    <plurals name="trial_days_left">
+        <item quantity="other">ทดลองใช้ฟรี · เหลือ %d วัน</item>
+    </plurals>
     <plurals name="countdowns_running">
         <item quantity="other">ทำงานอยู่ %d รายการ</item>
     </plurals>

@@ -131,7 +131,7 @@
     <string name="billing_show_diagnostics">Mostra diagnostica prezzo</string>
     <string name="billing_restore">Ripristina acquisti</string>
     <string name="billing_diagnostics">Diagnostica prezzo</string>
-    <string name="billing_diagnostics_message">Pacchetto: %1$s\nInstallato da: %2$s\nProdotto previsto: %3$s\nPiano previsto: %4$s · standard · P1M</string>
+    <string name="billing_diagnostics_message">Pacchetto: %1$s\nInstallato da: %2$s\nProdotto previsto: %3$s\nPiano previsto: %4$s · standard</string>
     <string name="billing_unknown">sconosciuto</string>
     <string name="billing_none">nessuno</string>
     <string name="billing_standard">standard</string>
@@ -292,6 +292,24 @@
     <string name="sky_thunder">Temporale</string>
     <string name="weather_place_province">Provincia · %s</string>
     <string name="weather_place_district">Distretto · %s</string>
+    <string name="premium_plan_choose">Scegli il tuo piano</string>
+    <string name="premium_plan_yearly">Piano annuale</string>
+    <string name="premium_per_year">/ anno</string>
+    <string name="premium_save">Risparmi il %d%%</string>
+    <string name="premium_yearly_per_month">%s / mese, fatturato annualmente</string>
+    <string name="premium_subscribe_yearly">Passa a Premium · %s / anno</string>
+    <string name="trial_title">Prova Premium gratis per 7 giorni</string>
+    <string name="trial_body">Niente carta, niente account. Parte subito su questo telefono. Una prova gratuita per telefono e account Google.</string>
+    <string name="trial_start">Inizia la prova gratuita</string>
+    <string name="trial_checking">Verifica dell’idoneità alla prova…</string>
+    <string name="trial_started">Premium è attivo per 7 giorni. Buon divertimento!</string>
+    <string name="trial_ends">La prova gratuita termina il %s. Abbonati per mantenere Premium.</string>
+    <string name="trial_ended">La prova gratuita è terminata. Scegli un piano per mantenere Premium.</string>
+    <plurals name="trial_days_left">
+        <item quantity="one">Prova gratuita · manca %d giorno</item>
+        <item quantity="many">Prova gratuita · mancano %d giorni</item>
+        <item quantity="other">Prova gratuita · mancano %d giorni</item>
+    </plurals>
     <plurals name="countdowns_running">
         <item quantity="one">%d in corso</item>
         <item quantity="many">%d in corso</item>

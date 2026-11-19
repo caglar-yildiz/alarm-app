@@ -132,7 +132,7 @@
     <string name="billing_show_diagnostics">Show price diagnostics</string>
     <string name="billing_restore">Restore purchases</string>
     <string name="billing_diagnostics">Price diagnostics</string>
-    <string name="billing_diagnostics_message">Package: %1$s\nInstalled from: %2$s\nExpected product: %3$s\nExpected plan: %4$s · standard · P1M</string>
+    <string name="billing_diagnostics_message">Package: %1$s\nInstalled from: %2$s\nExpected product: %3$s\nExpected plan: %4$s · standard</string>
     <string name="billing_unknown">unknown</string>
     <string name="billing_none">none</string>
     <string name="billing_standard">standard</string>
@@ -293,6 +293,23 @@
     <string name="sky_thunder">Thunderstorm</string>
     <string name="weather_place_province">Province · %s</string>
     <string name="weather_place_district">District · %s</string>
+    <string name="premium_plan_choose">Choose your plan</string>
+    <string name="premium_plan_yearly">Yearly plan</string>
+    <string name="premium_per_year">/ year</string>
+    <string name="premium_save">Save %d%%</string>
+    <string name="premium_yearly_per_month">%s / month, billed yearly</string>
+    <string name="premium_subscribe_yearly">Go Premium · %s / year</string>
+    <string name="trial_title">Try Premium free for 7 days</string>
+    <string name="trial_body">No card, no account. It starts right away on this phone. One free trial per phone and Google account.</string>
+    <string name="trial_start">Start free trial</string>
+    <string name="trial_checking">Checking trial eligibility…</string>
+    <string name="trial_started">Premium is on for 7 days. Enjoy!</string>
+    <string name="trial_ends">Your free trial ends on %s. Subscribe to keep Premium.</string>
+    <string name="trial_ended">Your free trial has ended. Choose a plan to keep Premium.</string>
+    <plurals name="trial_days_left">
+        <item quantity="one">Free trial · %d day left</item>
+        <item quantity="other">Free trial · %d days left</item>
+    </plurals>
     <plurals name="countdowns_running">
         <item quantity="one">%d running</item>
         <item quantity="other">%d running</item>

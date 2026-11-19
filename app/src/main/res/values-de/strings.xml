@@ -131,7 +131,7 @@
     <string name="billing_show_diagnostics">Preisdiagnose anzeigen</string>
     <string name="billing_restore">Käufe wiederherstellen</string>
     <string name="billing_diagnostics">Preisdiagnose</string>
-    <string name="billing_diagnostics_message">Paket: %1$s\nInstalliert über: %2$s\nErwartetes Produkt: %3$s\nErwarteter Plan: %4$s · Standard · P1M</string>
+    <string name="billing_diagnostics_message">Paket: %1$s\nInstalliert über: %2$s\nErwartetes Produkt: %3$s\nErwarteter Plan: %4$s · Standard</string>
     <string name="billing_unknown">unbekannt</string>
     <string name="billing_none">keins</string>
     <string name="billing_standard">Standard</string>
@@ -292,6 +292,23 @@
     <string name="sky_thunder">Gewitter</string>
     <string name="weather_place_province">Provinz · %s</string>
     <string name="weather_place_district">Bezirk · %s</string>
+    <string name="premium_plan_choose">Wähle deinen Plan</string>
+    <string name="premium_plan_yearly">Jahresabo</string>
+    <string name="premium_per_year">/ Jahr</string>
+    <string name="premium_save">%d %% sparen</string>
+    <string name="premium_yearly_per_month">%s / Monat, jährlich abgerechnet</string>
+    <string name="premium_subscribe_yearly">Premium holen · %s / Jahr</string>
+    <string name="trial_title">Premium 7 Tage kostenlos testen</string>
+    <string name="trial_body">Keine Karte, kein Konto. Startet sofort auf diesem Handy. Ein kostenloser Test pro Handy und Google-Konto.</string>
+    <string name="trial_start">Kostenlosen Test starten</string>
+    <string name="trial_checking">Testberechtigung wird geprüft…</string>
+    <string name="trial_started">Premium ist 7 Tage lang aktiv. Viel Spaß!</string>
+    <string name="trial_ends">Dein kostenloser Test endet am %s. Schließ ein Abo ab, um Premium zu behalten.</string>
+    <string name="trial_ended">Dein kostenloser Test ist abgelaufen. Wähle einen Plan, um Premium zu behalten.</string>
+    <plurals name="trial_days_left">
+        <item quantity="one">Kostenloser Test · noch %d Tag</item>
+        <item quantity="other">Kostenloser Test · noch %d Tage</item>
+    </plurals>
     <plurals name="countdowns_running">
         <item quantity="one">%d läuft</item>
         <item quantity="other">%d laufen</item>

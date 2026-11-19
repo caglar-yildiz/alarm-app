@@ -131,7 +131,7 @@
     <string name="billing_show_diagnostics">عرض تشخيص السعر</string>
     <string name="billing_restore">استعادة المشتريات</string>
     <string name="billing_diagnostics">تشخيص السعر</string>
-    <string name="billing_diagnostics_message">الحزمة: %1$s\nمصدر التثبيت: %2$s\nالمنتج المتوقع: %3$s\nالخطة المتوقعة: %4$s · قياسية · P1M</string>
+    <string name="billing_diagnostics_message">الحزمة: %1$s\nمصدر التثبيت: %2$s\nالمنتج المتوقع: %3$s\nالخطة المتوقعة: %4$s · قياسية</string>
     <string name="billing_unknown">غير معروف</string>
     <string name="billing_none">لا يوجد</string>
     <string name="billing_standard">قياسية</string>
@@ -292,6 +292,27 @@
     <string name="sky_thunder">عاصفة رعدية</string>
     <string name="weather_place_province">ولاية · %s</string>
     <string name="weather_place_district">منطقة · %s</string>
+    <string name="premium_plan_choose">اختر خطتك</string>
+    <string name="premium_plan_yearly">الخطة السنوية</string>
+    <string name="premium_per_year">/ سنة</string>
+    <string name="premium_save">وفّر %d%%</string>
+    <string name="premium_yearly_per_month">%s / شهر، تُدفع سنويًا</string>
+    <string name="premium_subscribe_yearly">اشترك في بريميوم · %s / سنة</string>
+    <string name="trial_title">جرّب بريميوم مجانًا لمدة 7 أيام</string>
+    <string name="trial_body">بلا بطاقة ولا حساب. يبدأ فورًا على هذا الهاتف. تجربة مجانية واحدة لكل هاتف وحساب Google.</string>
+    <string name="trial_start">ابدأ التجربة المجانية</string>
+    <string name="trial_checking">جارٍ التحقق من أهلية التجربة…</string>
+    <string name="trial_started">بريميوم مفعّل لمدة 7 أيام. استمتع!</string>
+    <string name="trial_ends">تنتهي تجربتك المجانية في %s. اشترك للاحتفاظ ببريميوم.</string>
+    <string name="trial_ended">انتهت تجربتك المجانية. اختر خطة للاحتفاظ ببريميوم.</string>
+    <plurals name="trial_days_left">
+        <item quantity="zero">تجربة مجانية · لم يتبقَّ أي يوم (%d)</item>
+        <item quantity="one">تجربة مجانية · يوم واحد متبقٍ</item>
+        <item quantity="two">تجربة مجانية · يومان متبقيان</item>
+        <item quantity="few">تجربة مجانية · %d أيام متبقية</item>
+        <item quantity="many">تجربة مجانية · %d يومًا متبقيًا</item>
+        <item quantity="other">تجربة مجانية · %d يوم متبقٍ</item>
+    </plurals>
     <plurals name="countdowns_running">
         <item quantity="zero">%d قيد التشغيل</item>
         <item quantity="one">%d قيد التشغيل</item>

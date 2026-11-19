@@ -3,7 +3,7 @@ name: Android APK
 on:
   push:
     paths:
-      - '.github/workflows/android-apk.yml'
+      - '.github/workflows/main.yml'
       - 'app/**'
       - 'gradle/**'
       - 'gradlew'
@@ -37,10 +37,24 @@ jobs:
             "$sdk_root/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$sdk_root" "platforms;android-36" "build-tools;36.0.0"
           fi
 
+      # Every runner creates its own random debug key. APKs signed with different keys cannot be
+      # installed over each other, which forces an uninstall and wipes the app's data. A fixed key
+      # from the DEBUG_KEYSTORE_BASE64 secret keeps every build updatable in place.
+      - name: Use the shared debug signing key
+        env:
+          DEBUG_KEYSTORE_BASE64: ${{ secrets.DEBUG_KEYSTORE_BASE64 }}
+        run: |
+          if [[ -n "$DEBUG_KEYSTORE_BASE64" ]]; then
+            mkdir -p "$HOME/.android"
+            printf '%s' "$DEBUG_KEYSTORE_BASE64" | base64 --decode > "$HOME/.android/debug.keystore"
+          else
+            echo "::warning::DEBUG_KEYSTORE_BASE64 is not set. This APK gets a one-off key and cannot update an earlier build without uninstalling it."
+          fi
+
       - name: Build and verify APK
         run: |
           ./gradlew --no-daemon :app:assembleDebug
-          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs app/build/outputs/apk/debug/app-debug.apk | grep -i "SHA-256 digest"
           "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging app/build/outputs/apk/debug/app-debug.apk | grep -Fx "targetSdkVersion:'36'"
           cp app/build/outputs/apk/debug/app-debug.apk BENG-ALARM.apk
 

@@ -131,7 +131,7 @@
     <string name="billing_show_diagnostics">Fiyat teşhisini göster</string>
     <string name="billing_restore">Satın alımları geri yükle</string>
     <string name="billing_diagnostics">Fiyat teşhisi</string>
-    <string name="billing_diagnostics_message">Paket: %1$s\nKurulum kaynağı: %2$s\nBeklenen ürün: %3$s\nBeklenen plan: %4$s · standart · P1M</string>
+    <string name="billing_diagnostics_message">Paket: %1$s\nKurulum kaynağı: %2$s\nBeklenen ürün: %3$s\nBeklenen plan: %4$s · standart</string>
     <string name="billing_unknown">bilinmiyor</string>
     <string name="billing_none">yok</string>
     <string name="billing_standard">standart</string>
@@ -292,6 +292,23 @@
     <string name="sky_thunder">Gök gürültülü sağanak</string>
     <string name="weather_place_province">İl · %s</string>
     <string name="weather_place_district">İlçe · %s</string>
+    <string name="premium_plan_choose">Planını seç</string>
+    <string name="premium_plan_yearly">Yıllık plan</string>
+    <string name="premium_per_year">/ yıl</string>
+    <string name="premium_save">%%%d tasarruf</string>
+    <string name="premium_yearly_per_month">Aylık %s, yıllık faturalanır</string>
+    <string name="premium_subscribe_yearly">Premium’a geç · %s / yıl</string>
+    <string name="trial_title">Premium’u 7 gün ücretsiz dene</string>
+    <string name="trial_body">Kart yok, hesap yok. Bu telefonda hemen başlar. Her telefon ve Google hesabı için bir kez ücretsiz deneme.</string>
+    <string name="trial_start">Ücretsiz denemeyi başlat</string>
+    <string name="trial_checking">Deneme hakkı kontrol ediliyor…</string>
+    <string name="trial_started">Premium 7 gün boyunca açık. Keyfini çıkar!</string>
+    <string name="trial_ends">Ücretsiz deneme %s tarihinde bitiyor. Premium’u korumak için abone ol.</string>
+    <string name="trial_ended">Ücretsiz deneme süren bitti. Premium’u sürdürmek için bir plan seç.</string>
+    <plurals name="trial_days_left">
+        <item quantity="one">Ücretsiz deneme · %d gün kaldı</item>
+        <item quantity="other">Ücretsiz deneme · %d gün kaldı</item>
+    </plurals>
     <plurals name="countdowns_running">
         <item quantity="one">%d sayaç çalışıyor</item>
         <item quantity="other">%d sayaç çalışıyor</item>

@@ -131,7 +131,7 @@
     <string name="billing_show_diagnostics">顯示價格診斷</string>
     <string name="billing_restore">還原購買項目</string>
     <string name="billing_diagnostics">價格診斷</string>
-    <string name="billing_diagnostics_message">套件：%1$s\n安裝來源：%2$s\n預期商品：%3$s\n預期方案：%4$s · 標準 · P1M</string>
+    <string name="billing_diagnostics_message">套件：%1$s\n安裝來源：%2$s\n預期商品：%3$s\n預期方案：%4$s · 標準</string>
     <string name="billing_unknown">不明</string>
     <string name="billing_none">無</string>
     <string name="billing_standard">標準</string>
@@ -292,6 +292,22 @@
     <string name="sky_thunder">雷雨</string>
     <string name="weather_place_province">省 · %s</string>
     <string name="weather_place_district">區 · %s</string>
+    <string name="premium_plan_choose">選擇方案</string>
+    <string name="premium_plan_yearly">年繳方案</string>
+    <string name="premium_per_year">/ 年</string>
+    <string name="premium_save">省 %d%%</string>
+    <string name="premium_yearly_per_month">每月 %s，按年計費</string>
+    <string name="premium_subscribe_yearly">升級進階版 · %s / 年</string>
+    <string name="trial_title">免費試用進階版 7 天</string>
+    <string name="trial_body">不需信用卡，也不需帳戶，立即在這支手機上開始。每支手機與 Google 帳戶限免費試用一次。</string>
+    <string name="trial_start">開始免費試用</string>
+    <string name="trial_checking">正在確認試用資格…</string>
+    <string name="trial_started">進階版已開啟 7 天，盡情享受！</string>
+    <string name="trial_ends">免費試用將於 %s 結束，訂閱即可繼續使用進階版。</string>
+    <string name="trial_ended">免費試用已結束，選擇方案即可繼續使用進階版。</string>
+    <plurals name="trial_days_left">
+        <item quantity="other">免費試用 · 剩 %d 天</item>
+    </plurals>
     <plurals name="countdowns_running">
         <item quantity="other">%d 個計時中</item>
     </plurals>

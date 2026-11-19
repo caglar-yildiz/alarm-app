@@ -12,8 +12,8 @@ android {
         applicationId = "com.caglaryildiz.alarm"
         minSdk = 26
         targetSdk = 36
-        versionCode = 20
-        versionName = "0.9.0"
+        versionCode = 21
+        versionName = "0.10.0"
     }
     bundle {
         // The in-app language picker needs every translation installed, not only the device language.
@@ -35,4 +35,5 @@ dependencies {
     testImplementation("org.json:json:20240303")
     implementation("com.android.billingclient:billing:8.0.0")
     implementation("com.google.zxing:core:3.5.3")
+    implementation("com.google.android.gms:play-services-auth-blockstore:16.4.0")
 }

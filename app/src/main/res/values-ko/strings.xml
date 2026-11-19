@@ -131,7 +131,7 @@
     <string name="billing_show_diagnostics">가격 진단 보기</string>
     <string name="billing_restore">구매 복원</string>
     <string name="billing_diagnostics">가격 진단</string>
-    <string name="billing_diagnostics_message">패키지: %1$s\n설치 출처: %2$s\n예상 상품: %3$s\n예상 요금제: %4$s · 기본 · P1M</string>
+    <string name="billing_diagnostics_message">패키지: %1$s\n설치 출처: %2$s\n예상 상품: %3$s\n예상 요금제: %4$s · 기본</string>
     <string name="billing_unknown">알 수 없음</string>
     <string name="billing_none">없음</string>
     <string name="billing_standard">기본</string>
@@ -292,6 +292,22 @@
     <string name="sky_thunder">뇌우</string>
     <string name="weather_place_province">주 · %s</string>
     <string name="weather_place_district">지구 · %s</string>
+    <string name="premium_plan_choose">요금제 선택</string>
+    <string name="premium_plan_yearly">연간 요금제</string>
+    <string name="premium_per_year">/ 년</string>
+    <string name="premium_save">%d%% 할인</string>
+    <string name="premium_yearly_per_month">월 %s, 연간 결제</string>
+    <string name="premium_subscribe_yearly">프리미엄 시작 · %s / 년</string>
+    <string name="trial_title">프리미엄 7일 무료 체험</string>
+    <string name="trial_body">카드도 계정도 필요 없어요. 이 휴대폰에서 바로 시작됩니다. 무료 체험은 휴대폰과 Google 계정당 한 번입니다.</string>
+    <string name="trial_start">무료 체험 시작</string>
+    <string name="trial_checking">무료 체험 자격 확인 중…</string>
+    <string name="trial_started">프리미엄이 7일 동안 켜졌어요. 즐겨 보세요!</string>
+    <string name="trial_ends">무료 체험이 %s에 끝납니다. 프리미엄을 유지하려면 구독하세요.</string>
+    <string name="trial_ended">무료 체험이 끝났습니다. 프리미엄을 유지하려면 요금제를 선택하세요.</string>
+    <plurals name="trial_days_left">
+        <item quantity="other">무료 체험 · %d일 남음</item>
+    </plurals>
     <plurals name="countdowns_running">
         <item quantity="other">%d개 실행 중</item>
     </plurals>

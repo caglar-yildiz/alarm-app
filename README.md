@@ -39,6 +39,35 @@ Terminalden debug APK oluşturmak için:
 
 Windows'ta `gradlew.bat :app:assembleDebug` kullan. APK, `app/build/outputs/apk/debug/app-debug.apk` yoluna yazılır.
 
+## Veriler ve güncellemeler
+
+- **Yedekleme:** Alarmlar, ayarlar, dil, uyanıklık kontrolü, sayaçlar, hava durumu konumu ve
+  deneme kaydı Android'in yedeklemesine dahildir (`res/xml/backup_rules.xml`,
+  `res/xml/data_extraction_rules.xml`). Uygulama silinip Play'den yeniden kurulduğunda ya da
+  yeni telefona geçildiğinde geri gelir. Geri yükleme bitince `BengBackupAgent` alarmları,
+  uygulama açılmadan yeniden kurar. Premium önbelleği yedeklenmez; abonelik Play'den okunur.
+- **Güncelleme ve imza:** Android, imzası farklı bir APK'yı eski uygulamanın üstüne kurmaz.
+  Bu durumda uygulamayı silmek gerekir ve veriler gider. GitHub Actions'taki debug APK
+  (`.github/workflows/main.yml`) her çalıştırmada yeni bir anahtar üretiyordu. Artık
+  `DEBUG_KEYSTORE_BASE64` secret'ındaki sabit anahtarla imzalanır; secret yoksa iş uyarı verir.
+  Kurulum için Android Studio'nun kullandığı `~/.android/debug.keystore` dosyasının Base64
+  karşılığını **Settings → Secrets and variables → Actions** altında `DEBUG_KEYSTORE_BASE64`
+  adıyla ekle. Böylece Android Studio ve CI derlemeleri aynı imzayı taşır. macOS/Linux:
+
+  ```sh
+  base64 < ~/.android/debug.keystore | tr -d '\n'
+  ```
+
+  Windows PowerShell:
+
+  ```powershell
+  [Convert]::ToBase64String([IO.File]::ReadAllBytes("$env:USERPROFILE\.android\debug.keystore"))
+  ```
+
+  Telefondaki eski, farklı imzalı sürümü bir kez silmek gerekir; sonraki CI derlemeleri
+  verileri koruyarak üstüne kurulur. Play sürümü ayrı (yükleme) anahtarıyla imzalandığı için
+  debug APK ile Play sürümü birbirinin üstüne kurulamaz.
+
 ## Telefonda deneme
 
 1. Uygulamayı aç. Ekranda görünüyorsa **Alarm iznini aç**, **Alarm bildirimlerini aç** ve **Kilit ekranında alarmı göster** adımlarını tamamla.
@@ -58,9 +87,28 @@ Alarm, etkileşim olmazsa 10 dakika sonra susar. Tam ekran izni kapalıysa ve bi
 
 ## Premium ve uyanıklık kontrolü
 
-Play Console'da `com.caglaryildiz.alarm` için `beng_premium` aboneliği ve
-`monthly` kimlikli aylık, otomatik yenilenen temel plan tanımlanır. Fiyat
-ve para birimi Google Play'den alınır. Satın alma ve geri yükleme Play
+Play Console'da `com.caglaryildiz.alarm` için `beng_premium` aboneliği ve iki temel plan
+tanımlanır: `yearly` (yıllık, P1Y) ve `monthly` (aylık, P1M). Planlar otomatik yenilenir.
+Premium ekranında iki plan yan yana çıkar; yıllık plan önden seçilidir ve aylığa göre
+tasarruf oranı ("%35 tasarruf") ile aylık karşılığı Play fiyatından hesaplanır. Play'de
+yalnızca biri tanımlıysa yalnızca o gösterilir. Fiyat ve para birimi Google Play'den alınır.
+
+### Kartsız 7 günlük deneme
+
+Abone olmayan kullanıcı **Ücretsiz denemeyi başlat** ile Premium'u 7 gün kart ve hesap
+olmadan açar (`FreeTrial.kt`). Play'de deneme teklifi tanımlanmaz; deneme uygulama içindedir.
+
+- Deneme her telefon ve Google hesabı için bir kezdir. Başlangıç zamanı cihazda (Auto
+  Backup'a dahil) ve Google Block Store'da tutulur; en erken kayıt geçerlidir. Bu yüzden
+  silip yeniden kurmak ya da yedekten geri yüklemek yeni deneme açmaz.
+- Saat geri alınırsa süre uzamaz.
+- Kayıtta telefonun ANDROID_ID özeti de saklanır; ileride bir sunucu kontrolü eklenirse kullanılır.
+- Sunucu olmadığı için bu yöntem "en iyi çaba"dır. Play Hizmetleri verisini silen, yedeklemeyi
+  kapatan ya da fabrika ayarlarına dönen kullanıcı yeniden deneyebilir.
+- Play Console **Veri güvenliği** formunda "Cihaz veya diğer kimlikler" (dolandırıcılığı önleme
+  amacıyla, cihazda) beyan edilmelidir.
+- Deneme bitince Premium görevler matematiğe, Premium sesler ücretsiz sese döner ve
+  uyanıklık kontrolü durur. Satın alma ve geri yükleme Play
 hesabıyla yapılır. Lisans testinde Play Console'daki paket kimliğiyle
 imzalanmış bir iç test sürümü kullanılır. Yerel test APK'sında Premium
 ekranındaki test düğmesi ödeme olmadan özellikleri açar.
@@ -114,9 +162,10 @@ Telefonda deneme: **Hava** sekmesini aç, bir şehir ara ve seç. Uçak modunda 
    `com.caglaryildiz.alarm` olmalı. Önizleme APK'sının `.editorpreview`
    paketi bu uygulamanın abonelik ürünlerini sorgulayamaz.
 2. **Play ile para kazanma > Ürünler > Abonelikler** altında `beng_premium`
-   oluştur. `monthly` kimlikli, aylık ve otomatik yenilenen temel plan ekle.
-   Ülke/bölge ve fiyatları belirleyip planı etkinleştir. Bu sürüm yalnızca
-   standart aylık planı sunar; deneme/indirim tekliflerini sunmaz.
+   oluştur. `yearly` kimlikli yıllık (P1Y) ve `monthly` kimlikli aylık (P1M),
+   otomatik yenilenen iki temel plan ekle. Ülke/bölge ve fiyatları belirleyip
+   planları etkinleştir. Yıllık fiyatı aylığın yaklaşık 7–8 katı tutmak önerilir.
+   Bu sürüm teklif (deneme/indirim) kullanmaz; 7 günlük deneme uygulama içindedir.
 3. Fiyat kodda sabit değildir. Google Play'in yerelleştirilmiş fiyatı,
    aylık dönem ve otomatik yenileme açıklaması ödeme düğmesinden önce
    gösterilir. Ürün sorgusu başarısızsa ödeme düğmesi açılmaz; yeniden
