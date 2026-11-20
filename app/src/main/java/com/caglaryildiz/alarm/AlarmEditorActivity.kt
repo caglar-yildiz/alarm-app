@@ -31,6 +31,8 @@ class AlarmEditorActivity : AlarmScreen() {
     private var days: Set<Int> = emptySet()
     private var task = AlarmTask.MATH
     private var qrCode = ""
+    private var stepGoal = StepGoal.DEFAULT
+    private lateinit var stepGoalButton: Button
     private lateinit var qrButton: Button
     private var mathSettings = MathSettings()
     private var tone: String? = null
@@ -66,6 +68,7 @@ class AlarmEditorActivity : AlarmScreen() {
         mathSettings = if (savedInstanceState == null) alarm.mathSettings else MathSettings.from(
             savedInstanceState.getString("mathDifficulty"), savedInstanceState.getInt("mathCount", 1))
         qrCode = savedInstanceState?.getString("qrCode") ?: alarm.qrCode
+        stepGoal = savedInstanceState?.getInt("stepGoal", alarm.stepGoal) ?: alarm.stepGoal
         tone = if (savedInstanceState == null) alarm.tone else savedInstanceState.getString("tone")
         crescendo = if (savedInstanceState == null) alarm.crescendo else savedInstanceState.getBoolean("crescendo", true)
 
@@ -103,6 +106,7 @@ class AlarmEditorActivity : AlarmScreen() {
         val taskSection = section(getString(R.string.editor_task))
         taskButton = button("", taskSection, primary = false, action = ::pickTask)
         qrButton = button("", taskSection, primary = false, action = ::registerQrCode)
+        stepGoalButton = button("", taskSection, primary = false, action = ::pickStepGoal)
         difficultyButton = button("", taskSection, primary = false, action = ::pickDifficulty)
         questionCountButton = button("", taskSection, primary = false, action = ::pickQuestionCount)
 
@@ -175,6 +179,8 @@ class AlarmEditorActivity : AlarmScreen() {
         taskButton.contentDescription = if (task.premium) getString(R.string.premium_feature_description, taskLabel) else taskLabel
         qrButton.visibility = if (task == AlarmTask.QR) android.view.View.VISIBLE else android.view.View.GONE
         qrButton.text = getString(if (qrCode.isBlank()) R.string.editor_qr_save else R.string.editor_qr_change)
+        stepGoalButton.visibility = if (task == AlarmTask.STEPS) android.view.View.VISIBLE else android.view.View.GONE
+        stepGoalButton.text = getString(R.string.editor_step_goal_value, stepGoal)
         val showMathSettings = if (task == AlarmTask.MATH) android.view.View.VISIBLE else android.view.View.GONE
         difficultyButton.visibility = showMathSettings
         questionCountButton.visibility = showMathSettings
@@ -272,6 +278,7 @@ class AlarmEditorActivity : AlarmScreen() {
             .putExtra("mathDifficulty", mathSettings.difficulty.name)
             .putExtra("mathCount", mathSettings.count)
             .putExtra("qrCode", qrCode)
+            .putExtra("stepGoal", stepGoal)
             .putExtra("label", nameInput.text.toString())
             .putExtra("tone", tone))
     }
@@ -281,8 +288,31 @@ class AlarmEditorActivity : AlarmScreen() {
             Toast.makeText(this, getString(R.string.editor_no_motion_sensor), Toast.LENGTH_SHORT).show()
             return
         }
+        if (selected == AlarmTask.STEPS) {
+            if (!ExtraMission.hasStepDetector(this)) {
+                Toast.makeText(this, getString(R.string.editor_no_step_sensor), Toast.LENGTH_SHORT).show()
+                return
+            }
+            if (!ExtraMission.canCountSteps(this) && android.os.Build.VERSION.SDK_INT >= 29) {
+                requestPermissions(arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION), REQUEST_STEPS)
+            }
+        }
         task = selected
         updateFields()
+    }
+
+    private fun pickStepGoal() {
+        val options = StepGoal.options
+        AlertDialog.Builder(this, R.style.AstralDialogTheme)
+            .setTitle(getString(R.string.editor_step_goal))
+            .setSingleChoiceItems(options.map { getString(R.string.editor_step_goal_value, it) }.toTypedArray(),
+                options.indexOf(stepGoal)) { dialog, index ->
+                stepGoal = options[index]
+                updateFields()
+                dialog.dismiss()
+            }
+            .setNegativeButton(getString(R.string.cancel), null)
+            .show()
     }
 
     @Suppress("DEPRECATION")
@@ -298,6 +328,9 @@ class AlarmEditorActivity : AlarmScreen() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 20 && grantResults.firstOrNull() == android.content.pm.PackageManager.PERMISSION_GRANTED) {
             registerQrCode()
+        }
+        if (requestCode == REQUEST_STEPS && grantResults.firstOrNull() != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, getString(R.string.editor_steps_permission_denied), Toast.LENGTH_LONG).show()
         }
     }
 
@@ -447,6 +480,7 @@ class AlarmEditorActivity : AlarmScreen() {
         outState.putIntArray("days", days.toIntArray())
         outState.putString("task", task.name)
         outState.putString("qrCode", qrCode)
+        outState.putInt("stepGoal", stepGoal)
         outState.putString("mathDifficulty", mathSettings.difficulty.name)
         outState.putInt("mathCount", mathSettings.count)
         outState.putString("tone", tone)
@@ -469,6 +503,14 @@ class AlarmEditorActivity : AlarmScreen() {
             Toast.makeText(this, getString(R.string.editor_qr_required), Toast.LENGTH_SHORT).show()
             return
         }
+        if (task == AlarmTask.STEPS && !ExtraMission.canCountSteps(this)) {
+            // Without the permission the alarm would quietly fall back to math; ask again instead.
+            Toast.makeText(this, getString(R.string.editor_steps_permission_denied), Toast.LENGTH_LONG).show()
+            if (android.os.Build.VERSION.SDK_INT >= 29) {
+                requestPermissions(arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION), REQUEST_STEPS)
+            }
+            return
+        }
         val existing = original?.let { edited -> alarms.all().firstOrNull { it.id == edited.id } }
         if (original != null && existing == null) {
             finish()
@@ -480,6 +522,7 @@ class AlarmEditorActivity : AlarmScreen() {
             days = days,
             task = task,
             qrCode = qrCode,
+            stepGoal = stepGoal,
             mathSettings = mathSettings,
             label = nameInput.text.toString().trim(),
             tone = tone,
@@ -497,5 +540,6 @@ class AlarmEditorActivity : AlarmScreen() {
 
     companion object {
         private const val REQUEST_PICK_AUDIO = 2002
+        private const val REQUEST_STEPS = 23
     }
 }

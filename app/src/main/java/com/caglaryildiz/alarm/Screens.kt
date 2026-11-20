@@ -303,6 +303,7 @@ class MainActivity : WeatherScreen() {
         COUNTDOWNS(R.string.tool_countdowns, R.drawable.ic_hourglass),
         WAKE(R.string.wake_check, R.drawable.ic_wake_check),
         STATS(R.string.tool_stats, R.drawable.ic_stats),
+        BEDTIME(R.string.bedtime_title, R.drawable.ic_bedtime),
         LANGUAGE(R.string.tool_language, R.drawable.ic_language)
     }
 
@@ -422,6 +423,7 @@ class MainActivity : WeatherScreen() {
             Tool.COUNTDOWNS -> showCountdowns()
             Tool.WAKE -> showWakeCheck()
             Tool.STATS -> showStats()
+            Tool.BEDTIME -> showBedtime()
         }
     }
 
@@ -462,6 +464,7 @@ class MainActivity : WeatherScreen() {
             Tool.COUNTDOWNS -> 0xFF7A55E0.toInt() to 0xFF3A2C86.toInt()
             Tool.WAKE -> 0xFFE0A14F.toInt() to 0xFF7A3F8F.toInt()
             Tool.STATS -> 0xFF4FB28A.toInt() to 0xFF2B4C86.toInt()
+            Tool.BEDTIME -> 0xFF5B4BC4.toInt() to 0xFF1E2A5E.toInt()
             Tool.LANGUAGE -> 0xFF3AA6A0.toInt() to 0xFF2B4C86.toInt()
         }
         iconBadge(entry.icon, content, 60, from, to)
@@ -510,7 +513,73 @@ class MainActivity : WeatherScreen() {
             if (it.total == 0) getString(R.string.tool_stats_desc)
             else resources.getQuantityString(R.plurals.stats_streak_status, it.streak, it.streak)
         }
+        Tool.BEDTIME -> Bedtime(this).let { bedtime ->
+            if (!bedtime.enabled) getString(R.string.bedtime_desc)
+            else getString(R.string.bedtime_status_on, sleepDuration(this, bedtime.goal))
+        }
         Tool.LANGUAGE -> AppLanguage.displayName(this, AppLanguage.current(this))
+    }
+
+    private fun showBedtime() {
+        val bedtime = Bedtime(this)
+        val hero = card()
+        val top = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+        hero.addView(top, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(4) })
+        iconBadge(R.drawable.ic_bedtime, top, 60, 0xFF5B4BC4.toInt(), 0xFF1E2A5E.toInt())
+        label(getString(R.string.bedtime_headline), 19f, top, bold = true).layoutParams =
+            LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = dp(14) }
+        label(getString(R.string.bedtime_description), 15f, hero, color = mutedColor).setPadding(0, dp(12), 0, dp(4))
+        sleepNowLabel(hero)
+
+        val settings = card()
+        settings.addView(Switch(this).apply {
+            text = getString(R.string.bedtime_reminder)
+            textSize = 17f
+            setTextColor(Color.WHITE)
+            stylePlanetToggle()
+            minHeight = dp(52)
+            isChecked = bedtime.enabled
+            setOnCheckedChangeListener { _, enabled ->
+                bedtime.enabled = enabled
+                if (enabled && !getSystemService(NotificationManager::class.java).areNotificationsEnabled()) requestNotifications()
+                render()
+            }
+        })
+        fun choices(title: String, values: List<Int>, selected: Int, text: (Int) -> String, pick: (Int) -> Unit) {
+            label(title, 15f, settings, color = mutedColor).setPadding(0, dp(10), 0, 0)
+            values.chunked(3).forEach { chunk ->
+                val row = LinearLayout(this).apply { isBaselineAligned = false }
+                settings.addView(row)
+                chunk.forEachIndexed { index, value ->
+                    button(text(value), row, primary = value == selected) {
+                        pick(value)
+                        render()
+                    }.layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply {
+                        topMargin = dp(8)
+                        if (index > 0) marginStart = dp(6)
+                    }
+                }
+                repeat(3 - chunk.size) { row.addView(View(this), LinearLayout.LayoutParams(0, 0, 1f).apply { marginStart = dp(6) }) }
+            }
+        }
+        choices(getString(R.string.bedtime_goal), Bedtime.GOALS, bedtime.goal, { sleepDuration(this, it) }) { bedtime.goal = it }
+        choices(getString(R.string.bedtime_lead), Bedtime.LEADS, bedtime.lead,
+            { getString(R.string.minutes_short, it) }) { bedtime.lead = it }
+        if (bedtime.enabled) {
+            val next = bedtime.nextReminder
+            label(if (next > 0) getString(R.string.bedtime_next,
+                Instant.ofEpochMilli(next).atZone(java.time.ZoneId.systemDefault()).format(nextAlarmFormat()))
+                else getString(R.string.bedtime_none), 14f, settings, color = mutedColor).setPadding(0, dp(12), 0, 0)
+            if (!getSystemService(NotificationManager::class.java).areNotificationsEnabled()) showMissingPermissions()
+        }
+    }
+
+    /** "Sleep now and you get 7 h 40 min" when the next real alarm is within a night's reach. */
+    private fun sleepNowLabel(parent: LinearLayout) {
+        val next = Bedtime(this).nextAlarm() ?: return
+        val minutes = ((next - System.currentTimeMillis()) / 60_000L).toInt()
+        if (minutes !in 60..16 * 60) return
+        label(getString(R.string.bedtime_sleep_now, sleepDuration(this, minutes)), 14f, parent, color = 0xFFC9C3F0.toInt())
     }
 
     private fun showStats() {
@@ -851,6 +920,8 @@ class MainActivity : WeatherScreen() {
         alarms.syncAll()
         render()
         refreshPremium()
+        // Only from the home screen, never on top of a ringing alarm.
+        if (RingService.active == null) ReviewPrompt.maybeAsk(this)
     }
 
     private fun render(animateTabChange: Boolean = false) {
@@ -893,6 +964,7 @@ class MainActivity : WeatherScreen() {
         }
         showWakeConfirmations()
         val all = alarms.all().sortedBy { it.time }
+        showVacation()
         showNextAlarm(all)
         button(getString(R.string.add_alarm)) { openEditor(null) }
         showMissingPermissions()
@@ -903,16 +975,44 @@ class MainActivity : WeatherScreen() {
         }
         if (all.isEmpty()) label(getString(R.string.no_alarms), parent = card(), color = mutedColor)
         all.forEach(::showAlarm)
+        if (alarms.pausedUntil == null && all.any { it.enabled && it.days.isNotEmpty() }) {
+            button(getString(R.string.vacation_button), primary = false, action = ::pickVacationEnd)
+        }
+    }
+
+    /** Vacation mode banner: repeating alarms are paused until a date. */
+    private fun showVacation() {
+        val until = alarms.pausedUntil ?: return
+        val box = card().apply { background = glass(0xEE2A5A6B.toInt(), 0xEE2A3A5E.toInt(), 20) }
+        val top = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+        box.addView(top)
+        iconBadge(R.drawable.ic_vacation, top, 40, 0xFF3AA6A0.toInt(), 0xFF2B4C86.toInt())
+        label(getString(R.string.vacation_title), 18f, top, bold = true).apply {
+            accessibilityHeading()
+            layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = dp(12) }
+        }
+        label(getString(R.string.vacation_active, until.format(dateFormat())), 14f, box, color = 0xFFE0F2F1.toInt())
+        button(getString(R.string.vacation_end), box, primary = false) {
+            alarms.pausedUntil = null
+            render()
+        }
+    }
+
+    private fun pickVacationEnd() {
+        val today = java.time.LocalDate.now()
+        val suggested = today.plusDays(7)
+        android.app.DatePickerDialog(this, R.style.AstralDialogTheme, { _, year, month, day ->
+            alarms.pausedUntil = java.time.LocalDate.of(year, month + 1, day)
+            render()
+        }, suggested.year, suggested.monthValue - 1, suggested.dayOfMonth).apply {
+            setTitle(getString(R.string.vacation_pick))
+            datePicker.minDate = today.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+        }.show()
     }
 
     private fun showNextAlarm(all: List<Alarm>) {
         val now = ZonedDateTime.now()
-        val next = all.mapNotNull { alarm ->
-            listOfNotNull(
-                alarm.snoozeAt.takeIf { it > now.toInstant().toEpochMilli() },
-                if (alarm.enabled) alarm.nextAfter(now) else null
-            ).minOrNull()
-        }.minOrNull()
+        val next = alarms.nextRing(now)?.second
         val hero = card()
         val row = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         hero.addView(row)
@@ -925,6 +1025,7 @@ class MainActivity : WeatherScreen() {
             else -> Instant.ofEpochMilli(next).atZone(now.zone).format(nextAlarmFormat())
         }
         label(summary, 22f, details, bold = true)
+        if (alarms.canSchedule()) sleepNowLabel(details)
         row.addView(AstralPlanet(this), LinearLayout.LayoutParams(dp(112), dp(96)).apply { marginStart = dp(4) })
 
         // Wake check stays visible from the home screen: status at a glance, one tap to its settings.
@@ -1076,6 +1177,7 @@ class MainActivity : WeatherScreen() {
         addAlarmTag(tags, repeat, description = alarm.days.takeIf { it.isNotEmpty() }
             ?.sorted()?.joinToString(", ") { weekdayName(it) })
         if (alarm.task != AlarmTask.NONE) addAlarmTag(tags, getString(alarm.task.labelRes))
+        showSkip(alarm, alarmCard)
         if (dateExpired && alarm.enabled) label(getString(R.string.alarm_date_passed), 13f, alarmCard, color = mutedColor)
         if (alarm.snoozeAt > 0) {
             button(getString(R.string.cancel_snooze), alarmCard, primary = false) {
@@ -1083,6 +1185,49 @@ class MainActivity : WeatherScreen() {
                 render()
             }
         }
+    }
+
+    /** "Skip next" for repeating alarms, or the skipped date with an undo. */
+    private fun showSkip(alarm: Alarm, parent: LinearLayout) {
+        if (!alarm.enabled || alarm.days.isEmpty()) return
+        val today = java.time.LocalDate.now()
+        val skipped = alarm.skipDate?.takeIf { !it.isBefore(today) }
+        val row = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+        parent.addView(row, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(6) })
+        if (skipped != null) {
+            addAlarmTag(row, getString(R.string.skip_until, skipped.format(dateFormat())))
+            actionTag(row, getString(R.string.skip_undo)) {
+                alarms.save(alarm.copy(skipDate = null))
+                render()
+            }
+        } else {
+            val next = alarms.next(alarm) ?: return
+            val date = Instant.ofEpochMilli(next).atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+            actionTag(row, getString(R.string.skip_next)) {
+                alarms.save(alarm.copy(skipDate = date))
+                render()
+            }.contentDescription = getString(R.string.skip_next_description, date.format(dateFormat()))
+        }
+    }
+
+    /** A tappable tag, styled like the alarm tags but in the accent color. */
+    private fun actionTag(row: LinearLayout, text: String, action: () -> Unit) = TextView(this).apply {
+        this.text = text
+        textSize = 13f
+        setTextColor(accentColor)
+        typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+        gravity = Gravity.CENTER_VERTICAL
+        minHeight = dp(40)
+        setPadding(dp(10), 0, dp(10), 0)
+        isClickable = true
+        isFocusable = true
+        background = RippleDrawable(ColorStateList.valueOf(0x35FFFFFF), GradientDrawable().apply {
+            setColor(0x30A0D8FF)
+            cornerRadius = dp(14).toFloat()
+            setStroke(dp(1), 0x669BDFFF)
+        }, null)
+        setOnClickListener { action() }
+        row.addView(this, LinearLayout.LayoutParams(-2, -2).apply { if (row.childCount > 0) marginStart = dp(6) })
     }
 
     private fun addAlarmTag(

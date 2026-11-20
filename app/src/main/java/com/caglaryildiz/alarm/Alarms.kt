@@ -23,7 +23,15 @@ internal enum class AlarmTask(val labelRes: Int, val premium: Boolean = false) {
     TYPING(R.string.task_typing),
     SHAKE(R.string.task_shake, premium = true),
     QR(R.string.task_qr, premium = true),
-    SHAPES(R.string.task_shapes, premium = true)
+    SHAPES(R.string.task_shapes, premium = true),
+    STEPS(R.string.task_steps, premium = true)
+}
+
+/** How many steps the walking mission asks for. */
+internal object StepGoal {
+    const val DEFAULT = 30
+    val options = listOf(20, 30, 50, 100)
+    fun coerce(value: Int) = value.takeIf { it in options } ?: DEFAULT
 }
 
 internal data class Alarm(
@@ -38,16 +46,23 @@ internal data class Alarm(
     val tone: String? = null,
     val crescendo: Boolean = true,
     val mathSettings: MathSettings = MathSettings(),
-    val qrCode: String = ""
+    val qrCode: String = "",
+    /** A repeating alarm skips its occurrence on this date only. */
+    val skipDate: LocalDate? = null,
+    val stepGoal: Int = StepGoal.DEFAULT,
+    /** Made by a widget nap button; removed once it has rung. */
+    val quick: Boolean = false
 ) {
     fun nextAfter(now: ZonedDateTime): Long? {
         if (days.isEmpty() && date != null) {
             val candidate = date.atTime(time).atZone(now.zone)
             return candidate.takeIf { it.isAfter(now) }?.toInstant()?.toEpochMilli()
         }
-        for (offset in 0L..7L) {
+        // Two weeks, so a skipped weekly occurrence still finds the next one.
+        for (offset in 0L..14L) {
             val date = now.toLocalDate().plusDays(offset)
             if (days.isNotEmpty() && date.dayOfWeek.value !in days) continue
+            if (days.isNotEmpty() && date == skipDate) continue
             val candidate = date.atTime(time).atZone(now.zone)
             if (candidate.isAfter(now)) return candidate.toInstant().toEpochMilli()
         }
@@ -78,7 +93,10 @@ internal class Alarms(private val context: Context) {
                 tone = item.optString("tone").takeIf { it.isNotEmpty() },
                 crescendo = item.optBoolean("crescendo", true),
                 mathSettings = MathSettings.from(item.optString("mathDifficulty"), item.optInt("mathCount", 1)),
-                qrCode = item.optString("qrCode")
+                qrCode = item.optString("qrCode"),
+                skipDate = item.optString("skipDate").takeIf { it.isNotEmpty() }?.let(LocalDate::parse),
+                stepGoal = StepGoal.coerce(item.optInt("stepGoal", StepGoal.DEFAULT)),
+                quick = item.optBoolean("quick")
             )
         }
     }
@@ -91,7 +109,8 @@ internal class Alarms(private val context: Context) {
                 .put("task", it.task.name).put("snoozeAt", it.snoozeAt)
                 .put("mathDifficulty", it.mathSettings.difficulty.name).put("mathCount", it.mathSettings.count)
                 .put("qrCode", it.qrCode).put("date", it.date?.toString()).put("label", it.label)
-                .put("tone", it.tone).put("crescendo", it.crescendo))
+                .put("tone", it.tone).put("crescendo", it.crescendo)
+                .put("skipDate", it.skipDate?.toString()).put("stepGoal", it.stepGoal).put("quick", it.quick))
         }
         prefs.edit().putString("list", data.toString()).apply()
     }
@@ -101,6 +120,7 @@ internal class Alarms(private val context: Context) {
     fun save(alarm: Alarm) {
         write(all().filterNot { it.id == alarm.id } + alarm)
         sync(alarm)
+        changed()
     }
 
     fun delete(alarm: Alarm) {
@@ -108,13 +128,54 @@ internal class Alarms(private val context: Context) {
         write(all().filterNot { it.id == alarm.id })
         manager.cancel(operation(alarm.id, false))
         manager.cancel(operation(alarm.id, true))
+        changed()
     }
 
-    fun syncAll() = all().forEach(::sync)
+    /**
+     * Vacation mode: repeating alarms stay quiet through this date (inclusive). One-time alarms still ring,
+     * because the user set them for a specific day. Null once the date has passed.
+     */
+    var pausedUntil: LocalDate?
+        get() = prefs.getString("pausedUntil", null)?.let(LocalDate::parse)?.takeIf { !it.isBefore(LocalDate.now()) }
+        set(value) {
+            prefs.edit().putString("pausedUntil", value?.toString()).apply()
+            syncAll()
+        }
+
+    /** When [alarm] rings next (not counting snoozes), respecting skipped dates and vacation mode. */
+    fun next(alarm: Alarm, now: ZonedDateTime = ZonedDateTime.now()): Long? {
+        if (!alarm.enabled) return null
+        val pause = pausedUntil
+        val from = if (pause != null && alarm.days.isNotEmpty()) {
+            maxOf(now, pause.plusDays(1).atStartOfDay(now.zone))
+        } else now
+        return alarm.nextAfter(from)
+    }
+
+    /** The next ring of any alarm, snoozes included. */
+    fun nextRing(now: ZonedDateTime = ZonedDateTime.now()): Pair<Alarm, Long>? = all().mapNotNull { alarm ->
+        listOfNotNull(alarm.snoozeAt.takeIf { it > now.toInstant().toEpochMilli() }, next(alarm, now))
+            .minOrNull()?.let { alarm to it }
+    }.minByOrNull { it.second }
+
+    fun syncAll() {
+        val ringing = RingService.active?.id
+        // Widget naps that already rang are not real alarms: drop them instead of listing them forever.
+        val done = all().filter { it.quick && !it.enabled && it.snoozeAt == 0L && it.id != ringing }
+        if (done.isNotEmpty()) write(all().filterNot { alarm -> done.any { it.id == alarm.id } })
+        all().forEach(::sync)
+        changed()
+    }
 
     private fun sync(alarm: Alarm) {
-        update(alarm.id, false, alarm.takeIf { it.enabled }?.nextAfter(ZonedDateTime.now()) ?: 0)
+        update(alarm.id, false, next(alarm) ?: 0)
         update(alarm.id, true, alarm.snoozeAt)
+    }
+
+    /** Things that show or depend on the next alarm. */
+    private fun changed() {
+        Bedtime(context).reschedule()
+        NextAlarmWidget.update(context)
     }
 
     private fun update(id: String, snooze: Boolean, at: Long) {
@@ -179,8 +240,11 @@ internal class Alarms(private val context: Context) {
             val scheduled = Instant.ofEpochMilli(at).atZone(ZoneId.systemDefault())
             if (!alarm.enabled || scheduled.toLocalDate().atTime(alarm.time).atZone(scheduled.zone) != scheduled ||
                 (alarm.days.isNotEmpty() && scheduled.dayOfWeek.value !in alarm.days) ||
-                (alarm.days.isEmpty() && alarm.date != null && scheduled.toLocalDate() != alarm.date)) return null
-            save(alarm.copy(enabled = alarm.days.isNotEmpty()))
+                (alarm.days.isEmpty() && alarm.date != null && scheduled.toLocalDate() != alarm.date) ||
+                (alarm.days.isNotEmpty() && scheduled.toLocalDate() == alarm.skipDate)) return null
+            // A skip that has been used up is cleared, so the alarm card stops mentioning it.
+            save(alarm.copy(enabled = alarm.days.isNotEmpty(),
+                skipDate = alarm.skipDate?.takeIf { it.isAfter(scheduled.toLocalDate()) }))
         }
         return alarm
     }
@@ -230,6 +294,7 @@ internal fun Alarm.ringIntent(context: Context) = Intent(context, RingService::c
     .putExtra("id", id)
     .putExtra("task", task.name)
     .putExtra("qrCode", qrCode)
+    .putExtra("stepGoal", stepGoal)
     .putExtra("mathDifficulty", mathSettings.difficulty.name)
     .putExtra("mathCount", mathSettings.count)
     .putExtra("label", label)

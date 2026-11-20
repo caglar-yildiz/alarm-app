@@ -124,6 +124,7 @@ class RingService : Service() {
                 val qrCode = intent.getStringExtra("qrCode").orEmpty()
                 val needsFallback = (savedTask.premium && !PremiumAccess(this).unlocked) ||
                     (savedTask == AlarmTask.SHAKE && !ExtraMission.hasAccelerometer(this)) ||
+                    (savedTask == AlarmTask.STEPS && !ExtraMission.canCountSteps(this)) ||
                     (savedTask == AlarmTask.QR && (qrCode.isBlank() ||
                         checkSelfPermission(android.Manifest.permission.CAMERA) != android.content.pm.PackageManager.PERMISSION_GRANTED))
                 val task = if (needsFallback) AlarmTask.MATH else savedTask
@@ -132,7 +133,8 @@ class RingService : Service() {
                         intent.getIntExtra("mathCount", 1)))
                 } else null
                 val extra = when (task) {
-                    AlarmTask.MEMORY, AlarmTask.TYPING, AlarmTask.SHAKE, AlarmTask.QR, AlarmTask.SHAPES -> ExtraMission.create(this, task, qrCode)
+                    AlarmTask.MEMORY, AlarmTask.TYPING, AlarmTask.SHAKE, AlarmTask.QR, AlarmTask.SHAPES, AlarmTask.STEPS ->
+                        ExtraMission.create(this, task, qrCode, intent.getIntExtra("stepGoal", StepGoal.DEFAULT))
                     else -> null
                 }
                 val rawTone = intent.getStringExtra("tone")?.let(Uri::parse)

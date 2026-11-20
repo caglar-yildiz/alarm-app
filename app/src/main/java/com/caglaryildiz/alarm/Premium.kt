@@ -315,6 +315,8 @@ abstract class PremiumScreen : AlarmScreen() {
         val features = card()
         label(getString(if (unlocked) R.string.premium_features_unlocked else R.string.premium_features_title),
             17f, features, bold = true).accessibilityHeading()
+        featureRow(R.drawable.ic_steps, getString(R.string.task_steps),
+            getString(R.string.premium_feature_steps), features, unlocked)
         featureRow(R.drawable.ic_wake_check, getString(R.string.wake_check),
             getString(R.string.premium_feature_wake), features, unlocked)
         featureRow(R.drawable.ic_shapes, getString(R.string.task_shapes),

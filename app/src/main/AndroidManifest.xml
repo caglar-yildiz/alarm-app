@@ -1,8 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.stepdetector" android:required="false" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -22,6 +24,13 @@
         <activity android:name=".MissionPreviewActivity" android:exported="false" />
         <activity android:name=".PremiumActivity" android:exported="false" />
         <receiver android:name=".WakeCheckReceiver" android:exported="false" />
+        <receiver android:name=".BedtimeReceiver" android:exported="false" />
+        <receiver android:name=".NextAlarmWidget" android:exported="true" android:label="@string/widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/next_alarm_widget" />
+        </receiver>
         <receiver android:name=".CountdownReceiver" android:exported="false" android:directBootAware="false" />
         <activity android:name=".QrScannerActivity" android:exported="false" />
         <activity android:name=".RingActivity" android:exported="false"

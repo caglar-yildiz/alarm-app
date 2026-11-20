@@ -40,7 +40,8 @@ open class RingActivity : AlarmScreen() {
             val task = AlarmTask.entries.firstOrNull { it.name == intent.getStringExtra("task") } ?: AlarmTask.NONE
             previewRing = Ring("preview",
                 if (task == AlarmTask.MATH) MathMission(MathSettings.from(intent.getStringExtra("mathDifficulty"), intent.getIntExtra("mathCount", 1))) else null,
-                if (task != AlarmTask.MATH && task != AlarmTask.NONE) ExtraMission.create(this, task, intent.getStringExtra("qrCode").orEmpty()) else null,
+                if (task != AlarmTask.MATH && task != AlarmTask.NONE) ExtraMission.create(this, task, intent.getStringExtra("qrCode").orEmpty(),
+                    intent.getIntExtra("stepGoal", StepGoal.DEFAULT)) else null,
                 intent.getStringExtra("label").orEmpty(), intent.getStringExtra("tone")?.let(Uri::parse))
             return
         }
@@ -261,6 +262,7 @@ open class RingActivity : AlarmScreen() {
                 }
             }
             AlarmTask.SHAKE -> showShakeMission(ring, mission, controls)
+            AlarmTask.STEPS -> showStepMission(ring, mission, controls)
             AlarmTask.QR -> {
                 label(getString(R.string.qr_scan_instructions), parent = controls)
                 button(getString(R.string.qr_open_camera), controls) {
@@ -301,6 +303,32 @@ open class RingActivity : AlarmScreen() {
         }
         if (sensor != null && sensorManager.registerListener(listener, sensor,
                 android.hardware.SensorManager.SENSOR_DELAY_GAME)) {
+            shakeListener = listener
+        } else {
+            button(getString(R.string.math_fallback), controls, primary = false) { useMathFallback(ring) }
+        }
+    }
+
+    /** Walk to turn the alarm off: the step detector only counts real steps, not shaking in bed. */
+    private fun showStepMission(ring: Ring, mission: ExtraMission, controls: LinearLayout) {
+        label(getString(R.string.steps_instructions), 16f, controls)
+        val progress = timeLabel(getString(R.string.steps_progress, mission.progress, mission.stepGoal), 40f, controls).apply {
+            gravity = Gravity.CENTER
+            accessibilityLiveRegion = android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE
+        }
+        val sensor = sensorManager.getDefaultSensor(android.hardware.Sensor.TYPE_STEP_DETECTOR)
+        val listener = object : android.hardware.SensorEventListener {
+            override fun onSensorChanged(event: android.hardware.SensorEvent) {
+                if (mission.complete) return
+                mission.step()
+                progress.text = getString(R.string.steps_progress, mission.progress, mission.stepGoal)
+                if (mission.complete) send(RingService.DISMISS, ring)
+            }
+
+            override fun onAccuracyChanged(sensor: android.hardware.Sensor?, accuracy: Int) = Unit
+        }
+        if (sensor != null && ExtraMission.canCountSteps(this) &&
+            sensorManager.registerListener(listener, sensor, android.hardware.SensorManager.SENSOR_DELAY_UI, 0)) {
             shakeListener = listener
         } else {
             button(getString(R.string.math_fallback), controls, primary = false) { useMathFallback(ring) }
