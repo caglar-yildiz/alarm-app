@@ -397,4 +397,22 @@
     <string name="widget_nap_label">งีบ</string>
     <string name="widget_soon_label">ปลุกด่วน</string>
     <string name="widget_set">ตั้งปลุกเวลา %s แล้ว</string>
+    <string name="briefing_title">สรุปยามเช้า</string>
+    <string name="briefing_desc">ข้อมูลวันนี้หลังนาฬิกาปลุก</string>
+    <string name="briefing_status_on">แสดงหลังนาฬิกาปลุก</string>
+    <string name="briefing_headline">เริ่มวันใหม่โดยรู้ว่าวันนี้เป็นอย่างไร</string>
+    <string name="briefing_description">หลังปิดนาฬิกาปลุก BENG จะแสดงคำทักทาย เวลาและวันที่ สภาพอากาศวันนี้ สถิติตื่นตรงเวลา และบอกว่าจะมีการตรวจว่าตื่นจริงหรือไม่</string>
+    <string name="briefing_show">แสดงหลังนาฬิกาปลุก</string>
+    <string name="briefing_speak">อ่านออกเสียง</string>
+    <string name="briefing_speak_hint">ใช้เสียงอ่านข้อความของโทรศัพท์ในภาษาของแอป</string>
+    <string name="briefing_preview">แสดงตัวอย่าง</string>
+    <string name="briefing_morning">อรุณสวัสดิ์!</string>
+    <string name="briefing_afternoon">สวัสดีตอนบ่าย!</string>
+    <string name="briefing_evening">สวัสดีตอนเย็น!</string>
+    <string name="briefing_spoken_time">ตอนนี้เวลา %s</string>
+    <string name="briefing_weather">%1$s: ตอนนี้ %2$s %3$s วันนี้สูงสุด %4$s ต่ำสุด %5$s</string>
+    <string name="briefing_weather_now">%1$s: ตอนนี้ %2$s %3$s</string>
+    <string name="briefing_wake_check">การตรวจว่าตื่นจริงจะถามว่าคุณตื่นหรือยังในอีก %d นาที</string>
+    <string name="briefing_close">ไปกันเลย</string>
+    <string name="premium_feature_briefing">ฟังเวลา สภาพอากาศวันนี้ และสถิติของคุณหลังนาฬิกาปลุก</string>
 </resources>

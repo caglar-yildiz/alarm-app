@@ -27,6 +27,8 @@ open class RingActivity : AlarmScreen() {
     private var failedQrToken: String? = null
     /** Set while the QR scanner, opened from this screen, covers it; leaving for it is not an escape. */
     private var scannerOpen = false
+    /** Set once this screen turned the alarm off, so the briefing opens when the service confirms it. */
+    private var dismissSent = false
     private val onRingChanged: () -> Unit = {
         if (isPreview && RingService.active != null) {
             stopPreviewSound()
@@ -103,6 +105,9 @@ open class RingActivity : AlarmScreen() {
         clearMissionCallbacks()
         val ring = currentRing()
         if (ring == null) {
+            if (!isPreview && dismissSent && MorningBriefing(this).enabled) {
+                runCatching { startActivity(Intent(this, BriefingActivity::class.java)) }
+            }
             finish()
             return
         }
@@ -371,6 +376,7 @@ open class RingActivity : AlarmScreen() {
             finish()
             return
         }
+        if (action == RingService.DISMISS) dismissSent = true
         startService(Intent(this, RingService::class.java).setAction(action).putExtra("token", ring.token))
     }
 }

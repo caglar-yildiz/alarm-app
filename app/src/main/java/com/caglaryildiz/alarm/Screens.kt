@@ -302,6 +302,7 @@ class MainActivity : WeatherScreen() {
         STOPWATCH(R.string.tool_stopwatch, R.drawable.ic_stopwatch),
         COUNTDOWNS(R.string.tool_countdowns, R.drawable.ic_hourglass),
         WAKE(R.string.wake_check, R.drawable.ic_wake_check),
+        BRIEFING(R.string.briefing_title, R.drawable.ic_briefing),
         STATS(R.string.tool_stats, R.drawable.ic_stats),
         BEDTIME(R.string.bedtime_title, R.drawable.ic_bedtime),
         LANGUAGE(R.string.tool_language, R.drawable.ic_language)
@@ -423,6 +424,7 @@ class MainActivity : WeatherScreen() {
             Tool.COUNTDOWNS -> showCountdowns()
             Tool.WAKE -> showWakeCheck()
             Tool.STATS -> showStats()
+            Tool.BRIEFING -> showBriefingSettings()
             Tool.BEDTIME -> showBedtime()
         }
     }
@@ -464,6 +466,7 @@ class MainActivity : WeatherScreen() {
             Tool.COUNTDOWNS -> 0xFF7A55E0.toInt() to 0xFF3A2C86.toInt()
             Tool.WAKE -> 0xFFE0A14F.toInt() to 0xFF7A3F8F.toInt()
             Tool.STATS -> 0xFF4FB28A.toInt() to 0xFF2B4C86.toInt()
+            Tool.BRIEFING -> 0xFFE8B54A.toInt() to 0xFFB0577A.toInt()
             Tool.BEDTIME -> 0xFF5B4BC4.toInt() to 0xFF1E2A5E.toInt()
             Tool.LANGUAGE -> 0xFF3AA6A0.toInt() to 0xFF2B4C86.toInt()
         }
@@ -513,11 +516,52 @@ class MainActivity : WeatherScreen() {
             if (it.total == 0) getString(R.string.tool_stats_desc)
             else resources.getQuantityString(R.plurals.stats_streak_status, it.streak, it.streak)
         }
+        Tool.BRIEFING -> getString(if (MorningBriefing(this).enabled) R.string.briefing_status_on else R.string.briefing_desc)
         Tool.BEDTIME -> Bedtime(this).let { bedtime ->
             if (!bedtime.enabled) getString(R.string.bedtime_desc)
             else getString(R.string.bedtime_status_on, sleepDuration(this, bedtime.goal))
         }
         Tool.LANGUAGE -> AppLanguage.displayName(this, AppLanguage.current(this))
+    }
+
+    private fun showBriefingSettings() {
+        val briefing = MorningBriefing(this)
+        val hero = card()
+        val top = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+        hero.addView(top, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(4) })
+        iconBadge(R.drawable.ic_briefing, top, 60, 0xFFE8B54A.toInt(), 0xFFB0577A.toInt())
+        label(getString(R.string.briefing_headline), 19f, top, bold = true).layoutParams =
+            LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = dp(14) }
+        label(getString(R.string.briefing_description), 15f, hero, color = mutedColor).setPadding(0, dp(12), 0, dp(4))
+
+        val settings = card()
+        fun toggle(title: String, checked: Boolean, locked: Boolean, change: (Boolean) -> Unit) {
+            settings.addView(Switch(this).apply {
+                text = if (locked) "$title  ✦" else title
+                textSize = 17f
+                setTextColor(Color.WHITE)
+                if (locked) contentDescription = getString(R.string.premium_feature_description, title)
+                stylePlanetToggle()
+                minHeight = dp(52)
+                isChecked = checked && !locked
+                setOnCheckedChangeListener { _, enabled ->
+                    if (locked) {
+                        tab = Tab.PREMIUM
+                        render(animateTabChange = true)
+                        refreshPremium()
+                    } else {
+                        change(enabled)
+                        render()
+                    }
+                }
+            })
+        }
+        toggle(getString(R.string.briefing_show), briefing.enabled, locked = false) { briefing.enabled = it }
+        toggle(getString(R.string.briefing_speak), briefing.speak, locked = !premiumAccess.unlocked) { briefing.speak = it }
+        label(getString(R.string.briefing_speak_hint), 13f, settings, color = mutedColor)
+        button(getString(R.string.briefing_preview), settings, primary = false) {
+            startActivity(Intent(this, BriefingActivity::class.java))
+        }
     }
 
     private fun showBedtime() {

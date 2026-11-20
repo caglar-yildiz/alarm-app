@@ -415,4 +415,22 @@
     <string name="widget_nap_label">Cochilo</string>
     <string name="widget_soon_label">Alarme rápido</string>
     <string name="widget_set">Alarme definido para %s</string>
+    <string name="briefing_title">Resumo da manhã</string>
+    <string name="briefing_desc">Seu dia depois do alarme</string>
+    <string name="briefing_status_on">Exibido após o alarme</string>
+    <string name="briefing_headline">Comece o dia sabendo o que vem pela frente</string>
+    <string name="briefing_description">Depois de desligar o alarme, o BENG mostra uma saudação, a hora e a data, o tempo de hoje, sua sequência no horário e se a checagem de despertar vem aí.</string>
+    <string name="briefing_show">Mostrar após o alarme</string>
+    <string name="briefing_speak">Ler em voz alta</string>
+    <string name="briefing_speak_hint">Usa a voz de leitura do celular no idioma do app.</string>
+    <string name="briefing_preview">Ver prévia</string>
+    <string name="briefing_morning">Bom dia!</string>
+    <string name="briefing_afternoon">Boa tarde!</string>
+    <string name="briefing_evening">Boa noite!</string>
+    <string name="briefing_spoken_time">São %s.</string>
+    <string name="briefing_weather">%1$s: agora %2$s, %3$s. Hoje máxima de %4$s e mínima de %5$s.</string>
+    <string name="briefing_weather_now">%1$s: agora %2$s, %3$s.</string>
+    <string name="briefing_wake_check">A checagem de despertar vai perguntar em %d min se você está acordado.</string>
+    <string name="briefing_close">Vamos lá</string>
+    <string name="premium_feature_briefing">Ouça a hora, o tempo de hoje e sua sequência depois do alarme.</string>
 </resources>

@@ -442,4 +442,22 @@
     <string name="widget_nap_label">قيلولة</string>
     <string name="widget_soon_label">منبّه سريع</string>
     <string name="widget_set">تم ضبط المنبّه على %s</string>
+    <string name="briefing_title">ملخص الصباح</string>
+    <string name="briefing_desc">يومك بعد المنبّه</string>
+    <string name="briefing_status_on">يظهر بعد المنبّه</string>
+    <string name="briefing_headline">ابدأ يومك وأنت تعرف ما ينتظرك</string>
+    <string name="briefing_description">بعد إيقاف المنبّه يعرض BENG تحية والوقت والتاريخ وطقس اليوم وسلسلة استيقاظك في الموعد وما إذا كان التحقق من الاستيقاظ قادمًا.</string>
+    <string name="briefing_show">عرض بعد المنبّه</string>
+    <string name="briefing_speak">القراءة بصوت عالٍ</string>
+    <string name="briefing_speak_hint">يستخدم صوت تحويل النص إلى كلام في هاتفك بلغة التطبيق.</string>
+    <string name="briefing_preview">عرض معاينة</string>
+    <string name="briefing_morning">صباح الخير!</string>
+    <string name="briefing_afternoon">مساء الخير!</string>
+    <string name="briefing_evening">مساء الخير!</string>
+    <string name="briefing_spoken_time">الساعة الآن %s.</string>
+    <string name="briefing_weather">%1$s: الآن %2$s، %3$s. اليوم العظمى %4$s والصغرى %5$s.</string>
+    <string name="briefing_weather_now">%1$s: الآن %2$s، %3$s.</string>
+    <string name="briefing_wake_check">سيسألك التحقق من الاستيقاظ بعد %d د إن كنت مستيقظًا.</string>
+    <string name="briefing_close">هيا بنا</string>
+    <string name="premium_feature_briefing">استمع إلى الوقت وطقس اليوم وسلسلتك بعد المنبّه.</string>
 </resources>

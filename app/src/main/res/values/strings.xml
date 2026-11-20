@@ -407,4 +407,22 @@
     <string name="widget_nap_label">Nap</string>
     <string name="widget_soon_label">Quick alarm</string>
     <string name="widget_set">Alarm set for %s</string>
+    <string name="briefing_title">Morning briefing</string>
+    <string name="briefing_desc">Your day after the alarm</string>
+    <string name="briefing_status_on">Shown after the alarm</string>
+    <string name="briefing_headline">Start the day knowing what’s ahead</string>
+    <string name="briefing_description">After you turn the alarm off, BENG shows a greeting, the time and date, today’s weather, your on-time streak and whether wake check is coming.</string>
+    <string name="briefing_show">Show after the alarm</string>
+    <string name="briefing_speak">Read it aloud</string>
+    <string name="briefing_speak_hint">Uses your phone’s text-to-speech voice in the app language.</string>
+    <string name="briefing_preview">Show a preview</string>
+    <string name="briefing_morning">Good morning!</string>
+    <string name="briefing_afternoon">Good afternoon!</string>
+    <string name="briefing_evening">Good evening!</string>
+    <string name="briefing_spoken_time">It’s %s.</string>
+    <string name="briefing_weather">%1$s: %2$s and %3$s now. Today up to %4$s, down to %5$s.</string>
+    <string name="briefing_weather_now">%1$s: %2$s and %3$s now.</string>
+    <string name="briefing_wake_check">Wake check will ask if you’re awake in %d min.</string>
+    <string name="briefing_close">Let’s go</string>
+    <string name="premium_feature_briefing">Hear the time, today’s weather and your streak read aloud after the alarm.</string>
 </resources>

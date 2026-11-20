@@ -73,6 +73,8 @@ If Play rejects a price as below its minimum for a country, use that country's m
 | Can users request deletion? | No developer-side storage, so there's nothing to delete. Choose "No" and explain that data stays on the device and is removed by uninstalling |
 | **Location → Approximate location** | Collected: **Yes**; Shared: **No** (sent to MET Norway only when the user asks for weather); Processed ephemerally: **Yes**; Required or optional: **Optional**; Purpose: **App functionality** |
 | Camera / photos | **Not collected.** The QR mission reads frames on the device only |
+| Physical activity (steps) | **Not collected.** The walking mission counts steps on the device while the alarm screen is open and keeps nothing |
+| App activity (wake-up statistics) | **Not collected.** Statistics stay on the phone (and in the user's own Android backup) |
 | Purchase history | **Not collected** by the developer. Google Play Billing handles payment, and the app only keeps a local "subscribed" flag |
 | App activity, device IDs, personal info | Not collected |
 
@@ -86,6 +88,9 @@ If Play rejects a price as below its minimum for a country, use that country's m
 - **Foreground service, media playback** (`FOREGROUND_SERVICE_MEDIA_PLAYBACK`): `RingService` plays the alarm sound.
   Play asks for a short video of the alarm ringing
 - **Camera**: QR-code dismiss mission (no declaration form, but the privacy policy should mention it)
+- **Physical activity** (`ACTIVITY_RECOGNITION`): walking mission. Runtime permission only, no Play declaration form
+- **Battery optimization:** the app does *not* request `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`. It opens the system list
+  so the user changes it, which avoids Play's restricted-permission review
 
 ## 3. Privacy policy
 `index.html` was updated on 2026-11-20. It now covers MET Norway weather requests, the camera (on-device only),

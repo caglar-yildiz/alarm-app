@@ -406,4 +406,22 @@
     <string name="widget_nap_label">Nickerchen</string>
     <string name="widget_soon_label">Schnellwecker</string>
     <string name="widget_set">Wecker für %s gestellt</string>
+    <string name="briefing_title">Morgen-Briefing</string>
+    <string name="briefing_desc">Dein Tag nach dem Wecker</string>
+    <string name="briefing_status_on">Nach dem Wecker</string>
+    <string name="briefing_headline">Starte informiert in den Tag</string>
+    <string name="briefing_description">Nach dem Ausschalten zeigt BENG eine Begrüßung, Uhrzeit und Datum, das heutige Wetter, deine Pünktlich-Serie und ob die Wachkontrolle noch kommt.</string>
+    <string name="briefing_show">Nach dem Wecker anzeigen</string>
+    <string name="briefing_speak">Vorlesen</string>
+    <string name="briefing_speak_hint">Nutzt die Sprachausgabe deines Handys in der App-Sprache.</string>
+    <string name="briefing_preview">Vorschau anzeigen</string>
+    <string name="briefing_morning">Guten Morgen!</string>
+    <string name="briefing_afternoon">Guten Tag!</string>
+    <string name="briefing_evening">Guten Abend!</string>
+    <string name="briefing_spoken_time">Es ist %s Uhr.</string>
+    <string name="briefing_weather">%1$s: jetzt %2$s, %3$s. Heute bis %4$s, Tiefstwert %5$s.</string>
+    <string name="briefing_weather_now">%1$s: jetzt %2$s, %3$s.</string>
+    <string name="briefing_wake_check">Die Wachkontrolle fragt in %d Min., ob du wach bist.</string>
+    <string name="briefing_close">Los geht’s</string>
+    <string name="premium_feature_briefing">Lass dir nach dem Wecker Uhrzeit, Wetter und deine Serie vorlesen.</string>
 </resources>

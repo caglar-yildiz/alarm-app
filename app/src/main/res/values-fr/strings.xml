@@ -415,4 +415,22 @@
     <string name="widget_nap_label">Sieste</string>
     <string name="widget_soon_label">Alarme rapide</string>
     <string name="widget_set">Alarme réglée à %s</string>
+    <string name="briefing_title">Point du matin</string>
+    <string name="briefing_desc">Ta journée après l’alarme</string>
+    <string name="briefing_status_on">Affiché après l’alarme</string>
+    <string name="briefing_headline">Commence la journée en sachant ce qui t’attend</string>
+    <string name="briefing_description">Après l’arrêt de l’alarme, BENG affiche un message, l’heure et la date, la météo du jour, ta série à l’heure et si le contrôle d’éveil va arriver.</string>
+    <string name="briefing_show">Afficher après l’alarme</string>
+    <string name="briefing_speak">Lire à voix haute</string>
+    <string name="briefing_speak_hint">Utilise la synthèse vocale de ton téléphone dans la langue de l’appli.</string>
+    <string name="briefing_preview">Voir un aperçu</string>
+    <string name="briefing_morning">Bonjour !</string>
+    <string name="briefing_afternoon">Bon après-midi !</string>
+    <string name="briefing_evening">Bonsoir !</string>
+    <string name="briefing_spoken_time">Il est %s.</string>
+    <string name="briefing_weather">%1$s : %2$s, %3$s en ce moment. Aujourd’hui jusqu’à %4$s, minimum %5$s.</string>
+    <string name="briefing_weather_now">%1$s : %2$s, %3$s en ce moment.</string>
+    <string name="briefing_wake_check">Le contrôle d’éveil te demandera dans %d min si tu es réveillé.</string>
+    <string name="briefing_close">C’est parti</string>
+    <string name="premium_feature_briefing">Écoute l’heure, la météo du jour et ta série après l’alarme.</string>
 </resources>

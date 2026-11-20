@@ -415,4 +415,22 @@
     <string name="widget_nap_label">Siesta</string>
     <string name="widget_soon_label">Alarma rápida</string>
     <string name="widget_set">Alarma puesta a las %s</string>
+    <string name="briefing_title">Resumen matinal</string>
+    <string name="briefing_desc">Tu día después de la alarma</string>
+    <string name="briefing_status_on">Se muestra tras la alarma</string>
+    <string name="briefing_headline">Empieza el día sabiendo lo que viene</string>
+    <string name="briefing_description">Después de apagar la alarma, BENG muestra un saludo, la hora y la fecha, el tiempo de hoy, tu racha a tiempo y si llegará el control de despertar.</string>
+    <string name="briefing_show">Mostrar tras la alarma</string>
+    <string name="briefing_speak">Leer en voz alta</string>
+    <string name="briefing_speak_hint">Usa la voz de texto a voz del teléfono en el idioma de la app.</string>
+    <string name="briefing_preview">Ver una vista previa</string>
+    <string name="briefing_morning">¡Buenos días!</string>
+    <string name="briefing_afternoon">¡Buenas tardes!</string>
+    <string name="briefing_evening">¡Buenas noches!</string>
+    <string name="briefing_spoken_time">Son las %s.</string>
+    <string name="briefing_weather">%1$s: ahora %2$s, %3$s. Hoy máxima de %4$s y mínima de %5$s.</string>
+    <string name="briefing_weather_now">%1$s: ahora %2$s, %3$s.</string>
+    <string name="briefing_wake_check">El control de despertar te preguntará en %d min si estás despierto.</string>
+    <string name="briefing_close">¡Vamos!</string>
+    <string name="premium_feature_briefing">Escucha la hora, el tiempo de hoy y tu racha después de la alarma.</string>
 </resources>

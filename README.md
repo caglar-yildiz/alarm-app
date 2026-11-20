@@ -8,6 +8,17 @@ Alarm çalarken alarm ses seviyesi kısılamaz veya kapatılamaz: ses tuşları 
 
 Alarm ekranından kaçılamaz: alarm çalarken ana ekrana, Ayarlar'a geçilir ya da ekran kapatılırsa `RingService` alarm ekranını her 5 saniyede bir geri getirir (kilitli veya kapalı ekranda tam ekran bildirimle açılır, açık telefonda Android arka plandan ekran açmaya izin vermediği için üstten bildirim olarak çıkar). Telefon yeniden başlatılır veya uygulama güncellenirse çalan alarm (`RingRecord`) birkaç saniye sonra yeniden çalar; ilk çalmadan 30 dakika sonra bu artık yapılmaz.
 
+## Özellikler
+
+- **Kapatma görevleri:** toplama, hafıza dizisi, yazma; Premium: telefonu sallama, QR kod, şekil bulma ve **yürüme** (adım sensörüyle 20–100 adım; fiziksel etkinlik izni gerekir, yoksa alarm matematiğe döner).
+- **Sonrakini atla / tatil modu:** tekrarlanan bir alarmın yalnızca bir sonraki çalışı atlanabilir. Tatil modu, seçilen tarihe kadar (dahil) tekrarlanan alarmları susturur; tek seferlik alarmlar yine çalar.
+- **Sabah özeti:** alarm kapatılınca selam, saat, bugünün hava durumu, zamanında kalkma serisi ve uyanıklık kontrolü bilgisi gösterilir (`BriefingActivity`). Premium ile telefonun metin okuma sesiyle okunur.
+- **İstatistikler:** her alarmın nasıl bittiği (kapatıldı, ertelendi, çalıp bitti, uyanıklık kontrolü tekrar çaldı) yalnızca telefonda saklanır (`WakeStats`). Erteleme olmadan kapatılan gün “zamanında” sayılır; alarm olmayan günler seriyi bozmaz.
+- **Yatma vakti hatırlatıcısı:** bir sonraki gerçek alarma ve uyku hedefine göre bildirim (`Bedtime`).
+- **Ana ekran widget'ı:** sonraki alarm ve tek dokunuşla 20 dk şekerleme / 30 dk sonra alarm (`NextAlarmWidget`). Bu hızlı alarmlar çaldıktan sonra listeden silinir.
+- **Güvenilirlik kartı:** pil kısıtlaması açıksa veya telefon Xiaomi, Huawei, Honor, OPPO/realme, vivo, OnePlus ya da Samsung ise ilgili ayar ekranını açar (`Reliability`). Pil izni istenmez; kullanıcı sistem listesinden değiştirir.
+- **Değerlendirme isteği:** en az 3 günlük zamanında kalkma serisinden sonra, kurulumdan 4 gün geçmişse ve en fazla 120 günde bir Google Play değerlendirme penceresi istenir (`ReviewPrompt`).
+
 ## Diller
 
 Uygulama 14 dil destekler. Diller, uygulama harcamasında öne çıkan pazarlara göre seçildi:

@@ -406,4 +406,22 @@
     <string name="widget_nap_label">Şekerleme</string>
     <string name="widget_soon_label">Hızlı alarm</string>
     <string name="widget_set">Alarm %s için kuruldu</string>
+    <string name="briefing_title">Sabah özeti</string>
+    <string name="briefing_desc">Alarmdan sonra günün</string>
+    <string name="briefing_status_on">Alarmdan sonra gösterilir</string>
+    <string name="briefing_headline">Güne neler olacağını bilerek başla</string>
+    <string name="briefing_description">Alarmı kapattıktan sonra BENG bir selam, saat ve tarih, bugünün hava durumu, zamanında kalkma serin ve uyanıklık kontrolünün gelip gelmeyeceğini gösterir.</string>
+    <string name="briefing_show">Alarmdan sonra göster</string>
+    <string name="briefing_speak">Sesli oku</string>
+    <string name="briefing_speak_hint">Telefonunun metin okuma sesini uygulama dilinde kullanır.</string>
+    <string name="briefing_preview">Önizlemeyi göster</string>
+    <string name="briefing_morning">Günaydın!</string>
+    <string name="briefing_afternoon">Tünaydın!</string>
+    <string name="briefing_evening">İyi akşamlar!</string>
+    <string name="briefing_spoken_time">Saat %s.</string>
+    <string name="briefing_weather">%1$s: şu an %2$s, %3$s. Bugün en yüksek %4$s, en düşük %5$s.</string>
+    <string name="briefing_weather_now">%1$s: şu an %2$s, %3$s.</string>
+    <string name="briefing_wake_check">Uyanıklık kontrolü %d dk sonra uyanık olup olmadığını soracak.</string>
+    <string name="briefing_close">Hadi başlayalım</string>
+    <string name="premium_feature_briefing">Alarmdan sonra saati, bugünün hava durumunu ve serini sesli dinle.</string>
 </resources>

@@ -48,10 +48,10 @@ internal class Bedtime(base: Context) {
     /** When the next reminder is due, or 0 if none is planned. */
     val nextReminder: Long get() = prefs.getLong("remindAt", 0).takeIf { it > System.currentTimeMillis() } ?: 0
 
-    /** The next alarm that is not a snooze: bedtime is planned around real alarms only. */
+    /** The next alarm that is not a snooze or a widget nap: bedtime is planned around real alarms only. */
     fun nextAlarm(now: ZonedDateTime = ZonedDateTime.now()): Long? {
         val alarms = Alarms(context)
-        return alarms.all().mapNotNull { alarms.next(it, now) }.minOrNull()
+        return alarms.all().filterNot { it.quick }.mapNotNull { alarms.next(it, now) }.minOrNull()
     }
 
     fun reschedule() {

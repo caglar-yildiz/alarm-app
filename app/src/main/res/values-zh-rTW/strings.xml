@@ -397,4 +397,22 @@
     <string name="widget_nap_label">小睡</string>
     <string name="widget_soon_label">快速鬧鐘</string>
     <string name="widget_set">已設定 %s 的鬧鐘</string>
+    <string name="briefing_title">晨間簡報</string>
+    <string name="briefing_desc">鬧鐘後的今日資訊</string>
+    <string name="briefing_status_on">鬧鐘後顯示</string>
+    <string name="briefing_headline">了解今天的狀況再開始一天</string>
+    <string name="briefing_description">關閉鬧鐘後，BENG 會顯示問候、時間與日期、今天的天氣、準時起床連續紀錄，以及是否會進行清醒確認。</string>
+    <string name="briefing_show">鬧鐘後顯示</string>
+    <string name="briefing_speak">朗讀出來</string>
+    <string name="briefing_speak_hint">使用手機的文字轉語音功能，以 App 語言朗讀。</string>
+    <string name="briefing_preview">顯示預覽</string>
+    <string name="briefing_morning">早安！</string>
+    <string name="briefing_afternoon">午安！</string>
+    <string name="briefing_evening">晚安！</string>
+    <string name="briefing_spoken_time">現在是 %s。</string>
+    <string name="briefing_weather">%1$s：目前 %2$s，%3$s。今天最高 %4$s，最低 %5$s。</string>
+    <string name="briefing_weather_now">%1$s：目前 %2$s，%3$s。</string>
+    <string name="briefing_wake_check">清醒確認會在 %d 分鐘後詢問你是否醒著。</string>
+    <string name="briefing_close">出發吧</string>
+    <string name="premium_feature_briefing">鬧鐘後朗讀時間、今天的天氣和連續紀錄。</string>
 </resources>

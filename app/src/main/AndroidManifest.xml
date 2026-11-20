@@ -23,8 +23,10 @@
         <activity android:name=".AlarmEditorActivity" android:exported="false" />
         <activity android:name=".MissionPreviewActivity" android:exported="false" />
         <activity android:name=".PremiumActivity" android:exported="false" />
+        <activity android:name=".BriefingActivity" android:exported="false" android:excludeFromRecents="true" />
         <receiver android:name=".WakeCheckReceiver" android:exported="false" />
         <receiver android:name=".BedtimeReceiver" android:exported="false" />
+        <receiver android:name=".QuickAlarmReceiver" android:exported="false" />
         <receiver android:name=".NextAlarmWidget" android:exported="true" android:label="@string/widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

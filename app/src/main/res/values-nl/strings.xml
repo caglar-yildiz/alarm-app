@@ -406,4 +406,22 @@
     <string name="widget_nap_label">Dutje</string>
     <string name="widget_soon_label">Snelle wekker</string>
     <string name="widget_set">Wekker gezet om %s</string>
+    <string name="briefing_title">Ochtendoverzicht</string>
+    <string name="briefing_desc">Je dag na de wekker</string>
+    <string name="briefing_status_on">Na de wekker getoond</string>
+    <string name="briefing_headline">Begin de dag en weet wat er komt</string>
+    <string name="briefing_description">Nadat je de wekker uitzet, toont BENG een begroeting, tijd en datum, het weer van vandaag, je op-tijd-reeks en of de wakkercheck nog komt.</string>
+    <string name="briefing_show">Tonen na de wekker</string>
+    <string name="briefing_speak">Voorlezen</string>
+    <string name="briefing_speak_hint">Gebruikt de voorleesstem van je telefoon in de app-taal.</string>
+    <string name="briefing_preview">Voorbeeld tonen</string>
+    <string name="briefing_morning">Goedemorgen!</string>
+    <string name="briefing_afternoon">Goedemiddag!</string>
+    <string name="briefing_evening">Goedenavond!</string>
+    <string name="briefing_spoken_time">Het is %s.</string>
+    <string name="briefing_weather">%1$s: nu %2$s, %3$s. Vandaag tot %4$s, minimaal %5$s.</string>
+    <string name="briefing_weather_now">%1$s: nu %2$s, %3$s.</string>
+    <string name="briefing_wake_check">De wakkercheck vraagt over %d min of je wakker bent.</string>
+    <string name="briefing_close">Aan de slag</string>
+    <string name="premium_feature_briefing">Hoor na de wekker de tijd, het weer en je reeks voorgelezen.</string>
 </resources>

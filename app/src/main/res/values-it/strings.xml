@@ -415,4 +415,22 @@
     <string name="widget_nap_label">Pisolino</string>
     <string name="widget_soon_label">Sveglia rapida</string>
     <string name="widget_set">Sveglia impostata alle %s</string>
+    <string name="briefing_title">Briefing del mattino</string>
+    <string name="briefing_desc">La tua giornata dopo la sveglia</string>
+    <string name="briefing_status_on">Mostrato dopo la sveglia</string>
+    <string name="briefing_headline">Inizia la giornata sapendo cosa ti aspetta</string>
+    <string name="briefing_description">Dopo aver spento la sveglia, BENG mostra un saluto, ora e data, il meteo di oggi, la tua serie puntuale e se arriverà il controllo risveglio.</string>
+    <string name="briefing_show">Mostra dopo la sveglia</string>
+    <string name="briefing_speak">Leggi ad alta voce</string>
+    <string name="briefing_speak_hint">Usa la sintesi vocale del telefono nella lingua dell’app.</string>
+    <string name="briefing_preview">Mostra un’anteprima</string>
+    <string name="briefing_morning">Buongiorno!</string>
+    <string name="briefing_afternoon">Buon pomeriggio!</string>
+    <string name="briefing_evening">Buonasera!</string>
+    <string name="briefing_spoken_time">Sono le %s.</string>
+    <string name="briefing_weather">%1$s: ora %2$s, %3$s. Oggi massima %4$s, minima %5$s.</string>
+    <string name="briefing_weather_now">%1$s: ora %2$s, %3$s.</string>
+    <string name="briefing_wake_check">Il controllo risveglio ti chiederà tra %d min se sei sveglio.</string>
+    <string name="briefing_close">Andiamo</string>
+    <string name="premium_feature_briefing">Ascolta ora, meteo di oggi e la tua serie dopo la sveglia.</string>
 </resources>

@@ -397,4 +397,22 @@
     <string name="widget_nap_label">仮眠</string>
     <string name="widget_soon_label">クイックアラーム</string>
     <string name="widget_set">%s にアラームを設定しました</string>
+    <string name="briefing_title">朝のブリーフィング</string>
+    <string name="briefing_desc">アラームの後に今日の情報</string>
+    <string name="briefing_status_on">アラーム後に表示</string>
+    <string name="briefing_headline">今日の予定を知って一日を始めよう</string>
+    <string name="briefing_description">アラームを止めると、あいさつ、時刻と日付、今日の天気、時間どおりの連続記録、起床チェックの予定を表示します。</string>
+    <string name="briefing_show">アラーム後に表示</string>
+    <string name="briefing_speak">読み上げる</string>
+    <string name="briefing_speak_hint">スマホの音声読み上げ機能を、アプリの言語で使います。</string>
+    <string name="briefing_preview">プレビューを表示</string>
+    <string name="briefing_morning">おはようございます！</string>
+    <string name="briefing_afternoon">こんにちは！</string>
+    <string name="briefing_evening">こんばんは！</string>
+    <string name="briefing_spoken_time">%s です。</string>
+    <string name="briefing_weather">%1$s：現在 %2$s、%3$s。今日の最高 %4$s、最低 %5$s。</string>
+    <string name="briefing_weather_now">%1$s：現在 %2$s、%3$s。</string>
+    <string name="briefing_wake_check">%d分後に起床チェックで起きているか確認します。</string>
+    <string name="briefing_close">さあ、始めよう</string>
+    <string name="premium_feature_briefing">アラーム後に時刻、今日の天気、連続記録を読み上げます。</string>
 </resources>

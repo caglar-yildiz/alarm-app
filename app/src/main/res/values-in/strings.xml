@@ -397,4 +397,22 @@
     <string name="widget_nap_label">Tidur siang</string>
     <string name="widget_soon_label">Alarm cepat</string>
     <string name="widget_set">Alarm disetel untuk %s</string>
+    <string name="briefing_title">Ringkasan pagi</string>
+    <string name="briefing_desc">Harimu setelah alarm</string>
+    <string name="briefing_status_on">Tampil setelah alarm</string>
+    <string name="briefing_headline">Mulai hari dengan tahu apa yang menanti</string>
+    <string name="briefing_description">Setelah alarm dimatikan, BENG menampilkan sapaan, jam dan tanggal, cuaca hari ini, rentetan tepat waktumu, dan apakah cek bangun akan datang.</string>
+    <string name="briefing_show">Tampilkan setelah alarm</string>
+    <string name="briefing_speak">Bacakan</string>
+    <string name="briefing_speak_hint">Memakai suara teks-ke-ucapan ponsel dalam bahasa aplikasi.</string>
+    <string name="briefing_preview">Lihat pratinjau</string>
+    <string name="briefing_morning">Selamat pagi!</string>
+    <string name="briefing_afternoon">Selamat siang!</string>
+    <string name="briefing_evening">Selamat malam!</string>
+    <string name="briefing_spoken_time">Sekarang pukul %s.</string>
+    <string name="briefing_weather">%1$s: sekarang %2$s, %3$s. Hari ini tertinggi %4$s, terendah %5$s.</string>
+    <string name="briefing_weather_now">%1$s: sekarang %2$s, %3$s.</string>
+    <string name="briefing_wake_check">Cek bangun akan bertanya apakah kamu sudah bangun dalam %d mnt.</string>
+    <string name="briefing_close">Ayo mulai</string>
+    <string name="premium_feature_briefing">Dengarkan jam, cuaca hari ini, dan rentetanmu setelah alarm.</string>
 </resources>
