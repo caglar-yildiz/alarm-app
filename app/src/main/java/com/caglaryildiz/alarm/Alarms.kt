@@ -182,6 +182,7 @@ class AlarmReceiver : BroadcastReceiver() {
             AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED -> {
                 alarms.syncAll()
                 WakeCheck(context).restore()
+                Reminders(context).syncAll()
             }
         }
     }

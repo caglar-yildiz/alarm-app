@@ -128,6 +128,43 @@ kontrolü başlatmaz. Premium görevleri denemek ücretsizdir; kaydederken
 abonelik kontrol edilir. Şekilleri bul görevinde dört farklı hedef şekil,
 4 × 4 tabloda soldan sağa sırayla seçilir; yanlış kutu ilerletmez.
 
+## Hatırlatıcı sekmesi
+
+Alt menüdeki **Hatırlatıcı** sekmesinde iki bölüm var: kullanıcının kendi hatırlatıcıları ve resmi günler.
+
+**Kendi hatırlatıcıların** (`Reminders.kt`, `ReminderEditorActivity.kt`)
+
+- Hatırlatıcının başlığı, isteğe bağlı notu, tarihi ve saati vardır.
+- Tekrar seçenekleri: bir kez, her gün, haftanın seçili günleri, her ay ya da her yıl. Ayın 31'i
+  kısa aylarda ayın son gününe, 29 Şubat artık olmayan yıllarda 28 Şubat'a kayar.
+- Varsayılan olarak bildirim gösterir. Saatinde çalışması için kesin alarm izni kullanılır; izin
+  yoksa Android'in izin verdiği en yakın zamanda gelir.
+- Premium ✦ özellikler:
+  - **Önceden haber:** 1 gün ya da 1 hafta önce, o günün bildirimine ek olarak.
+  - **Alarm gibi çal:** Alarm ekranını sesle açar; ses kilidi ve 5 dakika erteleme de çalışır.
+- Hatırlatıcılar yedeklemeye dahildir. Yeniden başlatmada, saat dilimi değişince ve yedekten
+  geri yüklenince yeniden kurulur.
+- Sıradaki hatırlatıcı, ana ekrandaki "Sonraki alarm" kartında da görünür.
+
+**Resmi günler** (`Holidays.kt`)
+
+- Kullanıcı açtığında ülkesinin ülke geneli resmi tatillerinde seçilen saatte bildirim gelir.
+  Varsayılan ülke dil ayarından alınır.
+- Veriler ücretsiz [Nager.Date](https://date.nager.at) servisinden (anahtarsız) yıllık olarak çekilir,
+  cihazda saklanır ve ayda bir yenilenir.
+- Kurban Bayramı gibi çok günlü tatiller tek kayıt olarak gösterilir ("3 gün").
+- Türkiye'nin dini bayramlarında Nager.Date yalnızca tahmin verir (2027 Ramazan Bayramı'nı bir gün
+  geç gösteriyor). Diyanet'in yayımladığı yıllarda (şimdilik 2026–2027) arife dahil resmi tarihler
+  kullanılır; sonraki yıllar "tahmini" diye işaretlenir. Diyanet yeni yılın takvimini yayımlayınca
+  `HolidayParser.TURKEY_BAYRAMS` tablosuna eklenmeli.
+- Premium ✦ özellikler:
+  - **Bir gün önce de hatırlat.**
+  - **Özel günler:** Sevgililer Günü; Anneler Günü ve Babalar Günü her ülkenin kendi tarihiyle
+    (örneğin Türkiye'de mayısın 2. ve haziranın 3. pazarı, İngiltere'de Mothering Sunday, Almanya'da
+    Vatertag); Türkiye'de Öğretmenler Günü.
+- Nager.Date şu an Suudi Arabistan, BAE, Tayland ve Tayvan'ı kapsamıyor. Bu ülkelerde "veri yok"
+  mesajı çıkar, özel günler yine çalışır.
+
 ## Hava durumu sekmesi
 
 Alt menüdeki **Hava** sekmesi ücretsizdir; konum izni istemez. Seçim yapıldıktan sonra o anki hava,
