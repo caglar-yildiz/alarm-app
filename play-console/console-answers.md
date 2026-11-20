@@ -19,30 +19,29 @@ The code (`Premium.kt`) expects exactly this. Any other ID means the app won't f
 
 Activate both base plans after setting prices.
 
-### Prices: still needed from you
-Give me the base **USD** price for each plan. I'll apply the tiers below by country and round to local price points
-(e.g. 2.99 / 19.99, ₺ 99,99, ¥ 400).
+### Prices (base: monthly $2.99, yearly $19.99)
+Amounts are in USD for Play to convert to local currency, then rounded to local price points. US and Türkiye are set
+directly in local currency.
 
-Proposed tiers (multiplier on your USD price, roughly following purchasing power):
+| Tier | Monthly | Yearly | Countries |
+| --- | --- | --- | --- |
+| **United States** | **$3.99** | **$24.99** | United States (higher than base, as you asked) |
+| A, richest | $3.99 equivalent | $24.99 equivalent | Switzerland, Norway, Denmark, Luxembourg, Iceland, Liechtenstein |
+| B, base | $2.99 | $19.99 | Canada, United Kingdom, Ireland, Australia, New Zealand, Germany, Austria, Netherlands, Belgium, Sweden, Finland, France, Singapore, Hong Kong, Israel, United Arab Emirates, Qatar, Kuwait |
+| C | $2.49 | $15.99 | Japan, South Korea, Taiwan, Italy, Spain, Portugal, Saudi Arabia, Bahrain, Oman, Czechia, Slovenia, Estonia |
+| D | $1.69 | $10.99 | Poland, Greece, Hungary, Romania, Croatia, Chile, Uruguay, Malaysia, Mexico, Costa Rica |
+| **Türkiye** | **₺70,00** | **₺449,99** | Türkiye (yearly keeps about the same 46% saving as the base plan) |
+| E | $0.99 | $6.99 | Brazil, Argentina, Colombia, Peru, Thailand, South Africa, Kazakhstan |
+| F, lowest | $0.79 | $4.99 | Indonesia, India, Vietnam, Philippines, Egypt, Pakistan, Bangladesh, Nigeria, Kenya, Morocco |
+| Everything else | Play's automatic conversion of $2.99 | of $19.99 | |
 
-| Tier | × | Countries |
-| --- | --- | --- |
-| A, highest | 1.20 | Switzerland, Norway, Denmark, Luxembourg, Iceland, Liechtenstein |
-| B, base | 1.00 | United States, Canada, United Kingdom, Ireland, Australia, New Zealand, Germany, Austria, Netherlands, Belgium, Sweden, Finland, France, Singapore, Hong Kong, Israel, United Arab Emirates, Qatar, Kuwait |
-| C | 0.80 | Japan, South Korea, Taiwan, Italy, Spain, Portugal, Saudi Arabia, Bahrain, Oman, Czechia, Slovenia, Estonia |
-| D | 0.55 | Poland, Greece, Hungary, Romania, Croatia, Chile, Uruguay, Malaysia, Mexico, Costa Rica |
-| E | 0.35 | Türkiye, Brazil, Argentina, Colombia, Peru, Thailand, South Africa, Kazakhstan |
-| F, lowest | 0.25 | Indonesia, India, Vietnam, Philippines, Egypt, Pakistan, Bangladesh, Nigeria, Kenya, Morocco |
-| Everything else | Play's automatic conversion of the base price |
-
-Check: yearly should stay about 40–50% cheaper than 12 × monthly in every country, because the app shows
-"Save X%" (`yearlySavingsPercent`).
+If Play rejects a price as below its minimum for a country, use that country's minimum.
 
 ## 2. App content
 
 | Item | Answer |
 | --- | --- |
-| Privacy policy | `https://caglar-yildiz.github.io/alarm-app/` *(index.html in this repo. I couldn't check from here that GitHub Pages is on, so please confirm the URL)* |
+| Privacy policy | `https://caglar-yildiz.github.io/alarm-app/` (confirmed by you; serves `index.html` from this repo) |
 | Ads | **No**, the app has no ads |
 | App access | All functionality is available without special access. There's no login, and Premium can be tried through the in-app 7-day trial |
 | Advertising ID | **No**, no ad SDK and no `AD_ID` permission |
@@ -77,9 +76,9 @@ Check: yearly should stay about 40–50% cheaper than 12 × monthly in every cou
 | Purchase history | **Not collected** by the developer. Google Play Billing handles payment, and the app only keeps a local "subscribed" flag |
 | App activity, device IDs, personal info | Not collected |
 
-> **Location note:** the weather tab sends the latitude and longitude of the province or district the user *chose*
-> (not GPS) to MET Norway. Declaring it as approximate location is the safe answer. Answering "no data collected"
-> could be defended, but a reviewer could flag it. Say if you prefer that.
+> **Location:** declared as approximate location (you chose the lower-risk option). The weather tab sends the
+> coordinates of the chosen province or district to MET Norway. Device IDs are not declared: the hashed Android ID and
+> trial date only go to the user's own end-to-end encrypted Google backup and Block Store, which the developer cannot read.
 
 ### Permission declarations Play will probably ask for
 - **Exact alarms** (`SCHEDULE_EXACT_ALARM`): core function = alarm clock
@@ -88,10 +87,10 @@ Check: yearly should stay about 40–50% cheaper than 12 × monthly in every cou
   Play asks for a short video of the alarm ringing
 - **Camera**: QR-code dismiss mission (no declaration form, but the privacy policy should mention it)
 
-## 3. Privacy policy gap: fix before submitting Data safety
-`index.html` doesn't mention: the MET Norway weather request (chosen place coordinates), camera use for QR
-scanning (on-device only), Google Play Billing for subscriptions, or Android backup. The Data safety form has to
-match the policy, so it should be updated first. I can make that edit.
+## 3. Privacy policy
+`index.html` was updated on 2026-11-20. It now covers MET Norway weather requests, the camera (on-device only),
+Google Play Billing, Android backup and Block Store, the permission list, no sale or sharing, and deletion. Merge it to
+the branch GitHub Pages serves **before** submitting Data safety.
 
 ## 4. License testing
 Settings > License testing → add your Google account email (the one signed in to Play Console), response
