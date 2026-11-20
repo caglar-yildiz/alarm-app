@@ -113,7 +113,7 @@ internal class WakeCheck(base: Context) {
             }
             RING -> {
                 cancel(id)
-                context.startForegroundService(alarm.ringIntent(context))
+                context.startForegroundService(alarm.ringIntent(context).putExtra(RingService.EXTRA_RETRY, true))
             }
         }
     }

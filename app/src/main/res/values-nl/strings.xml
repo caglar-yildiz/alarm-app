@@ -335,4 +335,36 @@
         <item>Doe de gordijnen open en begin de dag</item>
         <item>Drink een glas water</item>
     </string-array>
+    <string name="reliability_title">Zorg dat je wekkers afgaan</string>
+    <string name="reliability_battery">Laat BENG zonder batterijbeperkingen draaien, zodat je telefoon het niet stopt voor een wekker. Kies in de lijst BENG en daarna ‘Niet optimaliseren’ of ‘Onbeperkt’.</string>
+    <string name="reliability_battery_button">Batterij-instellingen openen</string>
+    <string name="reliability_brand">%s-telefoons kunnen apps ook op de achtergrond stoppen. Zet Autostart aan of sta achtergrondactiviteit toe voor BENG.</string>
+    <string name="reliability_brand_button">%s-instellingen openen</string>
+    <string name="reliability_done">Gedaan</string>
+    <string name="tool_stats">Statistieken</string>
+    <string name="tool_stats_desc">Je wakker-wordgeschiedenis</string>
+    <string name="stats_streak_title">Op-tijd-reeks</string>
+    <plurals name="stats_days">
+        <item quantity="one">%d dag</item>
+        <item quantity="other">%d dagen</item>
+    </plurals>
+    <plurals name="stats_streak_status">
+        <item quantity="one">%d dag op rij</item>
+        <item quantity="other">%d dagen op rij</item>
+    </plurals>
+    <string name="stats_best">Beste: %s</string>
+    <string name="stats_week">Afgelopen 7 dagen</string>
+    <string name="stats_on_time">Op tijd</string>
+    <string name="stats_late">Te laat of gesluimerd</string>
+    <string name="stats_no_alarm">Geen wekker</string>
+    <string name="stats_month">Afgelopen 30 dagen</string>
+    <string name="stats_on_time_rate">Op %1$d van de %2$d dagen op tijd</string>
+    <plurals name="stats_snoozes">
+        <item quantity="one">%d keer gesluimerd</item>
+        <item quantity="other">%d keer gesluimerd</item>
+    </plurals>
+    <string name="stats_average">Gemiddelde tijd tot de wekker uit is: %s</string>
+    <string name="stats_empty">Je wakker-wordmomenten verschijnen hier na je eerste wekker.</string>
+    <string name="stats_how">‘Op tijd’ betekent dat je de wekker zonder sluimeren uitzette en de wakkercheck niet opnieuw hoefde af te gaan.</string>
+    <string name="stats_private">Alleen op deze telefoon bewaard.</string>
 </resources>

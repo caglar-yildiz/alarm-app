@@ -335,4 +335,36 @@
         <item>Öffne die Vorhänge und starte in den Tag</item>
         <item>Trink ein Glas Wasser</item>
     </string-array>
+    <string name="reliability_title">Sorge dafür, dass deine Wecker klingeln</string>
+    <string name="reliability_battery">Lass BENG ohne Akku-Einschränkungen laufen, damit dein Handy es nicht vor einem Wecker beendet. Wähle in der Liste BENG und dann „Nicht optimieren“ oder „Uneingeschränkt“.</string>
+    <string name="reliability_battery_button">Akku-Einstellungen öffnen</string>
+    <string name="reliability_brand">%s-Handys können Apps auch im Hintergrund beenden. Aktiviere Autostart oder erlaube Hintergrundaktivität für BENG.</string>
+    <string name="reliability_brand_button">%s-Einstellungen öffnen</string>
+    <string name="reliability_done">Erledigt</string>
+    <string name="tool_stats">Statistik</string>
+    <string name="tool_stats_desc">Deine Aufwach-Bilanz</string>
+    <string name="stats_streak_title">Pünktlich-Serie</string>
+    <plurals name="stats_days">
+        <item quantity="one">%d Tag</item>
+        <item quantity="other">%d Tage</item>
+    </plurals>
+    <plurals name="stats_streak_status">
+        <item quantity="one">%d Tag in Folge</item>
+        <item quantity="other">%d Tage in Folge</item>
+    </plurals>
+    <string name="stats_best">Bestwert: %s</string>
+    <string name="stats_week">Letzte 7 Tage</string>
+    <string name="stats_on_time">Pünktlich</string>
+    <string name="stats_late">Verspätet oder geschlummert</string>
+    <string name="stats_no_alarm">Kein Wecker</string>
+    <string name="stats_month">Letzte 30 Tage</string>
+    <string name="stats_on_time_rate">An %1$d von %2$d Tagen pünktlich</string>
+    <plurals name="stats_snoozes">
+        <item quantity="one">%d-mal geschlummert</item>
+        <item quantity="other">%d-mal geschlummert</item>
+    </plurals>
+    <string name="stats_average">Durchschnittliche Zeit bis zum Ausschalten: %s</string>
+    <string name="stats_empty">Nach deinem ersten Wecker erscheinen deine Aufwachzeiten hier.</string>
+    <string name="stats_how">„Pünktlich“ heißt: Du hast den Wecker ohne Schlummern ausgeschaltet, und die Wachkontrolle musste nicht erneut klingeln.</string>
+    <string name="stats_private">Wird nur auf diesem Handy gespeichert.</string>
 </resources>

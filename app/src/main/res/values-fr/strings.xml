@@ -341,4 +341,39 @@
         <item>Ouvre les rideaux et commence la journée</item>
         <item>Bois un verre d’eau</item>
     </string-array>
+    <string name="reliability_title">Assure-toi que tes alarmes sonnent</string>
+    <string name="reliability_battery">Laisse BENG fonctionner sans limite de batterie, pour que ton téléphone ne l’arrête pas avant une alarme. Dans la liste, choisis BENG puis « Ne pas optimiser » ou « Non restreinte ».</string>
+    <string name="reliability_battery_button">Ouvrir les réglages de batterie</string>
+    <string name="reliability_brand">Les téléphones %s peuvent aussi arrêter les applis en arrière-plan. Active le démarrage automatique ou autorise l’activité en arrière-plan pour BENG.</string>
+    <string name="reliability_brand_button">Ouvrir les réglages %s</string>
+    <string name="reliability_done">C’est fait</string>
+    <string name="tool_stats">Statistiques</string>
+    <string name="tool_stats_desc">Ton bilan de réveil</string>
+    <string name="stats_streak_title">Série de réveils à l’heure</string>
+    <plurals name="stats_days">
+        <item quantity="one">%d jour</item>
+        <item quantity="many">%d jours</item>
+        <item quantity="other">%d jours</item>
+    </plurals>
+    <plurals name="stats_streak_status">
+        <item quantity="one">%d jour d’affilée</item>
+        <item quantity="many">%d jours d’affilée</item>
+        <item quantity="other">%d jours d’affilée</item>
+    </plurals>
+    <string name="stats_best">Record : %s</string>
+    <string name="stats_week">7 derniers jours</string>
+    <string name="stats_on_time">À l’heure</string>
+    <string name="stats_late">En retard ou répété</string>
+    <string name="stats_no_alarm">Pas d’alarme</string>
+    <string name="stats_month">30 derniers jours</string>
+    <string name="stats_on_time_rate">À l’heure %1$d jours sur %2$d</string>
+    <plurals name="stats_snoozes">
+        <item quantity="one">%d répétition</item>
+        <item quantity="many">%d répétitions</item>
+        <item quantity="other">%d répétitions</item>
+    </plurals>
+    <string name="stats_average">Temps moyen pour arrêter l’alarme : %s</string>
+    <string name="stats_empty">Tes réveils apparaîtront ici après ta première alarme.</string>
+    <string name="stats_how">« À l’heure » signifie que tu as arrêté l’alarme sans la répéter et que le contrôle d’éveil n’a pas dû sonner à nouveau.</string>
+    <string name="stats_private">Conservé uniquement sur ce téléphone.</string>
 </resources>

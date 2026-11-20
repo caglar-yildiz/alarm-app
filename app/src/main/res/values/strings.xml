@@ -336,4 +336,36 @@
         <item>Open the curtains and start the day</item>
         <item>Drink a glass of water</item>
     </string-array>
+    <string name="reliability_title">Make sure your alarms ring</string>
+    <string name="reliability_battery">Let BENG run without battery limits, so your phone can’t stop it before an alarm. In the list, pick BENG and choose “Don’t optimize” or “Unrestricted”.</string>
+    <string name="reliability_battery_button">Open battery settings</string>
+    <string name="reliability_brand">%s phones can also stop apps in the background. Turn on Autostart or allow background activity for BENG.</string>
+    <string name="reliability_brand_button">Open %s settings</string>
+    <string name="reliability_done">I’ve done this</string>
+    <string name="tool_stats">Statistics</string>
+    <string name="tool_stats_desc">Your wake-up record</string>
+    <string name="stats_streak_title">On-time streak</string>
+    <plurals name="stats_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="stats_streak_status">
+        <item quantity="one">%d-day streak</item>
+        <item quantity="other">%d-day streak</item>
+    </plurals>
+    <string name="stats_best">Best: %s</string>
+    <string name="stats_week">Last 7 days</string>
+    <string name="stats_on_time">On time</string>
+    <string name="stats_late">Late or snoozed</string>
+    <string name="stats_no_alarm">No alarm</string>
+    <string name="stats_month">Last 30 days</string>
+    <string name="stats_on_time_rate">On time on %1$d of %2$d days</string>
+    <plurals name="stats_snoozes">
+        <item quantity="one">%d snooze</item>
+        <item quantity="other">%d snoozes</item>
+    </plurals>
+    <string name="stats_average">Average time to turn the alarm off: %s</string>
+    <string name="stats_empty">Your wake-ups appear here after your first alarm.</string>
+    <string name="stats_how">“On time” means you turned the alarm off without snoozing, and wake check didn’t have to ring again.</string>
+    <string name="stats_private">Kept only on this phone.</string>
 </resources>

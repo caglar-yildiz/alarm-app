@@ -329,4 +329,33 @@
         <item>拉開窗簾開始新的一天</item>
         <item>喝一杯水</item>
     </string-array>
+    <string name="reliability_title">確保鬧鐘一定會響</string>
+    <string name="reliability_battery">讓 BENG 不受電池限制執行，手機就不會在鬧鐘響前關閉它。在清單中選擇 BENG，然後選「不要最佳化」或「不受限制」。</string>
+    <string name="reliability_battery_button">開啟電池設定</string>
+    <string name="reliability_brand">%s 手機也可能停止背景中的應用程式。請為 BENG 開啟自動啟動或允許背景活動。</string>
+    <string name="reliability_brand_button">開啟 %s 設定</string>
+    <string name="reliability_done">已完成</string>
+    <string name="tool_stats">統計</string>
+    <string name="tool_stats_desc">你的起床紀錄</string>
+    <string name="stats_streak_title">準時起床連續紀錄</string>
+    <plurals name="stats_days">
+        <item quantity="other">%d 天</item>
+    </plurals>
+    <plurals name="stats_streak_status">
+        <item quantity="other">連續 %d 天</item>
+    </plurals>
+    <string name="stats_best">最佳：%s</string>
+    <string name="stats_week">過去 7 天</string>
+    <string name="stats_on_time">準時</string>
+    <string name="stats_late">遲到或貪睡</string>
+    <string name="stats_no_alarm">沒有鬧鐘</string>
+    <string name="stats_month">過去 30 天</string>
+    <string name="stats_on_time_rate">%2$d 天中有 %1$d 天準時</string>
+    <plurals name="stats_snoozes">
+        <item quantity="other">貪睡 %d 次</item>
+    </plurals>
+    <string name="stats_average">關閉鬧鐘平均花費時間：%s</string>
+    <string name="stats_empty">第一次鬧鐘響過後，你的起床紀錄會顯示在這裡。</string>
+    <string name="stats_how">「準時」表示你沒有貪睡就關閉鬧鐘，而且清醒確認不必再次響鈴。</string>
+    <string name="stats_private">只儲存在這支手機上。</string>
 </resources>

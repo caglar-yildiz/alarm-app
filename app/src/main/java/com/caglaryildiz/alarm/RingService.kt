@@ -31,15 +31,21 @@ internal data class Ring(
     val crescendo: Boolean = true,
     /** True when this alarm was still ringing as the phone restarted or the app updated. */
     val resumed: Boolean = false,
+    /** True when wake check rang this alarm again because the user didn't confirm being awake. */
+    val retry: Boolean = false,
     val token: String = UUID.randomUUID().toString(),
-    val startedAt: LocalTime = LocalTime.now()
+    val startedAt: LocalTime = LocalTime.now(),
+    val startedMs: Long = System.currentTimeMillis()
 )
 
 class RingService : Service() {
     private val queue = ArrayDeque<Ring>()
     private val handler = Handler(Looper.getMainLooper())
     private var player: MediaPlayer? = null
-    private val timeout = Runnable { advance() }
+    private val timeout = Runnable {
+        active?.let { WakeStats(this).missed(it.id, it.retry) }
+        advance()
+    }
     /**
      * While an alarm rings and its screen is not showing, keeps bringing the screen back. Android does not let
      * a background app open an activity on an unlocked phone, so the alarm notification is also posted again:
@@ -96,12 +102,16 @@ class RingService : Service() {
                 }
                 if (intent.action == DISMISS && (ring.math?.question != null || ring.extra?.complete == false)) return START_NOT_STICKY
                 if (intent.action == SNOOZE) {
+                    WakeStats(this).snoozed(ring.id)
                     val alarms = Alarms(this)
                     alarms.all().firstOrNull { it.id == ring.id }?.let {
                         alarms.save(it.copy(snoozeAt = System.currentTimeMillis() + 300_000))
                     }
                 }
-                if (intent.action == DISMISS) WakeCheck(this).schedule(ring.id)
+                if (intent.action == DISMISS) {
+                    WakeStats(this).dismissed(ring.id, ring.startedMs, ring.retry)
+                    WakeCheck(this).schedule(ring.id)
+                }
                 advance()
             }
             else -> {
@@ -133,7 +143,8 @@ class RingService : Service() {
                     rawTone
                 }
                 val crescendo = intent.getBooleanExtra("crescendo", true)
-                val ring = Ring(id, math, extra, intent.getStringExtra("label").orEmpty(), tone, crescendo, resumed)
+                val ring = Ring(id, math, extra, intent.getStringExtra("label").orEmpty(), tone, crescendo, resumed,
+                    retry = intent.getBooleanExtra(EXTRA_RETRY, false))
                 if (active == null) show(ring) else {
                     queue.addLast(ring)
                     saveRecord()
@@ -348,6 +359,7 @@ class RingService : Service() {
         internal var screenVisible = false
         internal const val SCREEN_LEFT = "com.caglaryildiz.alarm.RING_SCREEN_LEFT"
         internal const val EXTRA_RESUMED = "resumed"
+        internal const val EXTRA_RETRY = "retry"
         internal const val DISMISS = "com.caglaryildiz.alarm.DISMISS"
         internal const val SNOOZE = "com.caglaryildiz.alarm.SNOOZE_RING"
         internal var active: Ring? = null

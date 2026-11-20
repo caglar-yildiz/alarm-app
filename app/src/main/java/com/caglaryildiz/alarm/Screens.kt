@@ -302,6 +302,7 @@ class MainActivity : WeatherScreen() {
         STOPWATCH(R.string.tool_stopwatch, R.drawable.ic_stopwatch),
         COUNTDOWNS(R.string.tool_countdowns, R.drawable.ic_hourglass),
         WAKE(R.string.wake_check, R.drawable.ic_wake_check),
+        STATS(R.string.tool_stats, R.drawable.ic_stats),
         LANGUAGE(R.string.tool_language, R.drawable.ic_language)
     }
 
@@ -420,6 +421,7 @@ class MainActivity : WeatherScreen() {
             Tool.STOPWATCH -> showStopwatch()
             Tool.COUNTDOWNS -> showCountdowns()
             Tool.WAKE -> showWakeCheck()
+            Tool.STATS -> showStats()
         }
     }
 
@@ -459,6 +461,7 @@ class MainActivity : WeatherScreen() {
             Tool.STOPWATCH -> 0xFF3E7BD8.toInt() to 0xFF3B3594.toInt()
             Tool.COUNTDOWNS -> 0xFF7A55E0.toInt() to 0xFF3A2C86.toInt()
             Tool.WAKE -> 0xFFE0A14F.toInt() to 0xFF7A3F8F.toInt()
+            Tool.STATS -> 0xFF4FB28A.toInt() to 0xFF2B4C86.toInt()
             Tool.LANGUAGE -> 0xFF3AA6A0.toInt() to 0xFF2B4C86.toInt()
         }
         iconBadge(entry.icon, content, 60, from, to)
@@ -503,7 +506,76 @@ class MainActivity : WeatherScreen() {
             wake.enabled -> getString(R.string.wake_status_on, wake.delay)
             else -> getString(R.string.wake_status_off)
         }
+        Tool.STATS -> WakeStats(this).summary().let {
+            if (it.total == 0) getString(R.string.tool_stats_desc)
+            else resources.getQuantityString(R.plurals.stats_streak_status, it.streak, it.streak)
+        }
         Tool.LANGUAGE -> AppLanguage.displayName(this, AppLanguage.current(this))
+    }
+
+    private fun showStats() {
+        val stats = WakeStats(this).summary()
+        val hero = card()
+        val top = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+        hero.addView(top, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(4) })
+        iconBadge(R.drawable.ic_stats, top, 60, 0xFF4FB28A.toInt(), 0xFF2B4C86.toInt())
+        val titles = column()
+        top.addView(titles, LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = dp(14) })
+        label(getString(R.string.stats_streak_title), 15f, titles, color = mutedColor)
+        timeLabel(resources.getQuantityString(R.plurals.stats_days, stats.streak, stats.streak), 34f, titles)
+        if (stats.bestStreak > 0) {
+            label(getString(R.string.stats_best,
+                resources.getQuantityString(R.plurals.stats_days, stats.bestStreak, stats.bestStreak)), 14f, titles, color = mutedColor)
+        }
+        if (stats.total == 0) {
+            label(getString(R.string.stats_empty), 15f, hero, color = mutedColor)
+            label(getString(R.string.stats_how), 13f, hero, color = mutedColor)
+            return
+        }
+
+        val week = card()
+        label(getString(R.string.stats_week), 17f, week, bold = true).accessibilityHeading()
+        val row = LinearLayout(this).apply { isBaselineAligned = false }
+        week.addView(row, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(6) })
+        val locale = resources.configuration.locales[0]
+        for ((date, result) in stats.week) {
+            val (mark, fill, meaning) = when (result) {
+                DayResult.ON_TIME -> Triple("✓", 0xFF3A8A64.toInt(), R.string.stats_on_time)
+                DayResult.LATE -> Triple("✕", 0xFF8A3A55.toInt(), R.string.stats_late)
+                DayResult.NONE -> Triple("–", 0x40FFFFFF, R.string.stats_no_alarm)
+            }
+            val cell = column().apply {
+                gravity = Gravity.CENTER_HORIZONTAL
+                isFocusable = true
+                contentDescription = "${date.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, locale)}: ${getString(meaning)}"
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
+            }
+            row.addView(cell, LinearLayout.LayoutParams(0, -2, 1f))
+            label(date.dayOfWeek.getDisplayName(java.time.format.TextStyle.SHORT, locale), 12f, cell, color = mutedColor).apply {
+                gravity = Gravity.CENTER
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }
+            cell.addView(TextView(this).apply {
+                text = mark
+                gravity = Gravity.CENTER
+                textSize = 15f
+                setTextColor(Color.WHITE)
+                background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(fill) }
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }, LinearLayout.LayoutParams(dp(32), dp(32)))
+        }
+        label("✓ ${getString(R.string.stats_on_time)}  ·  ✕ ${getString(R.string.stats_late)}  ·  – ${getString(R.string.stats_no_alarm)}",
+            12f, week, color = mutedColor).setPadding(0, dp(10), 0, 0)
+
+        val month = card()
+        label(getString(R.string.stats_month), 17f, month, bold = true).accessibilityHeading()
+        label(getString(R.string.stats_on_time_rate, stats.onTimeDays, stats.alarmDays), 15f, month)
+        label(resources.getQuantityString(R.plurals.stats_snoozes, stats.snoozes, stats.snoozes), 15f, month)
+        stats.averageSeconds?.let { seconds ->
+            label(getString(R.string.stats_average, "%d:%02d".format(java.util.Locale.ROOT, seconds / 60, seconds % 60)), 15f, month)
+        }
+        label(getString(R.string.stats_how), 13f, month, color = mutedColor)
+        label(getString(R.string.stats_private), 13f, month, color = mutedColor)
     }
 
     private fun pickLanguage() {
@@ -824,6 +896,7 @@ class MainActivity : WeatherScreen() {
         showNextAlarm(all)
         button(getString(R.string.add_alarm)) { openEditor(null) }
         showMissingPermissions()
+        if (all.isNotEmpty()) showReliability()
         label(getString(R.string.my_alarms), 22f, bold = true).apply {
             setPadding(0, dp(24), 0, dp(2))
             accessibilityHeading()
@@ -902,6 +975,28 @@ class MainActivity : WeatherScreen() {
             button(getString(R.string.permission_full_screen_button), permissions, primary = false) {
                 openSettings(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT)
             }
+        }
+    }
+
+    /** Battery and phone-maker settings that can silently stop alarms; hidden once the user has dealt with them. */
+    private fun showReliability() {
+        val reliability = Reliability(this)
+        if (!reliability.needsAttention) return
+        val box = card()
+        label(getString(R.string.reliability_title), 18f, box, bold = true).accessibilityHeading()
+        if (reliability.batteryRestricted) {
+            label(getString(R.string.reliability_battery), 14f, box, color = mutedColor)
+            button(getString(R.string.reliability_battery_button), box, primary = false) { reliability.openBatterySettings() }
+        }
+        reliability.brand?.let { brand ->
+            label(getString(R.string.reliability_brand, brand.displayName), 14f, box, color = mutedColor)
+            button(getString(R.string.reliability_brand_button, brand.displayName), box, primary = false) {
+                reliability.openBrandSettings()
+            }
+        }
+        button(getString(R.string.reliability_done), box) {
+            reliability.dismissed = true
+            render()
         }
     }
 

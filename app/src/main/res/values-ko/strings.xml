@@ -329,4 +329,33 @@
         <item>커튼을 열고 하루를 시작하자</item>
         <item>물 한 잔 마시기</item>
     </string-array>
+    <string name="reliability_title">알람이 꼭 울리도록 설정하세요</string>
+    <string name="reliability_battery">BENG이 배터리 제한 없이 실행되도록 허용하면 알람 전에 휴대폰이 앱을 멈추지 않습니다. 목록에서 BENG을 선택한 뒤 ‘최적화 안 함’ 또는 ‘제한 없음’을 고르세요.</string>
+    <string name="reliability_battery_button">배터리 설정 열기</string>
+    <string name="reliability_brand">%s 휴대폰은 백그라운드 앱도 멈출 수 있습니다. BENG의 자동 실행을 켜거나 백그라운드 활동을 허용하세요.</string>
+    <string name="reliability_brand_button">%s 설정 열기</string>
+    <string name="reliability_done">설정했어요</string>
+    <string name="tool_stats">통계</string>
+    <string name="tool_stats_desc">기상 기록</string>
+    <string name="stats_streak_title">제시간 기상 연속 기록</string>
+    <plurals name="stats_days">
+        <item quantity="other">%d일</item>
+    </plurals>
+    <plurals name="stats_streak_status">
+        <item quantity="other">%d일 연속</item>
+    </plurals>
+    <string name="stats_best">최고: %s</string>
+    <string name="stats_week">최근 7일</string>
+    <string name="stats_on_time">제시간</string>
+    <string name="stats_late">늦음 또는 다시 알림</string>
+    <string name="stats_no_alarm">알람 없음</string>
+    <string name="stats_month">최근 30일</string>
+    <string name="stats_on_time_rate">%2$d일 중 %1$d일 제시간</string>
+    <plurals name="stats_snoozes">
+        <item quantity="other">다시 알림 %d회</item>
+    </plurals>
+    <string name="stats_average">알람을 끄는 데 걸린 평균 시간: %s</string>
+    <string name="stats_empty">첫 알람이 울린 뒤 여기에 기상 기록이 표시됩니다.</string>
+    <string name="stats_how">‘제시간’은 다시 알림 없이 알람을 끄고 기상 확인 알람이 다시 울리지 않았다는 뜻입니다.</string>
+    <string name="stats_private">이 휴대폰에만 저장됩니다.</string>
 </resources>

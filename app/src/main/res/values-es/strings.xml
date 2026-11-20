@@ -341,4 +341,39 @@
         <item>Abre las cortinas y empieza el día</item>
         <item>Bebe un vaso de agua</item>
     </string-array>
+    <string name="reliability_title">Asegúrate de que tus alarmas suenen</string>
+    <string name="reliability_battery">Deja que BENG funcione sin límites de batería para que el teléfono no lo detenga antes de una alarma. En la lista, elige BENG y selecciona «No optimizar» o «Sin restricciones».</string>
+    <string name="reliability_battery_button">Abrir ajustes de batería</string>
+    <string name="reliability_brand">Los teléfonos %s también pueden detener apps en segundo plano. Activa el inicio automático o permite la actividad en segundo plano para BENG.</string>
+    <string name="reliability_brand_button">Abrir ajustes de %s</string>
+    <string name="reliability_done">Ya lo hice</string>
+    <string name="tool_stats">Estadísticas</string>
+    <string name="tool_stats_desc">Tu historial de despertares</string>
+    <string name="stats_streak_title">Racha a tiempo</string>
+    <plurals name="stats_days">
+        <item quantity="one">%d día</item>
+        <item quantity="many">%d días</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+    <plurals name="stats_streak_status">
+        <item quantity="one">Racha de %d día</item>
+        <item quantity="many">Racha de %d días</item>
+        <item quantity="other">Racha de %d días</item>
+    </plurals>
+    <string name="stats_best">Mejor: %s</string>
+    <string name="stats_week">Últimos 7 días</string>
+    <string name="stats_on_time">A tiempo</string>
+    <string name="stats_late">Tarde o pospuesta</string>
+    <string name="stats_no_alarm">Sin alarma</string>
+    <string name="stats_month">Últimos 30 días</string>
+    <string name="stats_on_time_rate">A tiempo %1$d de %2$d días</string>
+    <plurals name="stats_snoozes">
+        <item quantity="one">%d posposición</item>
+        <item quantity="many">%d posposiciones</item>
+        <item quantity="other">%d posposiciones</item>
+    </plurals>
+    <string name="stats_average">Tiempo medio para apagar la alarma: %s</string>
+    <string name="stats_empty">Tus despertares aparecerán aquí después de tu primera alarma.</string>
+    <string name="stats_how">«A tiempo» significa que apagaste la alarma sin posponerla y que el control de despertar no tuvo que volver a sonar.</string>
+    <string name="stats_private">Se guarda solo en este teléfono.</string>
 </resources>

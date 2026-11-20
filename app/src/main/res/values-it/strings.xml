@@ -341,4 +341,39 @@
         <item>Apri le tende e inizia la giornata</item>
         <item>Bevi un bicchiere d’acqua</item>
     </string-array>
+    <string name="reliability_title">Assicurati che le sveglie suonino</string>
+    <string name="reliability_battery">Lascia che BENG funzioni senza limiti di batteria, così il telefono non lo chiude prima di una sveglia. Nell’elenco scegli BENG e seleziona «Non ottimizzare» o «Senza restrizioni».</string>
+    <string name="reliability_battery_button">Apri impostazioni batteria</string>
+    <string name="reliability_brand">I telefoni %s possono anche chiudere le app in background. Attiva l’avvio automatico o consenti l’attività in background per BENG.</string>
+    <string name="reliability_brand_button">Apri impostazioni %s</string>
+    <string name="reliability_done">Fatto</string>
+    <string name="tool_stats">Statistiche</string>
+    <string name="tool_stats_desc">Il tuo storico dei risvegli</string>
+    <string name="stats_streak_title">Serie puntuale</string>
+    <plurals name="stats_days">
+        <item quantity="one">%d giorno</item>
+        <item quantity="many">%d giorni</item>
+        <item quantity="other">%d giorni</item>
+    </plurals>
+    <plurals name="stats_streak_status">
+        <item quantity="one">%d giorno di fila</item>
+        <item quantity="many">%d giorni di fila</item>
+        <item quantity="other">%d giorni di fila</item>
+    </plurals>
+    <string name="stats_best">Record: %s</string>
+    <string name="stats_week">Ultimi 7 giorni</string>
+    <string name="stats_on_time">Puntuale</string>
+    <string name="stats_late">In ritardo o posticipata</string>
+    <string name="stats_no_alarm">Nessuna sveglia</string>
+    <string name="stats_month">Ultimi 30 giorni</string>
+    <string name="stats_on_time_rate">Puntuale in %1$d giorni su %2$d</string>
+    <plurals name="stats_snoozes">
+        <item quantity="one">%d posticipo</item>
+        <item quantity="many">%d posticipi</item>
+        <item quantity="other">%d posticipi</item>
+    </plurals>
+    <string name="stats_average">Tempo medio per spegnere la sveglia: %s</string>
+    <string name="stats_empty">I tuoi risvegli appariranno qui dopo la prima sveglia.</string>
+    <string name="stats_how">«Puntuale» significa che hai spento la sveglia senza posticiparla e il controllo risveglio non ha dovuto suonare di nuovo.</string>
+    <string name="stats_private">Salvato solo su questo telefono.</string>
 </resources>

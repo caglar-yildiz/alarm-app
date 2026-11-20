@@ -335,4 +335,36 @@
         <item>Perdeyi aç ve güne başla</item>
         <item>Bir bardak su iç</item>
     </string-array>
+    <string name="reliability_title">Alarmlarının çaldığından emin ol</string>
+    <string name="reliability_battery">BENG\'in pil kısıtlaması olmadan çalışmasına izin ver, böylece telefon onu alarmdan önce durduramaz. Listede BENG\'i seç ve “Optimize etme” ya da “Kısıtlamasız” seçeneğini işaretle.</string>
+    <string name="reliability_battery_button">Pil ayarlarını aç</string>
+    <string name="reliability_brand">%s telefonlar arka plandaki uygulamaları da durdurabilir. BENG için Otomatik başlatmayı aç veya arka plan etkinliğine izin ver.</string>
+    <string name="reliability_brand_button">%s ayarlarını aç</string>
+    <string name="reliability_done">Bunu yaptım</string>
+    <string name="tool_stats">İstatistikler</string>
+    <string name="tool_stats_desc">Uyanma geçmişin</string>
+    <string name="stats_streak_title">Zamanında kalkma serisi</string>
+    <plurals name="stats_days">
+        <item quantity="one">%d gün</item>
+        <item quantity="other">%d gün</item>
+    </plurals>
+    <plurals name="stats_streak_status">
+        <item quantity="one">%d günlük seri</item>
+        <item quantity="other">%d günlük seri</item>
+    </plurals>
+    <string name="stats_best">En iyi: %s</string>
+    <string name="stats_week">Son 7 gün</string>
+    <string name="stats_on_time">Zamanında</string>
+    <string name="stats_late">Geç veya ertelendi</string>
+    <string name="stats_no_alarm">Alarm yok</string>
+    <string name="stats_month">Son 30 gün</string>
+    <string name="stats_on_time_rate">%2$d günün %1$d gününde zamanında</string>
+    <plurals name="stats_snoozes">
+        <item quantity="one">%d erteleme</item>
+        <item quantity="other">%d erteleme</item>
+    </plurals>
+    <string name="stats_average">Alarmı kapatma süresi ortalaması: %s</string>
+    <string name="stats_empty">İlk alarmından sonra uyanışların burada görünür.</string>
+    <string name="stats_how">“Zamanında”, alarmı ertelemeden kapattığın ve uyanıklık kontrolünün tekrar çalmak zorunda kalmadığı anlamına gelir.</string>
+    <string name="stats_private">Yalnızca bu telefonda saklanır.</string>
 </resources>

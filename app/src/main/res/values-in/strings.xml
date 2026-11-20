@@ -329,4 +329,33 @@
         <item>Buka tirai dan mulai harimu</item>
         <item>Minum segelas air</item>
     </string-array>
+    <string name="reliability_title">Pastikan alarmmu berbunyi</string>
+    <string name="reliability_battery">Izinkan BENG berjalan tanpa batasan baterai agar ponsel tidak menghentikannya sebelum alarm. Di daftar, pilih BENG lalu pilih “Jangan optimalkan” atau “Tidak dibatasi”.</string>
+    <string name="reliability_battery_button">Buka setelan baterai</string>
+    <string name="reliability_brand">Ponsel %s juga bisa menghentikan aplikasi di latar belakang. Aktifkan Mulai otomatis atau izinkan aktivitas latar belakang untuk BENG.</string>
+    <string name="reliability_brand_button">Buka setelan %s</string>
+    <string name="reliability_done">Sudah</string>
+    <string name="tool_stats">Statistik</string>
+    <string name="tool_stats_desc">Catatan bangunmu</string>
+    <string name="stats_streak_title">Rentetan tepat waktu</string>
+    <plurals name="stats_days">
+        <item quantity="other">%d hari</item>
+    </plurals>
+    <plurals name="stats_streak_status">
+        <item quantity="other">%d hari berturut-turut</item>
+    </plurals>
+    <string name="stats_best">Terbaik: %s</string>
+    <string name="stats_week">7 hari terakhir</string>
+    <string name="stats_on_time">Tepat waktu</string>
+    <string name="stats_late">Terlambat atau ditunda</string>
+    <string name="stats_no_alarm">Tidak ada alarm</string>
+    <string name="stats_month">30 hari terakhir</string>
+    <string name="stats_on_time_rate">Tepat waktu %1$d dari %2$d hari</string>
+    <plurals name="stats_snoozes">
+        <item quantity="other">%d kali tunda</item>
+    </plurals>
+    <string name="stats_average">Rata-rata waktu mematikan alarm: %s</string>
+    <string name="stats_empty">Catatan bangunmu muncul di sini setelah alarm pertama.</string>
+    <string name="stats_how">“Tepat waktu” berarti kamu mematikan alarm tanpa menunda, dan cek bangun tidak perlu berbunyi lagi.</string>
+    <string name="stats_private">Hanya disimpan di ponsel ini.</string>
 </resources>

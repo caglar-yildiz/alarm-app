@@ -341,4 +341,39 @@
         <item>Abra as cortinas e comece o dia</item>
         <item>Beba um copo de água</item>
     </string-array>
+    <string name="reliability_title">Garanta que seus alarmes toquem</string>
+    <string name="reliability_battery">Deixe o BENG funcionar sem limites de bateria para que o celular não o feche antes de um alarme. Na lista, escolha o BENG e selecione “Não otimizar” ou “Sem restrições”.</string>
+    <string name="reliability_battery_button">Abrir configurações de bateria</string>
+    <string name="reliability_brand">Celulares %s também podem fechar apps em segundo plano. Ative a inicialização automática ou permita atividade em segundo plano para o BENG.</string>
+    <string name="reliability_brand_button">Abrir configurações da %s</string>
+    <string name="reliability_done">Já fiz isso</string>
+    <string name="tool_stats">Estatísticas</string>
+    <string name="tool_stats_desc">Seu histórico de despertar</string>
+    <string name="stats_streak_title">Sequência no horário</string>
+    <plurals name="stats_days">
+        <item quantity="one">%d dia</item>
+        <item quantity="many">%d dias</item>
+        <item quantity="other">%d dias</item>
+    </plurals>
+    <plurals name="stats_streak_status">
+        <item quantity="one">%d dia seguido</item>
+        <item quantity="many">%d dias seguidos</item>
+        <item quantity="other">%d dias seguidos</item>
+    </plurals>
+    <string name="stats_best">Recorde: %s</string>
+    <string name="stats_week">Últimos 7 dias</string>
+    <string name="stats_on_time">No horário</string>
+    <string name="stats_late">Atrasado ou soneca</string>
+    <string name="stats_no_alarm">Sem alarme</string>
+    <string name="stats_month">Últimos 30 dias</string>
+    <string name="stats_on_time_rate">No horário em %1$d de %2$d dias</string>
+    <plurals name="stats_snoozes">
+        <item quantity="one">%d soneca</item>
+        <item quantity="many">%d sonecas</item>
+        <item quantity="other">%d sonecas</item>
+    </plurals>
+    <string name="stats_average">Tempo médio para desligar o alarme: %s</string>
+    <string name="stats_empty">Seus despertares aparecem aqui depois do primeiro alarme.</string>
+    <string name="stats_how">“No horário” significa que você desligou o alarme sem soneca e a checagem de despertar não precisou tocar de novo.</string>
+    <string name="stats_private">Fica salvo só neste celular.</string>
 </resources>

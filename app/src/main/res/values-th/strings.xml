@@ -329,4 +329,33 @@
         <item>เปิดผ้าม่านแล้วเริ่มต้นวันใหม่</item>
         <item>ดื่มน้ำหนึ่งแก้ว</item>
     </string-array>
+    <string name="reliability_title">ตรวจให้แน่ใจว่านาฬิกาปลุกจะดัง</string>
+    <string name="reliability_battery">อนุญาตให้ BENG ทำงานโดยไม่จำกัดแบตเตอรี่ เพื่อไม่ให้โทรศัพท์หยุดแอปก่อนนาฬิกาปลุก ในรายการให้เลือก BENG แล้วเลือก “ไม่ต้องปรับให้เหมาะสม” หรือ “ไม่จำกัด”</string>
+    <string name="reliability_battery_button">เปิดการตั้งค่าแบตเตอรี่</string>
+    <string name="reliability_brand">โทรศัพท์ %s อาจหยุดแอปที่ทำงานเบื้องหลังได้ด้วย ให้เปิดการเริ่มอัตโนมัติหรืออนุญาตการทำงานเบื้องหลังสำหรับ BENG</string>
+    <string name="reliability_brand_button">เปิดการตั้งค่า %s</string>
+    <string name="reliability_done">ทำแล้ว</string>
+    <string name="tool_stats">สถิติ</string>
+    <string name="tool_stats_desc">บันทึกการตื่นนอนของคุณ</string>
+    <string name="stats_streak_title">สถิติตื่นตรงเวลาต่อเนื่อง</string>
+    <plurals name="stats_days">
+        <item quantity="other">%d วัน</item>
+    </plurals>
+    <plurals name="stats_streak_status">
+        <item quantity="other">ต่อเนื่อง %d วัน</item>
+    </plurals>
+    <string name="stats_best">ดีที่สุด: %s</string>
+    <string name="stats_week">7 วันที่ผ่านมา</string>
+    <string name="stats_on_time">ตรงเวลา</string>
+    <string name="stats_late">สายหรือเลื่อนปลุก</string>
+    <string name="stats_no_alarm">ไม่มีนาฬิกาปลุก</string>
+    <string name="stats_month">30 วันที่ผ่านมา</string>
+    <string name="stats_on_time_rate">ตรงเวลา %1$d จาก %2$d วัน</string>
+    <plurals name="stats_snoozes">
+        <item quantity="other">เลื่อนปลุก %d ครั้ง</item>
+    </plurals>
+    <string name="stats_average">เวลาเฉลี่ยในการปิดนาฬิกาปลุก: %s</string>
+    <string name="stats_empty">บันทึกการตื่นของคุณจะแสดงที่นี่หลังนาฬิกาปลุกครั้งแรก</string>
+    <string name="stats_how">“ตรงเวลา” หมายถึงคุณปิดนาฬิกาปลุกโดยไม่เลื่อนปลุก และการตรวจว่าตื่นจริงไม่ต้องปลุกซ้ำ</string>
+    <string name="stats_private">เก็บไว้ในโทรศัพท์เครื่องนี้เท่านั้น</string>
 </resources>

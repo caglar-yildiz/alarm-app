@@ -329,4 +329,33 @@
         <item>カーテンを開けて一日を始めよう</item>
         <item>水を一杯飲もう</item>
     </string-array>
+    <string name="reliability_title">アラームが確実に鳴るようにする</string>
+    <string name="reliability_battery">BENG をバッテリーの制限なしで動作させると、アラーム前にスマホに停止されません。一覧で BENG を選び、「最適化しない」または「制限なし」を選んでください。</string>
+    <string name="reliability_battery_button">バッテリー設定を開く</string>
+    <string name="reliability_brand">%s のスマホはバックグラウンドのアプリも停止することがあります。BENG の自動起動をオンにするか、バックグラウンド動作を許可してください。</string>
+    <string name="reliability_brand_button">%s の設定を開く</string>
+    <string name="reliability_done">設定しました</string>
+    <string name="tool_stats">統計</string>
+    <string name="tool_stats_desc">起床の記録</string>
+    <string name="stats_streak_title">時間どおり連続記録</string>
+    <plurals name="stats_days">
+        <item quantity="other">%d日</item>
+    </plurals>
+    <plurals name="stats_streak_status">
+        <item quantity="other">%d日連続</item>
+    </plurals>
+    <string name="stats_best">最高：%s</string>
+    <string name="stats_week">過去7日間</string>
+    <string name="stats_on_time">時間どおり</string>
+    <string name="stats_late">遅れた・スヌーズ</string>
+    <string name="stats_no_alarm">アラームなし</string>
+    <string name="stats_month">過去30日間</string>
+    <string name="stats_on_time_rate">%2$d日中%1$d日 時間どおり</string>
+    <plurals name="stats_snoozes">
+        <item quantity="other">スヌーズ %d回</item>
+    </plurals>
+    <string name="stats_average">アラームを止めるまでの平均時間：%s</string>
+    <string name="stats_empty">最初のアラームの後、ここに起床の記録が表示されます。</string>
+    <string name="stats_how">「時間どおり」とは、スヌーズせずにアラームを止め、起床チェックで再び鳴らなかったことを意味します。</string>
+    <string name="stats_private">このスマホにのみ保存されます。</string>
 </resources>

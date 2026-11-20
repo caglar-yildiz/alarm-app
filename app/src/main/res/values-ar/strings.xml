@@ -359,4 +359,48 @@
         <item>افتح الستائر وابدأ يومك</item>
         <item>اشرب كوبًا من الماء</item>
     </string-array>
+    <string name="reliability_title">تأكد من أن منبّهاتك سترن</string>
+    <string name="reliability_battery">اسمح لتطبيق BENG بالعمل دون قيود البطارية حتى لا يوقفه هاتفك قبل المنبّه. اختر BENG من القائمة ثم «عدم التحسين» أو «غير مقيّد».</string>
+    <string name="reliability_battery_button">فتح إعدادات البطارية</string>
+    <string name="reliability_brand">قد توقف هواتف %s التطبيقات في الخلفية أيضًا. فعّل التشغيل التلقائي أو اسمح بالنشاط في الخلفية لتطبيق BENG.</string>
+    <string name="reliability_brand_button">فتح إعدادات %s</string>
+    <string name="reliability_done">قمت بذلك</string>
+    <string name="tool_stats">الإحصاءات</string>
+    <string name="tool_stats_desc">سجل استيقاظك</string>
+    <string name="stats_streak_title">سلسلة الاستيقاظ في الموعد</string>
+    <plurals name="stats_days">
+        <item quantity="zero">%d يوم</item>
+        <item quantity="one">يوم واحد</item>
+        <item quantity="two">يومان</item>
+        <item quantity="few">%d أيام</item>
+        <item quantity="many">%d يومًا</item>
+        <item quantity="other">%d يوم</item>
+    </plurals>
+    <plurals name="stats_streak_status">
+        <item quantity="zero">%d يوم متتالٍ</item>
+        <item quantity="one">يوم واحد متتالٍ</item>
+        <item quantity="two">يومان متتاليان</item>
+        <item quantity="few">%d أيام متتالية</item>
+        <item quantity="many">%d يومًا متتاليًا</item>
+        <item quantity="other">%d يوم متتالٍ</item>
+    </plurals>
+    <string name="stats_best">الأفضل: %s</string>
+    <string name="stats_week">آخر 7 أيام</string>
+    <string name="stats_on_time">في الموعد</string>
+    <string name="stats_late">متأخر أو غفوة</string>
+    <string name="stats_no_alarm">لا منبّه</string>
+    <string name="stats_month">آخر 30 يومًا</string>
+    <string name="stats_on_time_rate">في الموعد %1$d من %2$d يوم</string>
+    <plurals name="stats_snoozes">
+        <item quantity="zero">%d غفوة</item>
+        <item quantity="one">غفوة واحدة</item>
+        <item quantity="two">غفوتان</item>
+        <item quantity="few">%d غفوات</item>
+        <item quantity="many">%d غفوة</item>
+        <item quantity="other">%d غفوة</item>
+    </plurals>
+    <string name="stats_average">متوسط وقت إيقاف المنبّه: %s</string>
+    <string name="stats_empty">ستظهر مرات استيقاظك هنا بعد أول منبّه.</string>
+    <string name="stats_how">«في الموعد» يعني أنك أوقفت المنبّه دون غفوة ولم يضطر التحقق من الاستيقاظ إلى الرنين مجددًا.</string>
+    <string name="stats_private">يُحفظ على هذا الهاتف فقط.</string>
 </resources>
