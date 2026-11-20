@@ -23,6 +23,7 @@
     <string name="no_alarm_planned">Kein Wecker geplant</string>
     <string name="alarm_permission_needed">Wecker-Berechtigung erforderlich</string>
     <string name="alarm_ringing">Wecker klingelt</string>
+    <string name="ring_resumed">Ein Neustart des Handys stoppt den Wecker nicht. Schalte ihn auf diesem Bildschirm aus.</string>
     <string name="open_ringing_alarm">Klingelnden Wecker öffnen</string>
     <string name="alarm_switch_description">Wecker %s</string>
     <string name="alarm_date_passed">Das Weckdatum ist vorbei</string>

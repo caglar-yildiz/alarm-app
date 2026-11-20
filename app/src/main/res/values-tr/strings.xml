@@ -23,6 +23,7 @@
     <string name="no_alarm_planned">Alarm planlanmadı</string>
     <string name="alarm_permission_needed">Alarm izni gerekli</string>
     <string name="alarm_ringing">Alarm çalıyor</string>
+    <string name="ring_resumed">Telefonu yeniden başlatmak alarmı durdurmaz. Alarmı bu ekrandan kapat.</string>
     <string name="open_ringing_alarm">Çalan alarmı aç</string>
     <string name="alarm_switch_description">%s alarmı</string>
     <string name="alarm_date_passed">Alarm tarihi geçti</string>

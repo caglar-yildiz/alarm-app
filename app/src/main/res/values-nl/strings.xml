@@ -23,6 +23,7 @@
     <string name="no_alarm_planned">Geen wekker gepland</string>
     <string name="alarm_permission_needed">Wekkertoestemming vereist</string>
     <string name="alarm_ringing">Wekker gaat af</string>
+    <string name="ring_resumed">Je telefoon herstarten stopt de wekker niet. Zet hem uit via dit scherm.</string>
     <string name="open_ringing_alarm">Afgaande wekker openen</string>
     <string name="alarm_switch_description">Wekker van %s</string>
     <string name="alarm_date_passed">De wekkerdatum is verstreken</string>

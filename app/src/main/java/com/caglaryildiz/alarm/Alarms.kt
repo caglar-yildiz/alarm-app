@@ -132,6 +132,31 @@ internal class Alarms(private val context: Context) {
         }
     }
 
+    /**
+     * Rings [id] again shortly after the phone restarted (or the app updated) while it was ringing.
+     * Android 15 does not let a boot receiver start a media-playback foreground service, so the ring goes
+     * through an exact alarm a few seconds later, exactly like a normal alarm.
+     */
+    fun resumeRinging(id: String) {
+        val alarm = all().firstOrNull { it.id == id } ?: return
+        if (canSchedule()) {
+            val intent = Intent(context, AlarmReceiver::class.java).setAction(RESUME)
+                .setData(Uri.parse("uyan://resume/$id"))
+            val pending = PendingIntent.getBroadcast(context, 0, intent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+            val show = PendingIntent.getActivity(context, 0, Intent(context, MainActivity::class.java),
+                PendingIntent.FLAG_IMMUTABLE)
+            try {
+                manager.setAlarmClock(AlarmManager.AlarmClockInfo(System.currentTimeMillis() + RESUME_DELAY, show), pending)
+                return
+            } catch (_: SecurityException) {
+                // Exact alarm access was revoked in between; try ringing right away below.
+            }
+        }
+        // Works where the platform still allows it from a boot receiver (before Android 15).
+        runCatching { context.startForegroundService(alarm.ringIntent(context).putExtra(RingService.EXTRA_RESUMED, true)) }
+    }
+
     private fun operation(id: String, snooze: Boolean, at: Long = 0): PendingIntent {
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             action = if (snooze) SNOOZE else FIRE
@@ -163,6 +188,8 @@ internal class Alarms(private val context: Context) {
     companion object {
         const val FIRE = "com.caglaryildiz.alarm.FIRE"
         const val SNOOZE = "com.caglaryildiz.alarm.SNOOZE"
+        const val RESUME = "com.caglaryildiz.alarm.RESUME_RING"
+        private const val RESUME_DELAY = 3_000L
     }
 }
 
@@ -176,12 +203,24 @@ class AlarmReceiver : BroadcastReceiver() {
                     intent.getLongExtra("at", 0)) ?: return
                 context.startForegroundService(alarm.ringIntent(context))
             }
+            Alarms.RESUME -> {
+                val id = intent.data?.lastPathSegment ?: return
+                val alarm = alarms.all().firstOrNull { it.id == id } ?: return
+                // Re-check: the alarm may have been dismissed in a ring that started before this fired.
+                if (id !in RingRecord(context).interrupted()) return
+                context.startForegroundService(alarm.ringIntent(context).putExtra(RingService.EXTRA_RESUMED, true))
+            }
             Intent.ACTION_LOCKED_BOOT_COMPLETED, Intent.ACTION_BOOT_COMPLETED,
             Intent.ACTION_MY_PACKAGE_REPLACED, Intent.ACTION_TIME_CHANGED,
             Intent.ACTION_TIMEZONE_CHANGED,
             AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED -> {
                 alarms.syncAll()
                 WakeCheck(context).restore()
+                // Restarting the phone or updating the app must not be a way out of a ringing alarm.
+                if (intent.action == Intent.ACTION_LOCKED_BOOT_COMPLETED || intent.action == Intent.ACTION_BOOT_COMPLETED ||
+                    intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {
+                    RingRecord(context).interrupted().forEach(alarms::resumeRinging)
+                }
             }
         }
     }

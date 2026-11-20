@@ -23,6 +23,7 @@
     <string name="no_alarm_planned">ไม่มีการปลุกที่ตั้งไว้</string>
     <string name="alarm_permission_needed">ต้องการสิทธิ์การปลุก</string>
     <string name="alarm_ringing">นาฬิกาปลุกกำลังดัง</string>
+    <string name="ring_resumed">การรีสตาร์ทโทรศัพท์ไม่ได้หยุดนาฬิกาปลุก ปิดได้จากหน้าจอนี้</string>
     <string name="open_ringing_alarm">เปิดการปลุกที่กำลังดัง</string>
     <string name="alarm_switch_description">การปลุกเวลา %s</string>
     <string name="alarm_date_passed">วันที่ปลุกผ่านไปแล้ว</string>

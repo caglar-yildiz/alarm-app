@@ -23,6 +23,7 @@
     <string name="no_alarm_planned">Nessuna sveglia programmata</string>
     <string name="alarm_permission_needed">Serve l’autorizzazione sveglie</string>
     <string name="alarm_ringing">La sveglia sta suonando</string>
+    <string name="ring_resumed">Riavviare il telefono non ferma la sveglia. Spegnila da questa schermata.</string>
     <string name="open_ringing_alarm">Apri la sveglia che suona</string>
     <string name="alarm_switch_description">Sveglia delle %s</string>
     <string name="alarm_date_passed">La data della sveglia è passata</string>

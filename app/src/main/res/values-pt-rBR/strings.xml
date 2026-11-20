@@ -23,6 +23,7 @@
     <string name="no_alarm_planned">Nenhum alarme programado</string>
     <string name="alarm_permission_needed">Permissão de alarme necessária</string>
     <string name="alarm_ringing">Alarme tocando</string>
+    <string name="ring_resumed">Reiniciar o celular não para o alarme. Desligue-o por esta tela.</string>
     <string name="open_ringing_alarm">Abrir alarme tocando</string>
     <string name="alarm_switch_description">Alarme das %s</string>
     <string name="alarm_date_passed">A data do alarme já passou</string>

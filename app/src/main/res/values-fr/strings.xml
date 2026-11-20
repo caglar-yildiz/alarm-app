@@ -23,6 +23,7 @@
     <string name="no_alarm_planned">Aucune alarme programmée</string>
     <string name="alarm_permission_needed">Autorisation d’alarme requise</string>
     <string name="alarm_ringing">L’alarme sonne</string>
+    <string name="ring_resumed">Redémarrer le téléphone n’arrête pas l’alarme. Arrête-la depuis cet écran.</string>
     <string name="open_ringing_alarm">Ouvrir l’alarme en cours</string>
     <string name="alarm_switch_description">Alarme de %s</string>
     <string name="alarm_date_passed">La date de l’alarme est passée</string>

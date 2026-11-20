@@ -6,6 +6,8 @@ Alarm düzenleyicisinde alarm adı, saat, tek seferlik tarih veya haftalık tekr
 
 Alarm çalarken alarm ses seviyesi kısılamaz veya kapatılamaz: ses tuşları alarm ekranında yok sayılır, başka bir yoldan kısılırsa ses geri yükseltilir. Ses, en az azami seviyenin %60'ında çalar; alarm bittiğinde kullanıcının önceki ses seviyesi geri gelir.
 
+Alarm ekranından kaçılamaz: alarm çalarken ana ekrana, Ayarlar'a geçilir ya da ekran kapatılırsa `RingService` alarm ekranını her 5 saniyede bir geri getirir (kilitli veya kapalı ekranda tam ekran bildirimle açılır, açık telefonda Android arka plandan ekran açmaya izin vermediği için üstten bildirim olarak çıkar). Telefon yeniden başlatılır veya uygulama güncellenirse çalan alarm (`RingRecord`) birkaç saniye sonra yeniden çalar; ilk çalmadan 30 dakika sonra bu artık yapılmaz.
+
 ## Diller
 
 Uygulama 14 dil destekler. Diller, uygulama harcamasında öne çıkan pazarlara göre seçildi:

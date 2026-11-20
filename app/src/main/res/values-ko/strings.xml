@@ -23,6 +23,7 @@
     <string name="no_alarm_planned">예정된 알람 없음</string>
     <string name="alarm_permission_needed">알람 권한이 필요합니다</string>
     <string name="alarm_ringing">알람이 울리는 중</string>
+    <string name="ring_resumed">휴대폰을 다시 시작해도 알람은 멈추지 않습니다. 이 화면에서 끄세요.</string>
     <string name="open_ringing_alarm">울리는 알람 열기</string>
     <string name="alarm_switch_description">%s 알람</string>
     <string name="alarm_date_passed">알람 날짜가 지났습니다</string>

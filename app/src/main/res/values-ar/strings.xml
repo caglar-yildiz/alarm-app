@@ -23,6 +23,7 @@
     <string name="no_alarm_planned">لا يوجد منبّه مجدول</string>
     <string name="alarm_permission_needed">يلزم إذن المنبّه</string>
     <string name="alarm_ringing">المنبّه يرنّ</string>
+    <string name="ring_resumed">إعادة تشغيل الهاتف لا توقف المنبّه. أوقفه من هذه الشاشة.</string>
     <string name="open_ringing_alarm">فتح المنبّه الذي يرنّ</string>
     <string name="alarm_switch_description">منبّه %s</string>
     <string name="alarm_date_passed">انقضى تاريخ المنبّه</string>

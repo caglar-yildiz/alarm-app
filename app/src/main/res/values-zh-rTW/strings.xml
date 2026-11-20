@@ -23,6 +23,7 @@
     <string name="no_alarm_planned">尚未排定鬧鐘</string>
     <string name="alarm_permission_needed">需要鬧鐘權限</string>
     <string name="alarm_ringing">鬧鐘響了</string>
+    <string name="ring_resumed">重新啟動手機無法停止鬧鐘，請在這個畫面關閉。</string>
     <string name="open_ringing_alarm">開啟正在響的鬧鐘</string>
     <string name="alarm_switch_description">%s 的鬧鐘</string>
     <string name="alarm_date_passed">鬧鐘日期已過</string>

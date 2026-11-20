@@ -23,6 +23,7 @@
     <string name="no_alarm_planned">予定されたアラームはありません</string>
     <string name="alarm_permission_needed">アラームの許可が必要です</string>
     <string name="alarm_ringing">アラームが鳴っています</string>
+    <string name="ring_resumed">スマホを再起動してもアラームは止まりません。この画面で止めてください。</string>
     <string name="open_ringing_alarm">鳴っているアラームを開く</string>
     <string name="alarm_switch_description">%s のアラーム</string>
     <string name="alarm_date_passed">アラームの日付が過ぎています</string>

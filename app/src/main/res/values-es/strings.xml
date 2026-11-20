@@ -23,6 +23,7 @@
     <string name="no_alarm_planned">No hay alarmas programadas</string>
     <string name="alarm_permission_needed">Se necesita permiso de alarma</string>
     <string name="alarm_ringing">Alarma sonando</string>
+    <string name="ring_resumed">Reiniciar el teléfono no detiene la alarma. Apágala desde esta pantalla.</string>
     <string name="open_ringing_alarm">Abrir alarma que suena</string>
     <string name="alarm_switch_description">Alarma de las %s</string>
     <string name="alarm_date_passed">La fecha de la alarma ya pasó</string>

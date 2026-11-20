@@ -23,6 +23,7 @@
     <string name="no_alarm_planned">Tidak ada alarm terjadwal</string>
     <string name="alarm_permission_needed">Izin alarm diperlukan</string>
     <string name="alarm_ringing">Alarm berbunyi</string>
+    <string name="ring_resumed">Memulai ulang ponsel tidak menghentikan alarm. Matikan dari layar ini.</string>
     <string name="open_ringing_alarm">Buka alarm yang berbunyi</string>
     <string name="alarm_switch_description">Alarm %s</string>
     <string name="alarm_date_passed">Tanggal alarm sudah lewat</string>

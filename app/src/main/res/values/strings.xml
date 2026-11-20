@@ -24,6 +24,7 @@
     <string name="no_alarm_planned">No alarm scheduled</string>
     <string name="alarm_permission_needed">Alarm permission required</string>
     <string name="alarm_ringing">Alarm ringing</string>
+    <string name="ring_resumed">Restarting the phone doesn’t stop the alarm. Turn it off from this screen.</string>
     <string name="open_ringing_alarm">Open ringing alarm</string>
     <string name="alarm_switch_description">%s alarm</string>
     <string name="alarm_date_passed">The alarm date has passed</string>
