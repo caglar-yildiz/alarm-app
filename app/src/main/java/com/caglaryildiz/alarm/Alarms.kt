@@ -280,6 +280,7 @@ class AlarmReceiver : BroadcastReceiver() {
             AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED -> {
                 alarms.syncAll()
                 WakeCheck(context).restore()
+                Reminders(context).syncAll()
                 // Restarting the phone or updating the app must not be a way out of a ringing alarm.
                 if (intent.action == Intent.ACTION_LOCKED_BOOT_COMPLETED || intent.action == Intent.ACTION_BOOT_COMPLETED ||
                     intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) {

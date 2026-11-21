@@ -7,7 +7,7 @@ import android.os.ParcelFileDescriptor
 
 /**
  * Uses Android's Auto Backup for the files listed in the backup rules (fullBackupOnly), and once a
- * restore finishes, schedules the restored alarms right away, before the app is opened.
+ * restore finishes, schedules the restored alarms and reminders right away, before the app is opened.
  */
 class BengBackupAgent : BackupAgent() {
     override fun onBackup(oldState: ParcelFileDescriptor?, data: BackupDataOutput?, newState: ParcelFileDescriptor?) = Unit
@@ -17,5 +17,6 @@ class BengBackupAgent : BackupAgent() {
         super.onRestoreFinished()
         runCatching { Alarms(this).syncAll() }
         runCatching { WakeCheck(this).restore() }
+        runCatching { Reminders(this).syncAll() }
     }
 }

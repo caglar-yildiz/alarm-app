@@ -376,7 +376,8 @@ open class RingActivity : AlarmScreen() {
             finish()
             return
         }
-        if (action == RingService.DISMISS) dismissSent = true
+        // The morning briefing follows alarms, not reminders that ring.
+        if (action == RingService.DISMISS) dismissSent = !ring.id.startsWith(Reminders.REMINDER_PREFIX)
         startService(Intent(this, RingService::class.java).setAction(action).putExtra("token", ring.token))
     }
 }
