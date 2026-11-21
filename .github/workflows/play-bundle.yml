@@ -2,6 +2,11 @@ name: Build Play Store bundle
 
 on:
   workflow_dispatch:
+    inputs:
+      version_name:
+        description: 'Version name shown on Google Play (e.g. 1.2.0). Leave empty to keep the one in build.gradle.kts.'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -28,8 +33,27 @@ jobs:
         with:
           packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
 
+      - name: Pick the version
+        env:
+          VERSION_NAME_INPUT: ${{ inputs.version_name }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          set -euo pipefail
+          # Every run gets a new, higher versionCode, so an upload is never rejected as a duplicate.
+          # The offset keeps it above the codes that were set by hand before (up to 22).
+          version_code=$((100 + RUN_NUMBER))
+          if [ -n "$VERSION_NAME_INPUT" ] && ! printf '%s' "$VERSION_NAME_INPUT" | grep -Eq '^[0-9A-Za-z.+-]{1,40}$'; then
+            echo "::error::version_name may only contain letters, digits, '.', '+' and '-'"
+            exit 1
+          fi
+          echo "VERSION_CODE=$version_code" >> "$GITHUB_ENV"
+          echo "VERSION_NAME=$VERSION_NAME_INPUT" >> "$GITHUB_ENV"
+
       - name: Build release bundle
-        run: ./gradlew --no-daemon :app:testReleaseUnitTest :app:bundleRelease
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon -PversionCode="$VERSION_CODE" -PversionName="$VERSION_NAME" \
+            :app:testReleaseUnitTest :app:bundleRelease
 
       - name: Sign bundle with the Play upload key
         env:
@@ -54,9 +78,14 @@ jobs:
             app/build/outputs/bundle/release/app-release.aab "$PLAY_UPLOAD_KEY_ALIAS"
           jarsigner -verify BENG-play-release.aab
 
+      - name: Show the version
+        run: |
+          shown_name="${VERSION_NAME:-the one in build.gradle.kts}"
+          echo "### BENG bundle: versionCode $VERSION_CODE, versionName $shown_name" >> "$GITHUB_STEP_SUMMARY"
+
       - uses: actions/upload-artifact@v4
         with:
-          name: BENG-play-release
+          name: BENG-play-release-${{ env.VERSION_CODE }}
           path: BENG-play-release.aab
           if-no-files-found: error
           retention-days: 14
