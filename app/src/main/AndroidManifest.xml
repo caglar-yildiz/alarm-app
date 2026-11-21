@@ -26,6 +26,7 @@
         <activity android:name=".BriefingActivity" android:exported="false" android:excludeFromRecents="true" />
         <receiver android:name=".WakeCheckReceiver" android:exported="false" />
         <receiver android:name=".BedtimeReceiver" android:exported="false" />
+        <receiver android:name=".UpcomingAlarmReceiver" android:exported="false" />
         <receiver android:name=".QuickAlarmReceiver" android:exported="false" />
         <receiver android:name=".NextAlarmWidget" android:exported="true" android:label="@string/widget_name">
             <intent-filter>

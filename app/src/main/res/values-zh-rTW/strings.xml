@@ -420,12 +420,7 @@
     <string name="stats_empty">第一次鬧鐘響過後，你的起床紀錄會顯示在這裡。</string>
     <string name="stats_how">「準時」表示你沒有貪睡就關閉鬧鐘，而且清醒確認不必再次響鈴。</string>
     <string name="stats_private">只儲存在這支手機上。</string>
-    <string name="skip_next">略過下一次</string>
-    <string name="skip_next_description">略過 %s 的鬧鐘</string>
     <string name="skip_until">略過 %s</string>
-    <string name="skip_undo">復原</string>
-    <string name="vacation_button">假期模式：暫停重複鬧鐘</string>
-    <string name="vacation_pick">暫停至（含當天）</string>
     <string name="vacation_title">假期模式</string>
     <string name="vacation_active">重複鬧鐘已暫停至 %s（含當天）。單次鬧鐘仍會響。</string>
     <string name="vacation_end">結束假期模式</string>
@@ -490,4 +485,21 @@
     <string name="type_invalid_time">請輸入 0 到 23 的小時和 0 到 59 的分鐘。</string>
     <string name="type_invalid_date">沒有這個日期，請檢查日和月。</string>
     <string name="type_date_past">請選擇今天或之後的日期。</string>
+    <string name="alarm_more">%s 鬧鐘的更多選項</string>
+    <string name="skip_next_menu">略過下一次（%s）</string>
+    <string name="skip_undo_menu">不要略過</string>
+    <string name="skip_tag_description">%s。輕觸即可復原。</string>
+    <string name="upcoming_channel">即將響起的鬧鐘</string>
+    <string name="upcoming_title">即將響起的鬧鐘：%s</string>
+    <string name="upcoming_text">這次不需要嗎？略過吧。</string>
+    <string name="upcoming_skip">這次略過</string>
+    <string name="vacation_desc">暫停重複鬧鐘</string>
+    <string name="vacation_headline">休假時睡個飽</string>
+    <string name="vacation_description">從你選的第一天到最後一天，重複鬧鐘都不會響，之後會自動恢復。單次鬧鐘仍會響。</string>
+    <string name="vacation_scheduled">重複鬧鐘將從 %1$s 暫停到 %2$s（含當天）。單次鬧鐘仍會響。</string>
+    <string name="vacation_chip_active">休假到 %s</string>
+    <string name="vacation_chip_scheduled">%s 開始休假</string>
+    <string name="vacation_start_value">第一天：%s</string>
+    <string name="vacation_end_value">最後一天：%s</string>
+    <string name="vacation_turn_on">開啟假期模式</string>
 </resources>

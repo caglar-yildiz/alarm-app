@@ -440,12 +440,7 @@
     <string name="stats_empty">I tuoi risvegli appariranno qui dopo la prima sveglia.</string>
     <string name="stats_how">«Puntuale» significa che hai spento la sveglia senza posticiparla e il controllo risveglio non ha dovuto suonare di nuovo.</string>
     <string name="stats_private">Salvato solo su questo telefono.</string>
-    <string name="skip_next">Salta la prossima</string>
-    <string name="skip_next_description">Salta la sveglia del %s</string>
     <string name="skip_until">%s saltata</string>
-    <string name="skip_undo">Annulla</string>
-    <string name="vacation_button">Modalità vacanza: metti in pausa le sveglie ripetute</string>
-    <string name="vacation_pick">Pausa fino al (incluso)</string>
     <string name="vacation_title">Modalità vacanza</string>
     <string name="vacation_active">Le sveglie ripetute sono in pausa fino al %s incluso. Le sveglie singole suonano comunque.</string>
     <string name="vacation_end">Termina la modalità vacanza</string>
@@ -510,4 +505,21 @@
     <string name="type_invalid_time">Inserisci un’ora da 0 a 23 e minuti da 0 a 59.</string>
     <string name="type_invalid_date">Questa data non esiste. Controlla giorno e mese.</string>
     <string name="type_date_past">Scegli oggi o una data successiva.</string>
+    <string name="alarm_more">Altre opzioni per la sveglia delle %s</string>
+    <string name="skip_next_menu">Salta la prossima (%s)</string>
+    <string name="skip_undo_menu">Non saltare</string>
+    <string name="skip_tag_description">%s. Tocca per annullare.</string>
+    <string name="upcoming_channel">Sveglie in arrivo</string>
+    <string name="upcoming_title">Sveglia in arrivo: %s</string>
+    <string name="upcoming_text">Non ti serve questa volta? Saltala.</string>
+    <string name="upcoming_skip">Salta questa volta</string>
+    <string name="vacation_desc">Metti in pausa le sveglie ripetute</string>
+    <string name="vacation_headline">Dormi di più nei giorni liberi</string>
+    <string name="vacation_description">Le sveglie ripetute restano in silenzio dal primo all’ultimo giorno scelto e poi ripartono da sole. Le sveglie singole suonano comunque.</string>
+    <string name="vacation_scheduled">Le sveglie ripetute saranno in pausa dal %1$s al %2$s inclusi. Le sveglie singole suonano comunque.</string>
+    <string name="vacation_chip_active">In vacanza fino al %s</string>
+    <string name="vacation_chip_scheduled">Vacanza dal %s</string>
+    <string name="vacation_start_value">Primo giorno: %s</string>
+    <string name="vacation_end_value">Ultimo giorno: %s</string>
+    <string name="vacation_turn_on">Attiva la modalità vacanza</string>
 </resources>

@@ -470,12 +470,7 @@
     <string name="stats_empty">ستظهر مرات استيقاظك هنا بعد أول منبّه.</string>
     <string name="stats_how">«في الموعد» يعني أنك أوقفت المنبّه دون غفوة ولم يضطر التحقق من الاستيقاظ إلى الرنين مجددًا.</string>
     <string name="stats_private">يُحفظ على هذا الهاتف فقط.</string>
-    <string name="skip_next">تخطي التالي</string>
-    <string name="skip_next_description">تخطي منبّه %s</string>
     <string name="skip_until">سيتم تخطي %s</string>
-    <string name="skip_undo">تراجع</string>
-    <string name="vacation_button">وضع العطلة: إيقاف المنبّهات المتكررة مؤقتًا</string>
-    <string name="vacation_pick">إيقاف حتى (يشمل)</string>
     <string name="vacation_title">وضع العطلة</string>
     <string name="vacation_active">المنبّهات المتكررة متوقفة حتى %s. المنبّهات لمرة واحدة ما زالت ترن.</string>
     <string name="vacation_end">إنهاء وضع العطلة</string>
@@ -540,4 +535,21 @@
     <string name="type_invalid_time">أدخل ساعة من 0 إلى 23 ودقائق من 0 إلى 59.</string>
     <string name="type_invalid_date">هذا التاريخ غير موجود. تحقّق من اليوم والشهر.</string>
     <string name="type_date_past">اختر اليوم أو تاريخًا لاحقًا.</string>
+    <string name="alarm_more">خيارات أخرى لمنبّه %s</string>
+    <string name="skip_next_menu">تخطي التالي (%s)</string>
+    <string name="skip_undo_menu">لا تتخطَّ</string>
+    <string name="skip_tag_description">%s. انقر للتراجع.</string>
+    <string name="upcoming_channel">المنبّهات القادمة</string>
+    <string name="upcoming_title">منبّه قادم: %s</string>
+    <string name="upcoming_text">لا تحتاجه هذه المرة؟ تخطَّه.</string>
+    <string name="upcoming_skip">تخطَّ هذه المرة</string>
+    <string name="vacation_desc">إيقاف المنبّهات المتكررة مؤقتًا</string>
+    <string name="vacation_headline">نَم أكثر في أيام إجازتك</string>
+    <string name="vacation_description">تبقى المنبّهات المتكررة صامتة من أول يوم تختاره حتى آخر يوم، ثم تعود تلقائيًا. المنبّهات لمرة واحدة ما زالت ترن.</string>
+    <string name="vacation_scheduled">ستتوقف المنبّهات المتكررة من %1$s حتى %2$s. المنبّهات لمرة واحدة ما زالت ترن.</string>
+    <string name="vacation_chip_active">في عطلة حتى %s</string>
+    <string name="vacation_chip_scheduled">تبدأ العطلة %s</string>
+    <string name="vacation_start_value">اليوم الأول: %s</string>
+    <string name="vacation_end_value">اليوم الأخير: %s</string>
+    <string name="vacation_turn_on">تفعيل وضع العطلة</string>
 </resources>

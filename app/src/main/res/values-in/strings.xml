@@ -420,12 +420,7 @@
     <string name="stats_empty">Catatan bangunmu muncul di sini setelah alarm pertama.</string>
     <string name="stats_how">“Tepat waktu” berarti kamu mematikan alarm tanpa menunda, dan cek bangun tidak perlu berbunyi lagi.</string>
     <string name="stats_private">Hanya disimpan di ponsel ini.</string>
-    <string name="skip_next">Lewati berikutnya</string>
-    <string name="skip_next_description">Lewati alarm pada %s</string>
     <string name="skip_until">%s dilewati</string>
-    <string name="skip_undo">Urungkan</string>
-    <string name="vacation_button">Mode liburan: jeda alarm berulang</string>
-    <string name="vacation_pick">Jeda sampai (termasuk)</string>
     <string name="vacation_title">Mode liburan</string>
     <string name="vacation_active">Alarm berulang dijeda sampai %s. Alarm sekali tetap berbunyi.</string>
     <string name="vacation_end">Akhiri mode liburan</string>
@@ -490,4 +485,21 @@
     <string name="type_invalid_time">Masukkan jam 0–23 dan menit 0–59.</string>
     <string name="type_invalid_date">Tanggal itu tidak ada. Periksa hari dan bulannya.</string>
     <string name="type_date_past">Pilih hari ini atau tanggal setelahnya.</string>
+    <string name="alarm_more">Opsi lain untuk alarm %s</string>
+    <string name="skip_next_menu">Lewati berikutnya (%s)</string>
+    <string name="skip_undo_menu">Jangan lewati</string>
+    <string name="skip_tag_description">%s. Ketuk untuk mengurungkan.</string>
+    <string name="upcoming_channel">Alarm mendatang</string>
+    <string name="upcoming_title">Alarm mendatang: %s</string>
+    <string name="upcoming_text">Tidak perlu kali ini? Lewati saja.</string>
+    <string name="upcoming_skip">Lewati kali ini</string>
+    <string name="vacation_desc">Jeda alarm berulang</string>
+    <string name="vacation_headline">Tidur lebih lama saat libur</string>
+    <string name="vacation_description">Alarm berulang tidak berbunyi dari hari pertama sampai terakhir yang kamu pilih, lalu aktif lagi dengan sendirinya. Alarm sekali tetap berbunyi.</string>
+    <string name="vacation_scheduled">Alarm berulang dijeda dari %1$s sampai %2$s. Alarm sekali tetap berbunyi.</string>
+    <string name="vacation_chip_active">Liburan sampai %s</string>
+    <string name="vacation_chip_scheduled">Liburan mulai %s</string>
+    <string name="vacation_start_value">Hari pertama: %s</string>
+    <string name="vacation_end_value">Hari terakhir: %s</string>
+    <string name="vacation_turn_on">Aktifkan mode liburan</string>
 </resources>

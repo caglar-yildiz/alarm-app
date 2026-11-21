@@ -420,12 +420,7 @@
     <string name="stats_empty">첫 알람이 울린 뒤 여기에 기상 기록이 표시됩니다.</string>
     <string name="stats_how">‘제시간’은 다시 알림 없이 알람을 끄고 기상 확인 알람이 다시 울리지 않았다는 뜻입니다.</string>
     <string name="stats_private">이 휴대폰에만 저장됩니다.</string>
-    <string name="skip_next">다음 알람 건너뛰기</string>
-    <string name="skip_next_description">%s 알람 건너뛰기</string>
     <string name="skip_until">%s 건너뜀</string>
-    <string name="skip_undo">실행 취소</string>
-    <string name="vacation_button">휴가 모드: 반복 알람 일시 중지</string>
-    <string name="vacation_pick">일시 중지 마지막 날</string>
     <string name="vacation_title">휴가 모드</string>
     <string name="vacation_active">반복 알람이 %s까지 일시 중지됩니다. 1회 알람은 그대로 울립니다.</string>
     <string name="vacation_end">휴가 모드 끝내기</string>
@@ -490,4 +485,21 @@
     <string name="type_invalid_time">시는 0~23, 분은 0~59로 입력하세요.</string>
     <string name="type_invalid_date">없는 날짜입니다. 일과 월을 확인하세요.</string>
     <string name="type_date_past">오늘 이후 날짜를 선택하세요.</string>
+    <string name="alarm_more">%s 알람 추가 옵션</string>
+    <string name="skip_next_menu">다음 알람 건너뛰기 (%s)</string>
+    <string name="skip_undo_menu">건너뛰지 않기</string>
+    <string name="skip_tag_description">%s. 탭하여 실행 취소.</string>
+    <string name="upcoming_channel">다가오는 알람</string>
+    <string name="upcoming_title">다가오는 알람: %s</string>
+    <string name="upcoming_text">이번엔 필요 없나요? 건너뛰세요.</string>
+    <string name="upcoming_skip">이번만 건너뛰기</string>
+    <string name="vacation_desc">반복 알람 일시 중지</string>
+    <string name="vacation_headline">쉬는 날엔 늦잠 자세요</string>
+    <string name="vacation_description">선택한 첫날부터 마지막 날까지 반복 알람이 울리지 않고, 이후 자동으로 다시 시작됩니다. 1회 알람은 그대로 울립니다.</string>
+    <string name="vacation_scheduled">반복 알람이 %1$s부터 %2$s까지 일시 중지됩니다. 1회 알람은 그대로 울립니다.</string>
+    <string name="vacation_chip_active">%s까지 휴가 중</string>
+    <string name="vacation_chip_scheduled">%s부터 휴가</string>
+    <string name="vacation_start_value">첫날: %s</string>
+    <string name="vacation_end_value">마지막 날: %s</string>
+    <string name="vacation_turn_on">휴가 모드 켜기</string>
 </resources>

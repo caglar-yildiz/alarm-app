@@ -431,12 +431,7 @@
     <string name="stats_empty">Your wake-ups appear here after your first alarm.</string>
     <string name="stats_how">“On time” means you turned the alarm off without snoozing, and wake check didn’t have to ring again.</string>
     <string name="stats_private">Kept only on this phone.</string>
-    <string name="skip_next">Skip next</string>
-    <string name="skip_next_description">Skip the alarm on %s</string>
     <string name="skip_until">Skipping %s</string>
-    <string name="skip_undo">Undo</string>
-    <string name="vacation_button">Vacation mode: pause repeating alarms</string>
-    <string name="vacation_pick">Pause until (including)</string>
     <string name="vacation_title">Vacation mode</string>
     <string name="vacation_active">Repeating alarms are paused through %s. One-time alarms still ring.</string>
     <string name="vacation_end">End vacation mode</string>
@@ -501,4 +496,21 @@
     <string name="type_invalid_time">Enter an hour from 0 to 23 and minutes from 0 to 59.</string>
     <string name="type_invalid_date">That date doesn’t exist. Check the day and month.</string>
     <string name="type_date_past">Pick today or a later date.</string>
+    <string name="alarm_more">More options for the %s alarm</string>
+    <string name="skip_next_menu">Skip next (%s)</string>
+    <string name="skip_undo_menu">Don’t skip</string>
+    <string name="skip_tag_description">%s. Tap to undo.</string>
+    <string name="upcoming_channel">Upcoming alarms</string>
+    <string name="upcoming_title">Upcoming alarm: %s</string>
+    <string name="upcoming_text">Don’t need it this time? Skip it.</string>
+    <string name="upcoming_skip">Skip this time</string>
+    <string name="vacation_desc">Pause repeating alarms</string>
+    <string name="vacation_headline">Sleep in on your days off</string>
+    <string name="vacation_description">Repeating alarms stay quiet from the first to the last day you pick, and start again by themselves afterwards. One-time alarms still ring.</string>
+    <string name="vacation_scheduled">Repeating alarms pause from %1$s through %2$s. One-time alarms still ring.</string>
+    <string name="vacation_chip_active">On vacation until %s</string>
+    <string name="vacation_chip_scheduled">Vacation starts %s</string>
+    <string name="vacation_start_value">First day: %s</string>
+    <string name="vacation_end_value">Last day: %s</string>
+    <string name="vacation_turn_on">Turn on vacation mode</string>
 </resources>

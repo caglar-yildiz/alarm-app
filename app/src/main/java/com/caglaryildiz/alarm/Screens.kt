@@ -423,6 +423,7 @@ class MainActivity : ReminderScreen() {
         BRIEFING(R.string.briefing_title, R.drawable.ic_briefing),
         STATS(R.string.tool_stats, R.drawable.ic_stats),
         BEDTIME(R.string.bedtime_title, R.drawable.ic_bedtime),
+        VACATION(R.string.vacation_title, R.drawable.ic_vacation),
         LANGUAGE(R.string.tool_language, R.drawable.ic_language)
     }
 
@@ -560,6 +561,7 @@ class MainActivity : ReminderScreen() {
             Tool.STATS -> showStats()
             Tool.BRIEFING -> showBriefingSettings()
             Tool.BEDTIME -> showBedtime()
+            Tool.VACATION -> showVacationTool()
         }
     }
 
@@ -602,6 +604,7 @@ class MainActivity : ReminderScreen() {
             Tool.STATS -> 0xFF4FB28A.toInt() to 0xFF2B4C86.toInt()
             Tool.BRIEFING -> 0xFFE8B54A.toInt() to 0xFFB0577A.toInt()
             Tool.BEDTIME -> 0xFF5B4BC4.toInt() to 0xFF1E2A5E.toInt()
+            Tool.VACATION -> 0xFF3AA6A0.toInt() to 0xFF2B4C86.toInt()
             Tool.LANGUAGE -> 0xFF3AA6A0.toInt() to 0xFF2B4C86.toInt()
         }
         iconBadge(entry.icon, content, 60, from, to)
@@ -651,6 +654,13 @@ class MainActivity : ReminderScreen() {
             else resources.getQuantityString(R.plurals.stats_streak_status, it.streak, it.streak)
         }
         Tool.BRIEFING -> getString(if (MorningBriefing(this).enabled) R.string.briefing_status_on else R.string.briefing_desc)
+        Tool.VACATION -> alarms.vacation.let { vacation ->
+            when {
+                vacation == null -> getString(R.string.vacation_desc)
+                vacation.started() -> getString(R.string.vacation_chip_active, vacation.until.format(dateFormat()))
+                else -> getString(R.string.vacation_chip_scheduled, vacation.from.format(dateFormat()))
+            }
+        }
         Tool.BEDTIME -> Bedtime(this).let { bedtime ->
             if (!bedtime.enabled) getString(R.string.bedtime_desc)
             else getString(R.string.bedtime_status_on, sleepDuration(this, bedtime.goal))
@@ -696,6 +706,67 @@ class MainActivity : ReminderScreen() {
         button(getString(R.string.briefing_preview), settings, primary = false) {
             startActivity(Intent(this, BriefingActivity::class.java))
         }
+    }
+
+    private var vacationFrom: java.time.LocalDate? = null
+    private var vacationUntil: java.time.LocalDate? = null
+
+    /** Vacation mode settings: first and last day, then turn it on. While on, it can be ended early. */
+    private fun showVacationTool() {
+        val today = java.time.LocalDate.now()
+        val current = alarms.vacation
+        val hero = card()
+        val top = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+        hero.addView(top, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(4) })
+        iconBadge(R.drawable.ic_vacation, top, 60, 0xFF3AA6A0.toInt(), 0xFF2B4C86.toInt())
+        label(getString(R.string.vacation_headline), 19f, top, bold = true).layoutParams =
+            LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = dp(14) }
+        label(getString(R.string.vacation_description), 15f, hero, color = mutedColor).setPadding(0, dp(12), 0, dp(4))
+
+        val settings = card()
+        if (current != null) {
+            val text = if (current.started()) getString(R.string.vacation_active, current.until.format(dateFormat()))
+                else getString(R.string.vacation_scheduled, current.from.format(dateFormat()), current.until.format(dateFormat()))
+            label(text, 15f, settings)
+            button(getString(R.string.vacation_end), settings) {
+                alarms.endVacation()
+                render()
+            }
+            return
+        }
+        val from = (vacationFrom ?: today).coerceAtLeast(today)
+        val until = (vacationUntil ?: from.plusDays(6)).coerceAtLeast(from)
+        button(getString(R.string.vacation_start_value, from.format(dateFormat())), settings, primary = false) {
+            pickVacationDate(from, today) { picked ->
+                vacationFrom = picked
+                if ((vacationUntil ?: picked) < picked) vacationUntil = picked
+                render()
+            }
+        }
+        button(getString(R.string.vacation_end_value, until.format(dateFormat())), settings, primary = false) {
+            pickVacationDate(until, from) { picked ->
+                vacationUntil = picked
+                render()
+            }
+        }
+        button(getString(R.string.vacation_turn_on), settings) {
+            alarms.setVacation(from, until)
+            vacationFrom = null
+            vacationUntil = null
+            render()
+        }
+    }
+
+    /** Calendar with a "Type a date" button; [earliest] is the first day that can be picked. */
+    private fun pickVacationDate(initial: java.time.LocalDate, earliest: java.time.LocalDate, picked: (java.time.LocalDate) -> Unit) {
+        android.app.DatePickerDialog(this, R.style.AstralDialogTheme, { _, year, month, day ->
+            picked(java.time.LocalDate.of(year, month + 1, day))
+        }, initial.year, initial.monthValue - 1, initial.dayOfMonth).apply {
+            datePicker.minDate = earliest.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+            setButton(android.app.AlertDialog.BUTTON_NEUTRAL, getString(R.string.type_date)) { _, _ ->
+                typeDate(initial, earliest, picked)
+            }
+        }.show()
     }
 
     private fun showBedtime() {
@@ -1144,7 +1215,6 @@ class MainActivity : ReminderScreen() {
         }
         showWakeConfirmations()
         val all = alarms.all().sortedBy { it.time }
-        showVacation()
         showNextAlarm(all)
         button(getString(R.string.add_alarm)) { openEditor(null) }
         showMissingPermissions()
@@ -1155,45 +1225,6 @@ class MainActivity : ReminderScreen() {
         }
         if (all.isEmpty()) label(getString(R.string.no_alarms), parent = card(), color = mutedColor)
         all.forEach(::showAlarm)
-        if (alarms.pausedUntil == null && all.any { it.enabled && it.days.isNotEmpty() }) {
-            button(getString(R.string.vacation_button), primary = false, action = ::pickVacationEnd)
-        }
-    }
-
-    /** Vacation mode banner: repeating alarms are paused until a date. */
-    private fun showVacation() {
-        val until = alarms.pausedUntil ?: return
-        val box = card().apply { background = glass(0xEE2A5A6B.toInt(), 0xEE2A3A5E.toInt(), 20) }
-        val top = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
-        box.addView(top)
-        iconBadge(R.drawable.ic_vacation, top, 40, 0xFF3AA6A0.toInt(), 0xFF2B4C86.toInt())
-        label(getString(R.string.vacation_title), 18f, top, bold = true).apply {
-            accessibilityHeading()
-            layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = dp(12) }
-        }
-        label(getString(R.string.vacation_active, until.format(dateFormat())), 14f, box, color = 0xFFE0F2F1.toInt())
-        button(getString(R.string.vacation_end), box, primary = false) {
-            alarms.pausedUntil = null
-            render()
-        }
-    }
-
-    private fun pickVacationEnd() {
-        val today = java.time.LocalDate.now()
-        val suggested = today.plusDays(7)
-        android.app.DatePickerDialog(this, R.style.AstralDialogTheme, { _, year, month, day ->
-            alarms.pausedUntil = java.time.LocalDate.of(year, month + 1, day)
-            render()
-        }, suggested.year, suggested.monthValue - 1, suggested.dayOfMonth).apply {
-            setTitle(getString(R.string.vacation_pick))
-            datePicker.minDate = today.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
-            setButton(android.app.AlertDialog.BUTTON_NEUTRAL, getString(R.string.type_date)) { _, _ ->
-                typeDate(suggested, today) {
-                    alarms.pausedUntil = it
-                    render()
-                }
-            }
-        }.show()
     }
 
     private fun showNextAlarm(all: List<Alarm>) {
@@ -1248,6 +1279,29 @@ class MainActivity : ReminderScreen() {
             }, null, null, null)
         chip.compoundDrawablePadding = dp(6)
         chipRow.contentDescription = chip.text
+        showVacationChip(hero)
+    }
+
+    /** While vacation mode is set, a chip on the next-alarm card says so: forgetting it means oversleeping. */
+    private fun showVacationChip(hero: LinearLayout) {
+        val vacation = alarms.vacation ?: return
+        val row = LinearLayout(this).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            isClickable = true
+            isFocusable = true
+            minimumHeight = dp(40)
+            setOnClickListener { openTool(Tool.VACATION) }
+        }
+        hero.addView(row, LinearLayout.LayoutParams(-1, -2))
+        val text = if (vacation.started()) getString(R.string.vacation_chip_active, vacation.until.format(dateFormat()))
+            else getString(R.string.vacation_chip_scheduled, vacation.from.format(dateFormat()))
+        val chip = pill(text, row, 0xFFB8F0EA.toInt(), 0x403AA6A0, 0x883AA6A0.toInt())
+        chip.setCompoundDrawablesRelativeWithIntrinsicBounds(getDrawable(R.drawable.ic_vacation)?.mutate()?.apply {
+            setTint(chip.currentTextColor)
+            setBounds(0, 0, dp(16), dp(16))
+        }, null, null, null)
+        chip.compoundDrawablePadding = dp(6)
+        row.contentDescription = text
     }
 
     private fun showMissingPermissions() {
@@ -1370,6 +1424,17 @@ class MainActivity : ReminderScreen() {
                 }
             }
         })
+        row.addView(android.widget.ImageView(this).apply {
+            setImageResource(R.drawable.ic_more)
+            setColorFilter(mutedColor)
+            scaleType = android.widget.ImageView.ScaleType.CENTER
+            background = RippleDrawable(ColorStateList.valueOf(0x35FFFFFF), null,
+                GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(Color.WHITE) })
+            contentDescription = getString(R.string.alarm_more, time)
+            isClickable = true
+            isFocusable = true
+            setOnClickListener { showAlarmMenu(alarm, time) }
+        }, LinearLayout.LayoutParams(dp(40), dp(48)))
         val tags = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         alarmCard.addView(tags)
         addAlarmTag(tags, repeat, description = alarm.days.takeIf { it.isNotEmpty() }
@@ -1385,27 +1450,54 @@ class MainActivity : ReminderScreen() {
         }
     }
 
-    /** "Skip next" for repeating alarms, or the skipped date with an undo. */
+    /** A skipped occurrence shows as a small tag on the card; tapping it brings the occurrence back. */
     private fun showSkip(alarm: Alarm, parent: LinearLayout) {
-        if (!alarm.enabled || alarm.days.isEmpty()) return
-        val today = java.time.LocalDate.now()
-        val skipped = alarm.skipDate?.takeIf { !it.isBefore(today) }
+        val skipped = skippedDate(alarm) ?: return
         val row = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
-        parent.addView(row, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(6) })
-        if (skipped != null) {
-            addAlarmTag(row, getString(R.string.skip_until, skipped.format(dateFormat())))
-            actionTag(row, getString(R.string.skip_undo)) {
-                alarms.save(alarm.copy(skipDate = null))
-                render()
+        parent.addView(row, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(4) })
+        val text = getString(R.string.skip_until, skipped.format(dateFormat()))
+        actionTag(row, text) {
+            alarms.save(alarm.copy(skipDate = null))
+            render()
+        }.contentDescription = getString(R.string.skip_tag_description, text)
+    }
+
+    private fun skippedDate(alarm: Alarm) =
+        alarm.skipDate?.takeIf { alarm.enabled && alarm.days.isNotEmpty() && !it.isBefore(java.time.LocalDate.now()) }
+
+    /** The ⋮ menu of an alarm card: skip or un-skip the next ring of a repeating alarm, or delete it. */
+    private fun showAlarmMenu(alarm: Alarm, time: String) {
+        val actions = mutableListOf<Pair<String, () -> Unit>>()
+        if (alarm.enabled && alarm.days.isNotEmpty()) {
+            if (skippedDate(alarm) != null) {
+                actions += getString(R.string.skip_undo_menu) to {
+                    alarms.save(alarm.copy(skipDate = null))
+                    render()
+                }
+            } else {
+                alarms.next(alarm)?.let { next ->
+                    val date = Instant.ofEpochMilli(next).atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+                    actions += getString(R.string.skip_next_menu, date.format(dateFormat())) to {
+                        alarms.save(alarm.copy(skipDate = date))
+                        render()
+                    }
+                }
             }
-        } else {
-            val next = alarms.next(alarm) ?: return
-            val date = Instant.ofEpochMilli(next).atZone(java.time.ZoneId.systemDefault()).toLocalDate()
-            actionTag(row, getString(R.string.skip_next)) {
-                alarms.save(alarm.copy(skipDate = date))
-                render()
-            }.contentDescription = getString(R.string.skip_next_description, date.format(dateFormat()))
         }
+        actions += getString(R.string.editor_delete) to {
+            android.app.AlertDialog.Builder(this, R.style.AstralDialogTheme)
+                .setTitle(getString(R.string.editor_delete_confirm))
+                .setNegativeButton(getString(R.string.cancel), null)
+                .setPositiveButton(getString(R.string.delete)) { _, _ ->
+                    alarms.delete(alarm)
+                    render()
+                }.show()
+        }
+        android.app.AlertDialog.Builder(this, R.style.AstralDialogTheme)
+            .setTitle(if (alarm.label.isBlank()) time else "$time · ${alarm.label}")
+            .setItems(actions.map { it.first }.toTypedArray()) { _, index -> actions[index].second() }
+            .setNegativeButton(getString(R.string.cancel), null)
+            .show()
     }
 
     /** A tappable tag, styled like the alarm tags but in the accent color. */

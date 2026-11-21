@@ -440,12 +440,7 @@
     <string name="stats_empty">Tes réveils apparaîtront ici après ta première alarme.</string>
     <string name="stats_how">« À l’heure » signifie que tu as arrêté l’alarme sans la répéter et que le contrôle d’éveil n’a pas dû sonner à nouveau.</string>
     <string name="stats_private">Conservé uniquement sur ce téléphone.</string>
-    <string name="skip_next">Sauter la prochaine</string>
-    <string name="skip_next_description">Sauter l’alarme du %s</string>
     <string name="skip_until">%s sautée</string>
-    <string name="skip_undo">Annuler</string>
-    <string name="vacation_button">Mode vacances : mettre en pause les alarmes répétées</string>
-    <string name="vacation_pick">Pause jusqu’au (inclus)</string>
     <string name="vacation_title">Mode vacances</string>
     <string name="vacation_active">Les alarmes répétées sont en pause jusqu’au %s inclus. Les alarmes uniques sonnent toujours.</string>
     <string name="vacation_end">Quitter le mode vacances</string>
@@ -510,4 +505,21 @@
     <string name="type_invalid_time">Saisis une heure de 0 à 23 et des minutes de 0 à 59.</string>
     <string name="type_invalid_date">Cette date n’existe pas. Vérifie le jour et le mois.</string>
     <string name="type_date_past">Choisis aujourd’hui ou une date ultérieure.</string>
+    <string name="alarm_more">Plus d’options pour l’alarme de %s</string>
+    <string name="skip_next_menu">Sauter la prochaine (%s)</string>
+    <string name="skip_undo_menu">Ne pas sauter</string>
+    <string name="skip_tag_description">%s. Touche pour annuler.</string>
+    <string name="upcoming_channel">Alarmes à venir</string>
+    <string name="upcoming_title">Alarme à venir : %s</string>
+    <string name="upcoming_text">Pas besoin cette fois ? Saute-la.</string>
+    <string name="upcoming_skip">Sauter cette fois</string>
+    <string name="vacation_desc">Mettre en pause les alarmes répétées</string>
+    <string name="vacation_headline">Fais la grasse matinée pendant tes congés</string>
+    <string name="vacation_description">Les alarmes répétées restent silencieuses du premier au dernier jour choisis, puis reprennent d’elles-mêmes. Les alarmes uniques sonnent toujours.</string>
+    <string name="vacation_scheduled">Les alarmes répétées seront en pause du %1$s au %2$s inclus. Les alarmes uniques sonnent toujours.</string>
+    <string name="vacation_chip_active">En vacances jusqu’au %s</string>
+    <string name="vacation_chip_scheduled">Vacances à partir du %s</string>
+    <string name="vacation_start_value">Premier jour : %s</string>
+    <string name="vacation_end_value">Dernier jour : %s</string>
+    <string name="vacation_turn_on">Activer le mode vacances</string>
 </resources>
