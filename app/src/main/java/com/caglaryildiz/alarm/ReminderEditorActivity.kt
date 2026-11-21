@@ -149,6 +149,13 @@ class ReminderEditorActivity : AlarmScreen() {
             update()
         }, date.year, date.monthValue - 1, date.dayOfMonth).apply {
             datePicker.minDate = today.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+            setButton(AlertDialog.BUTTON_NEUTRAL, getString(R.string.type_date)) { _, _ ->
+                typeDate(date.coerceAtLeast(today), today) { typed ->
+                    date = typed
+                    if (repeat == ReminderRepeat.WEEKLY && days.isEmpty()) days = setOf(typed.dayOfWeek.value)
+                    update()
+                }
+            }
         }.show()
     }
 

@@ -24,6 +24,7 @@ DISMISS MISSIONS
 • Premium: find four shapes in order on a 4 × 4 grid
 • Premium: scan a QR code, for example one stuck in the bathroom
 • Premium: shake your phone until the alarm gives up
+• Premium: walk a set number of steps. You can’t do that lying in bed
 
 WAKE CHECK (Premium)
 After you dismiss an alarm, BENG asks whether you are awake. No answer within 60 seconds? The alarm rings again.
@@ -33,6 +34,10 @@ Soothing nature sounds plus 5 extra-loud tones for heavy sleepers.
 
 TOOLS
 • Stopwatch and multiple timers
+• Morning briefing after the alarm: time, weather and your on-time streak (read aloud with Premium)
+• Wake-up statistics and a bedtime reminder
+• Skip the next alarm, or pause alarms during a vacation
+• Home-screen widget with one-tap naps
 • Weather for the place you choose (data from MET Norway)
 • 14 languages
 
@@ -62,6 +67,7 @@ KAPATMA GÖREVLERİ
 • Premium: 4 × 4 ızgarada dört şekli sırayla bul
 • Premium: örneğin banyoya yapıştırdığın bir QR kodu okut
 • Premium: alarm pes edene kadar telefonu salla
+• Premium: belirli sayıda adım at. Yatakta yatarak yapamazsın
 
 UYANIKLIK KONTROLÜ (Premium)
 Alarmı kapattıktan sonra BENG uyanık olup olmadığını sorar. 60 saniye içinde onaylamazsan alarm yeniden çalar.
@@ -71,6 +77,10 @@ Rahatlatıcı doğa sesleri ve derin uyuyanlar için 5 ekstra yüksek ton.
 
 ARAÇLAR
 • Kronometre ve birden fazla zamanlayıcı
+• Alarmdan sonra sabah özeti: saat, hava durumu ve zamanında kalkma serin (Premium ile sesli)
+• Uyanma istatistikleri ve yatma vakti hatırlatıcısı
+• Sonraki alarmı atla veya tatilde alarmları duraklat
+• Tek dokunuşla şekerleme yapabileceğin ana ekran widget’ı
 • Seçtiğin yer için hava durumu (veriler MET Norway'den)
 • 14 dil
 
@@ -100,6 +110,7 @@ AUFGABEN ZUM AUSSCHALTEN
 • Premium: Finde vier Formen der Reihe nach in einem 4 × 4 Raster
 • Premium: Scanne einen QR-Code, zum Beispiel einen im Badezimmer
 • Premium: Schüttle dein Handy, bis der Wecker aufgibt
+• Premium: Gehe eine bestimmte Zahl an Schritten – im Bett liegend unmöglich
 
 WACHKONTROLLE (Premium)
 Nachdem du einen Wecker ausgeschaltet hast, fragt BENG, ob du wach bist. Keine Antwort innerhalb von 60 Sekunden? Dann klingelt er erneut.
@@ -109,6 +120,10 @@ Beruhigende Naturklänge und 5 extralaute Töne für Tiefschläfer.
 
 WERKZEUGE
 • Stoppuhr und mehrere Timer
+• Morgen-Briefing nach dem Wecker: Uhrzeit, Wetter und deine Pünktlich-Serie (mit Premium vorgelesen)
+• Aufwach-Statistik und Schlafenszeit-Erinnerung
+• Nächsten Wecker überspringen oder Wecker im Urlaub pausieren
+• Startbildschirm-Widget mit Nickerchen per Fingertipp
 • Wetter für den Ort deiner Wahl (Daten von MET Norway)
 • 14 Sprachen
 
@@ -138,6 +153,7 @@ MISSIONS POUR ARRÊTER L’ALARME
 • Premium : trouvez quatre formes dans l’ordre sur une grille 4 × 4
 • Premium : scannez un code QR, par exemple collé dans la salle de bain
 • Premium : secouez votre téléphone jusqu’à ce que l’alarme abandonne
+• Premium : faites un certain nombre de pas, impossible depuis votre lit
 
 CONTRÔLE D’ÉVEIL (Premium)
 Après l’arrêt d’une alarme, BENG vous demande si vous êtes réveillé. Pas de réponse en 60 secondes ? L’alarme sonne à nouveau.
@@ -147,6 +163,10 @@ Des sons apaisants de la nature et 5 sonneries extra-fortes pour les gros dormeu
 
 OUTILS
 • Chronomètre et plusieurs minuteurs
+• Point du matin après l’alarme : heure, météo et série de réveils à l’heure (lu à voix haute avec Premium)
+• Statistiques de réveil et rappel du coucher
+• Sautez la prochaine alarme ou mettez vos alarmes en pause pendant les vacances
+• Widget d’écran d’accueil avec sieste en un geste
 • Météo pour le lieu de votre choix (données de MET Norway)
 • 14 langues
 
@@ -177,6 +197,7 @@ MISIONES PARA APAGARLA
 • Premium: encuentra cuatro figuras en orden en una cuadrícula de 4 × 4
 • Premium: escanea un código QR, por ejemplo uno pegado en el baño
 • Premium: agita el teléfono hasta que la alarma se rinda
+• Premium: camina un número de pasos. No se puede hacer acostado
 
 CONTROL DE DESPERTAR (Premium)
 Después de apagar una alarma, BENG te pregunta si estás despierto. ¿No respondes en 60 segundos? La alarma vuelve a sonar.
@@ -186,6 +207,10 @@ Relajantes sonidos de la naturaleza y 5 tonos extrafuertes para quienes tienen e
 
 HERRAMIENTAS
 • Cronómetro y varios temporizadores
+• Resumen matinal tras la alarma: hora, tiempo y tu racha a tiempo (en voz alta con Premium)
+• Estadísticas de despertar y recordatorio para dormir
+• Omite la próxima alarma o pausa las alarmas en vacaciones
+• Widget de pantalla de inicio con siestas en un toque
 • El tiempo del lugar que elijas (datos de MET Norway)
 • 14 idiomas
 
@@ -215,6 +240,7 @@ MISSIONI PER SPEGNERLA
 • Premium: trova quattro forme in ordine su una griglia 4 × 4
 • Premium: scansiona un codice QR, ad esempio attaccato in bagno
 • Premium: scuoti il telefono finché la sveglia non si arrende
+• Premium: fai un certo numero di passi. Dal letto non si può
 
 CONTROLLO RISVEGLIO (Premium)
 Dopo che hai spento una sveglia, BENG ti chiede se sei sveglio. Nessuna risposta entro 60 secondi? La sveglia suona di nuovo.
@@ -224,6 +250,10 @@ Rilassanti suoni della natura e 5 suonerie extra forti per chi ha il sonno pesan
 
 STRUMENTI
 • Cronometro e più timer
+• Briefing del mattino dopo la sveglia: ora, meteo e la tua serie puntuale (letto ad alta voce con Premium)
+• Statistiche dei risvegli e promemoria per dormire
+• Salta la prossima sveglia o metti in pausa le sveglie in vacanza
+• Widget per la schermata Home con pisolino in un tocco
 • Meteo per il luogo che scegli (dati di MET Norway)
 • 14 lingue
 
@@ -253,6 +283,7 @@ MISSÕES PARA DESLIGAR
 • Premium: encontre quatro formas em ordem em uma grade 4 × 4
 • Premium: leia um QR code, por exemplo um colado no banheiro
 • Premium: chacoalhe o celular até o alarme desistir
+• Premium: ande um número de passos. Não dá para fazer deitado
 
 CHECAGEM DE DESPERTAR (Premium)
 Depois que você desliga um alarme, o BENG pergunta se você está acordado. Sem resposta em 60 segundos? O alarme toca de novo.
@@ -262,6 +293,10 @@ Sons relaxantes da natureza e 5 toques extra altos para quem tem sono pesado.
 
 FERRAMENTAS
 • Cronômetro e vários timers
+• Resumo da manhã depois do alarme: hora, tempo e sua sequência no horário (em voz alta com Premium)
+• Estatísticas de despertar e lembrete de hora de dormir
+• Pule o próximo alarme ou pause os alarmes nas férias
+• Widget na tela inicial com cochilo em um toque
 • Previsão do tempo para o lugar que você escolher (dados do MET Norway)
 • 14 idiomas
 
@@ -291,6 +326,7 @@ OPDRACHTEN OM UIT TE ZETTEN
 • Premium: vind vier vormen op volgorde in een raster van 4 × 4
 • Premium: scan een QR-code, bijvoorbeeld een in de badkamer
 • Premium: schud je telefoon tot de wekker het opgeeft
+• Premium: loop een aantal stappen. Vanuit bed lukt dat niet
 
 WAKKERCHECK (Premium)
 Nadat je een wekker hebt uitgezet, vraagt BENG of je wakker bent. Geen antwoord binnen 60 seconden? Dan gaat de wekker opnieuw.
@@ -300,6 +336,10 @@ Rustgevende natuurgeluiden en 5 extra harde tonen voor diepe slapers.
 
 HULPMIDDELEN
 • Stopwatch en meerdere timers
+• Ochtendoverzicht na de wekker: tijd, weer en je op-tijd-reeks (voorgelezen met Premium)
+• Wakker-wordstatistieken en een bedtijdherinnering
+• Sla de volgende wekker over of pauzeer wekkers tijdens je vakantie
+• Widget op het startscherm met dutjes in één tik
 • Weer voor de plek die je kiest (gegevens van MET Norway)
 • 14 talen
 
@@ -329,6 +369,7 @@ BENG は、あなたが本当にベッドから出られるようにする目覚
 • プレミアム：4 × 4 のマスで4つの図形を順番に見つける
 • プレミアム：洗面所などに貼ったQRコードを読み取る
 • プレミアム：アラームが諦めるまでスマホを振る
+• プレミアム：決められた歩数を歩く。寝たままでは止められません
 
 起床チェック（プレミアム）
 アラームを止めた後、BENG が起きているか確認します。60秒以内に応答がなければ、アラームがもう一度鳴ります。
@@ -338,6 +379,10 @@ BENG は、あなたが本当にベッドから出られるようにする目覚
 
 ツール
 • ストップウォッチと複数のタイマー
+• アラーム後の朝のブリーフィング：時刻、天気、時間どおりの連続記録（プレミアムで読み上げ）
+• 起床の統計と就寝リマインダー
+• 次回のアラームをスキップ、休暇中はアラームを一時停止
+• ワンタップで仮眠できるホーム画面ウィジェット
 • 選んだ場所の天気（MET Norway のデータ）
 • 14言語に対応
 
@@ -367,6 +412,7 @@ BENG은 정말로 침대에서 일어나게 해 주는 알람 앱입니다.
 • 프리미엄: 4 × 4 격자에서 도형 네 개를 순서대로 찾기
 • 프리미엄: 욕실 등에 붙인 QR 코드 스캔하기
 • 프리미엄: 알람이 포기할 때까지 휴대폰 흔들기
+• 프리미엄: 정해진 걸음 수 걷기. 누워서는 할 수 없어요
 
 기상 확인 (프리미엄)
 알람을 끈 뒤 BENG이 깨어 있는지 묻습니다. 60초 안에 확인하지 않으면 알람이 다시 울립니다.
@@ -376,6 +422,10 @@ BENG은 정말로 침대에서 일어나게 해 주는 알람 앱입니다.
 
 도구
 • 스톱워치와 여러 개의 타이머
+• 알람 후 아침 브리핑: 시간, 날씨, 제시간 기상 연속 기록 (프리미엄은 소리로 읽어 줌)
+• 기상 통계와 취침 알림
+• 다음 알람 건너뛰기, 휴가 중 알람 일시 중지
+• 한 번에 낮잠을 설정하는 홈 화면 위젯
 • 선택한 지역의 날씨 (MET Norway 데이터)
 • 14개 언어
 
@@ -405,6 +455,7 @@ BENG 是一款確保你真的離開床鋪的鬧鐘。
 • 進階版：在 4 × 4 方格中依序找出四個圖形
 • 進階版：掃描 QR 碼，例如貼在浴室的那一張
 • 進階版：搖晃手機，直到鬧鐘放棄
+• 進階版：走完指定步數，躺在床上做不到
 
 清醒確認（進階版）
 關閉鬧鐘後，BENG 會詢問你是否已清醒。60 秒內沒有確認？鬧鐘會再次響起。
@@ -414,6 +465,10 @@ BENG 是一款確保你真的離開床鋪的鬧鐘。
 
 工具
 • 碼錶與多個計時器
+• 鬧鐘後的晨間簡報：時間、天氣和準時起床連續紀錄（進階版可朗讀）
+• 起床統計與就寢提醒
+• 略過下一次鬧鐘，或在假期暫停鬧鐘
+• 一鍵小睡的主畫面小工具
 • 你所選地點的天氣（資料來自 MET Norway）
 • 支援 14 種語言
 
@@ -443,6 +498,7 @@ BENG منبّه يتأكد من أنك تنهض فعلًا من السرير.
 • بريميوم: اعثر على أربعة أشكال بالترتيب في شبكة 4 × 4
 • بريميوم: امسح رمز QR، مثل رمز ملصق في الحمّام
 • بريميوم: هزّ هاتفك حتى يستسلم المنبّه
+• بريميوم: امشِ عددًا محددًا من الخطوات، لا يمكنك ذلك وأنت في السرير
 
 التحقق من الاستيقاظ (بريميوم)
 بعد إيقاف المنبّه يسألك BENG إن كنت مستيقظًا. لم تؤكد خلال 60 ثانية؟ يرن المنبّه مجددًا.
@@ -452,6 +508,10 @@ BENG منبّه يتأكد من أنك تنهض فعلًا من السرير.
 
 الأدوات
 • ساعة إيقاف وعدة مؤقتات
+• ملخص الصباح بعد المنبّه: الوقت والطقس وسلسلة استيقاظك في الموعد (يُقرأ بصوت عالٍ مع بريميوم)
+• إحصاءات الاستيقاظ وتذكير وقت النوم
+• تخطَّ المنبّه التالي أو أوقف المنبّهات مؤقتًا في العطلة
+• أداة على الشاشة الرئيسية لقيلولة بلمسة واحدة
 • حالة الطقس للمكان الذي تختاره (بيانات من MET Norway)
 • 14 لغة
 
@@ -481,6 +541,7 @@ BENG คือนาฬิกาปลุกที่ช่วยให้คุ
 • พรีเมียม: หารูปทรงสี่รูปตามลำดับบนตาราง 4 × 4
 • พรีเมียม: สแกนคิวอาร์โค้ด เช่น ที่ติดไว้ในห้องน้ำ
 • พรีเมียม: เขย่าโทรศัพท์จนกว่านาฬิกาปลุกจะยอมแพ้
+• พรีเมียม: เดินให้ครบจำนวนก้าว นอนอยู่บนเตียงทำไม่ได้
 
 ตรวจว่าตื่นจริง (พรีเมียม)
 หลังจากปิดนาฬิกาปลุก BENG จะถามว่าคุณตื่นแล้วหรือยัง หากไม่ยืนยันภายใน 60 วินาที นาฬิกาจะปลุกอีกครั้ง
@@ -490,6 +551,10 @@ BENG คือนาฬิกาปลุกที่ช่วยให้คุ
 
 เครื่องมือ
 • นาฬิกาจับเวลาและตัวตั้งเวลาหลายตัว
+• สรุปยามเช้าหลังนาฬิกาปลุก: เวลา สภาพอากาศ และสถิติตื่นตรงเวลา (อ่านออกเสียงได้ในพรีเมียม)
+• สถิติการตื่นนอนและการแจ้งเตือนเวลานอน
+• ข้ามนาฬิกาปลุกครั้งถัดไป หรือหยุดนาฬิกาปลุกชั่วคราวช่วงวันหยุด
+• วิดเจ็ตหน้าจอหลักสำหรับงีบด้วยการแตะครั้งเดียว
 • สภาพอากาศของสถานที่ที่คุณเลือก (ข้อมูลจาก MET Norway)
 • รองรับ 14 ภาษา
 
@@ -519,6 +584,7 @@ MISI MEMATIKAN ALARM
 • Premium: temukan empat bentuk secara berurutan di kotak 4 × 4
 • Premium: pindai kode QR, misalnya yang ditempel di kamar mandi
 • Premium: goyangkan ponsel sampai alarm menyerah
+• Premium: berjalan sejumlah langkah. Tidak bisa sambil berbaring
 
 CEK BANGUN (Premium)
 Setelah kamu mematikan alarm, BENG bertanya apakah kamu sudah bangun. Tidak ada jawaban dalam 60 detik? Alarm berbunyi lagi.
@@ -528,6 +594,10 @@ Suara alam yang menenangkan dan 5 nada ekstra keras untuk yang susah bangun.
 
 ALAT
 • Stopwatch dan beberapa timer
+• Ringkasan pagi setelah alarm: jam, cuaca, dan rentetan tepat waktumu (dibacakan dengan Premium)
+• Statistik bangun dan pengingat waktu tidur
+• Lewati alarm berikutnya, atau jeda alarm saat liburan
+• Widget layar utama untuk tidur siang sekali ketuk
 • Cuaca untuk tempat yang kamu pilih (data dari MET Norway)
 • 14 bahasa
 

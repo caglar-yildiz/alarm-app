@@ -5,4 +5,5 @@
     <include domain="sharedpref" path="." />
     <include domain="device_sharedpref" path="." />
     <exclude domain="device_sharedpref" path="premium_preview.xml" />
+    <exclude domain="device_sharedpref" path="ring_record.xml" />
 </full-backup-content>

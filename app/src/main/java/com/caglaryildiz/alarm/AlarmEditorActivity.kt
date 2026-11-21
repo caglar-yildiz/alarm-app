@@ -31,6 +31,8 @@ class AlarmEditorActivity : AlarmScreen() {
     private var days: Set<Int> = emptySet()
     private var task = AlarmTask.MATH
     private var qrCode = ""
+    private var stepGoal = StepGoal.DEFAULT
+    private lateinit var stepGoalButton: Button
     private lateinit var qrButton: Button
     private var mathSettings = MathSettings()
     private var tone: String? = null
@@ -42,6 +44,7 @@ class AlarmEditorActivity : AlarmScreen() {
     private lateinit var hourButton: Button
     private lateinit var minuteButton: Button
     private lateinit var dateButton: Button
+    private lateinit var typeDateButton: Button
     private lateinit var repeatButton: Button
     private lateinit var toneButton: Button
     private lateinit var crescendoButton: Button
@@ -66,13 +69,20 @@ class AlarmEditorActivity : AlarmScreen() {
         mathSettings = if (savedInstanceState == null) alarm.mathSettings else MathSettings.from(
             savedInstanceState.getString("mathDifficulty"), savedInstanceState.getInt("mathCount", 1))
         qrCode = savedInstanceState?.getString("qrCode") ?: alarm.qrCode
+        stepGoal = savedInstanceState?.getInt("stepGoal", alarm.stepGoal) ?: alarm.stepGoal
         tone = if (savedInstanceState == null) alarm.tone else savedInstanceState.getString("tone")
         crescendo = if (savedInstanceState == null) alarm.crescendo else savedInstanceState.getBoolean("crescendo", true)
 
         layout()
         showNameField(savedInstanceState?.getString("label") ?: alarm.label)
         val schedule = card()
-        timeReadout = timeLabel("", 56f, schedule).apply { gravity = Gravity.CENTER }
+        timeReadout = timeLabel("", 56f, schedule).apply {
+            gravity = Gravity.CENTER
+            // Tapping the big time opens the keyboard: faster than the clock for many people.
+            isClickable = true
+            isFocusable = true
+            setOnClickListener { typeAlarmTime() }
+        }
         orbit = OrbitTimeView(this) { picked ->
             time = picked
             updateFields()
@@ -88,14 +98,24 @@ class AlarmEditorActivity : AlarmScreen() {
             orbit.selectingMinutes = true
             updateTimeFields()
         }
-        for (tab in listOf(hourButton, minuteButton)) {
+        val typeButton = button(getString(R.string.type_time), tabs, primary = false) { typeAlarmTime() }
+        typeButton.contentDescription = getString(R.string.type_time_title)
+        for (tab in listOf(hourButton, minuteButton, typeButton)) {
             tab.layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply {
                 marginEnd = dp(4)
                 marginStart = dp(4)
             }
         }
         schedule.addView(orbit, LinearLayout.LayoutParams(-1, dp(268)))
-        dateButton = button("", section(getString(R.string.editor_date)), primary = false, action = ::pickDate)
+        val dateSection = section(getString(R.string.editor_date))
+        dateButton = button("", dateSection, primary = false, action = ::pickDate)
+        typeDateButton = button(getString(R.string.type_date), dateSection, primary = false) {
+            val today = LocalDate.now()
+            typeDate(date?.coerceAtLeast(today) ?: today, today) {
+                date = it
+                updateFields()
+            }
+        }
         repeatButton = button("", section(getString(R.string.editor_repeat_days)), primary = false, action = ::pickDays)
         val soundSection = section(getString(R.string.editor_sound))
         toneButton = button("", soundSection, primary = false, action = ::pickTone)
@@ -103,6 +123,7 @@ class AlarmEditorActivity : AlarmScreen() {
         val taskSection = section(getString(R.string.editor_task))
         taskButton = button("", taskSection, primary = false, action = ::pickTask)
         qrButton = button("", taskSection, primary = false, action = ::registerQrCode)
+        stepGoalButton = button("", taskSection, primary = false, action = ::pickStepGoal)
         difficultyButton = button("", taskSection, primary = false, action = ::pickDifficulty)
         questionCountButton = button("", taskSection, primary = false, action = ::pickQuestionCount)
 
@@ -146,16 +167,24 @@ class AlarmEditorActivity : AlarmScreen() {
 
     private fun updateTimeFields() {
         timeReadout.text = time.format(clockFormat)
+        timeReadout.contentDescription = getString(R.string.type_time_description, time.format(clockFormat))
         orbit.time = time
-        hourButton.isSelected = !orbit.selectingMinutes
-        minuteButton.isSelected = orbit.selectingMinutes
-        hourButton.alpha = if (hourButton.isSelected) 1f else .66f
-        minuteButton.alpha = if (minuteButton.isSelected) 1f else .66f
+        // The chosen tab looks like a primary button; the other stays a normal secondary one instead of a faded grey.
+        for ((tab, selected) in listOf(hourButton to !orbit.selectingMinutes, minuteButton to orbit.selectingMinutes)) {
+            tab.isSelected = selected
+            tab.background = android.graphics.drawable.RippleDrawable(
+                android.content.res.ColorStateList.valueOf(0x35FFFFFF),
+                if (selected) glass(0xFF9BDFFF.toInt(), 0xFFC3A0FC.toInt(), 18)
+                else glass(0xA6253152.toInt(), 0xA42F2149.toInt(), 18),
+                null)
+            tab.setTextColor(if (selected) midnight else accentColor)
+        }
     }
 
     private fun updateFields() {
         updateTimeFields()
         dateButton.isEnabled = days.isEmpty()
+        typeDateButton.visibility = if (days.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
         dateButton.text = when {
             days.isNotEmpty() -> getString(R.string.editor_date_by_days)
             date != null -> date?.format(dateFormat())
@@ -175,6 +204,8 @@ class AlarmEditorActivity : AlarmScreen() {
         taskButton.contentDescription = if (task.premium) getString(R.string.premium_feature_description, taskLabel) else taskLabel
         qrButton.visibility = if (task == AlarmTask.QR) android.view.View.VISIBLE else android.view.View.GONE
         qrButton.text = getString(if (qrCode.isBlank()) R.string.editor_qr_save else R.string.editor_qr_change)
+        stepGoalButton.visibility = if (task == AlarmTask.STEPS) android.view.View.VISIBLE else android.view.View.GONE
+        stepGoalButton.text = getString(R.string.editor_step_goal_value, stepGoal)
         val showMathSettings = if (task == AlarmTask.MATH) android.view.View.VISIBLE else android.view.View.GONE
         difficultyButton.visibility = showMathSettings
         questionCountButton.visibility = showMathSettings
@@ -186,6 +217,11 @@ class AlarmEditorActivity : AlarmScreen() {
 
     private fun toggleCrescendo() {
         crescendo = !crescendo
+        updateFields()
+    }
+
+    private fun typeAlarmTime() = typeTime(time) {
+        time = it
         updateFields()
     }
 
@@ -272,6 +308,7 @@ class AlarmEditorActivity : AlarmScreen() {
             .putExtra("mathDifficulty", mathSettings.difficulty.name)
             .putExtra("mathCount", mathSettings.count)
             .putExtra("qrCode", qrCode)
+            .putExtra("stepGoal", stepGoal)
             .putExtra("label", nameInput.text.toString())
             .putExtra("tone", tone))
     }
@@ -281,8 +318,31 @@ class AlarmEditorActivity : AlarmScreen() {
             Toast.makeText(this, getString(R.string.editor_no_motion_sensor), Toast.LENGTH_SHORT).show()
             return
         }
+        if (selected == AlarmTask.STEPS) {
+            if (!ExtraMission.hasStepDetector(this)) {
+                Toast.makeText(this, getString(R.string.editor_no_step_sensor), Toast.LENGTH_SHORT).show()
+                return
+            }
+            if (!ExtraMission.canCountSteps(this) && android.os.Build.VERSION.SDK_INT >= 29) {
+                requestPermissions(arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION), REQUEST_STEPS)
+            }
+        }
         task = selected
         updateFields()
+    }
+
+    private fun pickStepGoal() {
+        val options = StepGoal.options
+        AlertDialog.Builder(this, R.style.AstralDialogTheme)
+            .setTitle(getString(R.string.editor_step_goal))
+            .setSingleChoiceItems(options.map { getString(R.string.editor_step_goal_value, it) }.toTypedArray(),
+                options.indexOf(stepGoal)) { dialog, index ->
+                stepGoal = options[index]
+                updateFields()
+                dialog.dismiss()
+            }
+            .setNegativeButton(getString(R.string.cancel), null)
+            .show()
     }
 
     @Suppress("DEPRECATION")
@@ -298,6 +358,9 @@ class AlarmEditorActivity : AlarmScreen() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 20 && grantResults.firstOrNull() == android.content.pm.PackageManager.PERMISSION_GRANTED) {
             registerQrCode()
+        }
+        if (requestCode == REQUEST_STEPS && grantResults.firstOrNull() != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, getString(R.string.editor_steps_permission_denied), Toast.LENGTH_LONG).show()
         }
     }
 
@@ -447,6 +510,7 @@ class AlarmEditorActivity : AlarmScreen() {
         outState.putIntArray("days", days.toIntArray())
         outState.putString("task", task.name)
         outState.putString("qrCode", qrCode)
+        outState.putInt("stepGoal", stepGoal)
         outState.putString("mathDifficulty", mathSettings.difficulty.name)
         outState.putInt("mathCount", mathSettings.count)
         outState.putString("tone", tone)
@@ -469,6 +533,14 @@ class AlarmEditorActivity : AlarmScreen() {
             Toast.makeText(this, getString(R.string.editor_qr_required), Toast.LENGTH_SHORT).show()
             return
         }
+        if (task == AlarmTask.STEPS && !ExtraMission.canCountSteps(this)) {
+            // Without the permission the alarm would quietly fall back to math; ask again instead.
+            Toast.makeText(this, getString(R.string.editor_steps_permission_denied), Toast.LENGTH_LONG).show()
+            if (android.os.Build.VERSION.SDK_INT >= 29) {
+                requestPermissions(arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION), REQUEST_STEPS)
+            }
+            return
+        }
         val existing = original?.let { edited -> alarms.all().firstOrNull { it.id == edited.id } }
         if (original != null && existing == null) {
             finish()
@@ -480,6 +552,7 @@ class AlarmEditorActivity : AlarmScreen() {
             days = days,
             task = task,
             qrCode = qrCode,
+            stepGoal = stepGoal,
             mathSettings = mathSettings,
             label = nameInput.text.toString().trim(),
             tone = tone,
@@ -497,5 +570,6 @@ class AlarmEditorActivity : AlarmScreen() {
 
     companion object {
         private const val REQUEST_PICK_AUDIO = 2002
+        private const val REQUEST_STEPS = 23
     }
 }

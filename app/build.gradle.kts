@@ -36,4 +36,5 @@ dependencies {
     implementation("com.android.billingclient:billing:8.0.0")
     implementation("com.google.zxing:core:3.5.3")
     implementation("com.google.android.gms:play-services-auth-blockstore:16.4.0")
+    implementation("com.google.android.play:review:2.0.2")
 }

@@ -17,6 +17,7 @@
     <style name="AstralDialogTheme" parent="android:style/Theme.Material.Dialog.Alert">
         <item name="android:windowBackground">@drawable/astral_dialog_surface</item>
         <item name="android:datePickerStyle">@style/AstralDatePicker</item>
+        <item name="android:timePickerStyle">@style/AstralTimePicker</item>
         <item name="android:colorBackground">#232747</item>
         <item name="android:colorAccent">#C5BAFF</item>
         <item name="android:textColorPrimary">#F5F2FF</item>
@@ -26,5 +27,13 @@
     </style>
     <style name="AstralDatePicker" parent="android:style/Widget.Material.DatePicker">
         <item name="android:headerBackground">@drawable/astral_date_header</item>
+    </style>
+    <!-- Without this the clock face is drawn on Material's default grey disc. -->
+    <style name="AstralTimePicker" parent="android:style/Widget.Material.TimePicker">
+        <item name="android:headerBackground">@drawable/astral_date_header</item>
+        <item name="android:numbersBackgroundColor">#2B3260</item>
+        <item name="android:numbersSelectorColor">#9BDFFF</item>
+        <item name="android:numbersTextColor">#F2F2FF</item>
+        <item name="android:numbersInnerTextColor">#C0C4E1</item>
     </style>
 </resources>

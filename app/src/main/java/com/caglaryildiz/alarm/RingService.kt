@@ -29,15 +29,36 @@ internal data class Ring(
     val label: String,
     val tone: Uri?,
     val crescendo: Boolean = true,
+    /** True when this alarm was still ringing as the phone restarted or the app updated. */
+    val resumed: Boolean = false,
+    /** True when wake check rang this alarm again because the user didn't confirm being awake. */
+    val retry: Boolean = false,
     val token: String = UUID.randomUUID().toString(),
-    val startedAt: LocalTime = LocalTime.now()
+    val startedAt: LocalTime = LocalTime.now(),
+    val startedMs: Long = System.currentTimeMillis()
 )
 
 class RingService : Service() {
     private val queue = ArrayDeque<Ring>()
     private val handler = Handler(Looper.getMainLooper())
     private var player: MediaPlayer? = null
-    private val timeout = Runnable { advance() }
+    private val timeout = Runnable {
+        active?.takeIf { !it.id.startsWith(Reminders.REMINDER_PREFIX) }?.let { WakeStats(this).missed(it.id, it.retry) }
+        advance()
+    }
+    /**
+     * While an alarm rings and its screen is not showing, keeps bringing the screen back. Android does not let
+     * a background app open an activity on an unlocked phone, so the alarm notification is also posted again:
+     * on a locked or dark screen its full-screen intent opens the alarm, otherwise it pops up as a heads-up.
+     */
+    private val reclaim = object : Runnable {
+        override fun run() {
+            val ring = active ?: return
+            if (screenVisible) return
+            reopenScreen(ring)
+            handler.postDelayed(this, RECLAIM_INTERVAL)
+        }
+    }
     private val audio by lazy { getSystemService(AudioManager::class.java) }
     private var originalAlarmVolume = -1
     private var lockedAlarmVolume = -1
@@ -62,13 +83,18 @@ class RingService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            DISMISS, SNOOZE, RESTORE_NOTIFICATION -> {
+            DISMISS, SNOOZE, RESTORE_NOTIFICATION, SCREEN_LEFT -> {
                 val ring = active
                 if (ring == null) {
                     stopSelfResult(startId)
                     return START_NOT_STICKY
                 }
                 if (intent.getStringExtra("token") != ring.token) return START_NOT_STICKY
+                if (intent.action == SCREEN_LEFT) {
+                    handler.removeCallbacks(reclaim)
+                    handler.postDelayed(reclaim, RECLAIM_DELAY)
+                    return START_NOT_STICKY
+                }
                 if (intent.action == RESTORE_NOTIFICATION) {
                     getSystemService(NotificationManager::class.java)
                         .notify(NOTIFICATION_ID, alarmNotification(ring, fullScreen = false))
@@ -77,23 +103,30 @@ class RingService : Service() {
                 if (intent.action == DISMISS && (ring.math?.question != null || ring.extra?.complete == false)) return START_NOT_STICKY
                 val reminderId = ring.id.removePrefix(Reminders.REMINDER_PREFIX).takeIf { it != ring.id }
                 if (intent.action == SNOOZE) {
-                    if (reminderId != null) Reminders(this).snooze(reminderId)
+                    if (reminderId != null) Reminders(this).snooze(reminderId) else WakeStats(this).snoozed(ring.id)
                     val alarms = Alarms(this)
                     alarms.all().firstOrNull { it.id == ring.id }?.let {
                         alarms.save(it.copy(snoozeAt = System.currentTimeMillis() + 300_000))
                     }
                 }
-                // The wake check follows real alarms only, not reminders that ring.
-                if (intent.action == DISMISS && reminderId == null) WakeCheck(this).schedule(ring.id)
+                // Wake check and wake-up statistics follow real alarms only, not reminders that ring.
+                if (intent.action == DISMISS && reminderId == null) {
+                    WakeStats(this).dismissed(ring.id, ring.startedMs, ring.retry)
+                    WakeCheck(this).schedule(ring.id)
+                }
                 advance()
             }
             else -> {
                 val id = intent?.getStringExtra("id") ?: return START_NOT_STICKY
+                val resumed = intent.getBooleanExtra(EXTRA_RESUMED, false)
+                // Both LOCKED_BOOT_COMPLETED and BOOT_COMPLETED can resume the same alarm.
+                if (resumed && (active?.id == id || queue.any { it.id == id })) return START_NOT_STICKY
                 val savedTask = AlarmTask.entries.firstOrNull { it.name == intent.getStringExtra("task") }
                     ?: AlarmTask.NONE
                 val qrCode = intent.getStringExtra("qrCode").orEmpty()
                 val needsFallback = (savedTask.premium && !PremiumAccess(this).unlocked) ||
                     (savedTask == AlarmTask.SHAKE && !ExtraMission.hasAccelerometer(this)) ||
+                    (savedTask == AlarmTask.STEPS && !ExtraMission.canCountSteps(this)) ||
                     (savedTask == AlarmTask.QR && (qrCode.isBlank() ||
                         checkSelfPermission(android.Manifest.permission.CAMERA) != android.content.pm.PackageManager.PERMISSION_GRANTED))
                 val task = if (needsFallback) AlarmTask.MATH else savedTask
@@ -102,7 +135,8 @@ class RingService : Service() {
                         intent.getIntExtra("mathCount", 1)))
                 } else null
                 val extra = when (task) {
-                    AlarmTask.MEMORY, AlarmTask.TYPING, AlarmTask.SHAKE, AlarmTask.QR, AlarmTask.SHAPES -> ExtraMission.create(this, task, qrCode)
+                    AlarmTask.MEMORY, AlarmTask.TYPING, AlarmTask.SHAKE, AlarmTask.QR, AlarmTask.SHAPES, AlarmTask.STEPS ->
+                        ExtraMission.create(this, task, qrCode, intent.getIntExtra("stepGoal", StepGoal.DEFAULT))
                     else -> null
                 }
                 val rawTone = intent.getStringExtra("tone")?.let(Uri::parse)
@@ -113,8 +147,12 @@ class RingService : Service() {
                     rawTone
                 }
                 val crescendo = intent.getBooleanExtra("crescendo", true)
-                val ring = Ring(id, math, extra, intent.getStringExtra("label").orEmpty(), tone, crescendo)
-                if (active == null) show(ring) else queue.addLast(ring)
+                val ring = Ring(id, math, extra, intent.getStringExtra("label").orEmpty(), tone, crescendo, resumed,
+                    retry = intent.getBooleanExtra(EXTRA_RETRY, false))
+                if (active == null) show(ring) else {
+                    queue.addLast(ring)
+                    saveRecord()
+                }
             }
         }
         return START_NOT_STICKY
@@ -122,6 +160,7 @@ class RingService : Service() {
 
     private fun show(ring: Ring) {
         active = ring
+        saveRecord()
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(NotificationChannel(CHANNEL, getString(R.string.channel_ringing),
             NotificationManager.IMPORTANCE_HIGH).apply {
@@ -140,7 +179,19 @@ class RingService : Service() {
         notifyScreen()
     }
 
-    private fun alarmNotification(ring: Ring, fullScreen: Boolean): Notification {
+    private fun saveRecord() = RingRecord(this).update(listOfNotNull(active?.id) + queue.map { it.id })
+
+    private fun reopenScreen(ring: Ring) {
+        // Allowed only in some cases (e.g. right after leaving the screen); Android silently ignores it otherwise.
+        runCatching {
+            startActivity(Intent(this, RingActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_REORDER_TO_FRONT))
+        }
+        getSystemService(NotificationManager::class.java)
+            .notify(NOTIFICATION_ID, alarmNotification(ring, fullScreen = true, alert = true))
+    }
+
+    private fun alarmNotification(ring: Ring, fullScreen: Boolean, alert: Boolean = false): Notification {
         val screen = PendingIntent.getActivity(this, 0,
             Intent(this, RingActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
             PendingIntent.FLAG_IMMUTABLE)
@@ -163,7 +214,7 @@ class RingService : Service() {
             .setCategory(Notification.CATEGORY_ALARM)
             .setVisibility(Notification.VISIBILITY_PUBLIC)
             .setOngoing(true)
-            .setOnlyAlertOnce(true)
+            .setOnlyAlertOnce(!alert)
             .setContentIntent(screen)
             .setDeleteIntent(onSwipe)
             .addAction(openAlarm)
@@ -265,6 +316,7 @@ class RingService : Service() {
 
     private fun advance() {
         handler.removeCallbacks(timeout)
+        handler.removeCallbacks(reclaim)
         stopCrescendo()
         player?.release()
         player = null
@@ -273,6 +325,7 @@ class RingService : Service() {
             show(next)
         } else {
             active = null
+            saveRecord()
             unlockAlarmVolume()
             notifyScreen()
             stopForeground(STOP_FOREGROUND_REMOVE)
@@ -284,6 +337,7 @@ class RingService : Service() {
 
     override fun onDestroy() {
         handler.removeCallbacks(timeout)
+        handler.removeCallbacks(reclaim)
         stopCrescendo()
         player?.release()
         unlockAlarmVolume()
@@ -302,7 +356,14 @@ class RingService : Service() {
         private const val VOLUME_GUARD_INTERVAL = 400L
         private const val MIN_ALARM_VOLUME_RATIO = .6f
         private const val RESTORE_NOTIFICATION = "com.caglaryildiz.alarm.RESTORE_RING_NOTIFICATION"
+        private const val RECLAIM_DELAY = 800L
+        private const val RECLAIM_INTERVAL = 5_000L
         internal val listeners = mutableSetOf<() -> Unit>()
+        /** Whether the real (not preview) ring screen is on screen; set by [RingActivity]. */
+        internal var screenVisible = false
+        internal const val SCREEN_LEFT = "com.caglaryildiz.alarm.RING_SCREEN_LEFT"
+        internal const val EXTRA_RESUMED = "resumed"
+        internal const val EXTRA_RETRY = "retry"
         internal const val DISMISS = "com.caglaryildiz.alarm.DISMISS"
         internal const val SNOOZE = "com.caglaryildiz.alarm.SNOOZE_RING"
         internal var active: Ring? = null

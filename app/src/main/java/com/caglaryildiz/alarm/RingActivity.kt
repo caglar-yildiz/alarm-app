@@ -25,6 +25,10 @@ open class RingActivity : AlarmScreen() {
     private var shakeListener: android.hardware.SensorEventListener? = null
     private val memoryHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private var failedQrToken: String? = null
+    /** Set while the QR scanner, opened from this screen, covers it; leaving for it is not an escape. */
+    private var scannerOpen = false
+    /** Set once this screen turned the alarm off, so the briefing opens when the service confirms it. */
+    private var dismissSent = false
     private val onRingChanged: () -> Unit = {
         if (isPreview && RingService.active != null) {
             stopPreviewSound()
@@ -38,7 +42,8 @@ open class RingActivity : AlarmScreen() {
             val task = AlarmTask.entries.firstOrNull { it.name == intent.getStringExtra("task") } ?: AlarmTask.NONE
             previewRing = Ring("preview",
                 if (task == AlarmTask.MATH) MathMission(MathSettings.from(intent.getStringExtra("mathDifficulty"), intent.getIntExtra("mathCount", 1))) else null,
-                if (task != AlarmTask.MATH && task != AlarmTask.NONE) ExtraMission.create(this, task, intent.getStringExtra("qrCode").orEmpty()) else null,
+                if (task != AlarmTask.MATH && task != AlarmTask.NONE) ExtraMission.create(this, task, intent.getStringExtra("qrCode").orEmpty(),
+                    intent.getIntExtra("stepGoal", StepGoal.DEFAULT)) else null,
                 intent.getStringExtra("label").orEmpty(), intent.getStringExtra("tone")?.let(Uri::parse))
             return
         }
@@ -55,6 +60,8 @@ open class RingActivity : AlarmScreen() {
 
     override fun onStart() {
         super.onStart()
+        scannerOpen = false
+        if (!isPreview) RingService.screenVisible = true
         RingService.listeners.add(onRingChanged)
         if (isPreview && RingService.active == null) startPreviewSound()
         render()
@@ -64,6 +71,17 @@ open class RingActivity : AlarmScreen() {
         RingService.listeners.remove(onRingChanged)
         clearMissionCallbacks()
         stopPreviewSound()
+        if (!isPreview) {
+            RingService.screenVisible = false
+            // Going home, to Settings or turning the screen off while the alarm rings: bring the screen back.
+            val ring = RingService.active
+            if (ring != null && !scannerOpen && !isChangingConfigurations) {
+                runCatching {
+                    startService(Intent(this, RingService::class.java).setAction(RingService.SCREEN_LEFT)
+                        .putExtra("token", ring.token))
+                }
+            }
+        }
         super.onStop()
     }
 
@@ -87,6 +105,9 @@ open class RingActivity : AlarmScreen() {
         clearMissionCallbacks()
         val ring = currentRing()
         if (ring == null) {
+            if (!isPreview && dismissSent && MorningBriefing(this).enabled) {
+                runCatching { startActivity(Intent(this, BriefingActivity::class.java)) }
+            }
             finish()
             return
         }
@@ -94,6 +115,7 @@ open class RingActivity : AlarmScreen() {
         val header = card()
         label(getString(if (isPreview) R.string.preview else R.string.alarm_ringing), 22f, header, bold = true).gravity = Gravity.CENTER
         if (ring.label.isNotBlank()) label(ring.label, 16f, header, color = mutedColor).gravity = Gravity.CENTER
+        if (ring.resumed) label(getString(R.string.ring_resumed), 14f, header, color = mutedColor).gravity = Gravity.CENTER
         timeLabel(ring.startedAt.format(clockFormat), 60f, header).gravity = Gravity.CENTER
         header.addView(AstralPlanet(this), LinearLayout.LayoutParams(-1, dp(112)))
         if (isPreview) {
@@ -245,9 +267,11 @@ open class RingActivity : AlarmScreen() {
                 }
             }
             AlarmTask.SHAKE -> showShakeMission(ring, mission, controls)
+            AlarmTask.STEPS -> showStepMission(ring, mission, controls)
             AlarmTask.QR -> {
                 label(getString(R.string.qr_scan_instructions), parent = controls)
                 button(getString(R.string.qr_open_camera), controls) {
+                    scannerOpen = true
                     @Suppress("DEPRECATION")
                     startActivityForResult(Intent(this, QrScannerActivity::class.java).putExtra("ringToken", ring.token), 22)
                 }
@@ -290,6 +314,32 @@ open class RingActivity : AlarmScreen() {
         }
     }
 
+    /** Walk to turn the alarm off: the step detector only counts real steps, not shaking in bed. */
+    private fun showStepMission(ring: Ring, mission: ExtraMission, controls: LinearLayout) {
+        label(getString(R.string.steps_instructions), 16f, controls)
+        val progress = timeLabel(getString(R.string.steps_progress, mission.progress, mission.stepGoal), 40f, controls).apply {
+            gravity = Gravity.CENTER
+            accessibilityLiveRegion = android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE
+        }
+        val sensor = sensorManager.getDefaultSensor(android.hardware.Sensor.TYPE_STEP_DETECTOR)
+        val listener = object : android.hardware.SensorEventListener {
+            override fun onSensorChanged(event: android.hardware.SensorEvent) {
+                if (mission.complete) return
+                mission.step()
+                progress.text = getString(R.string.steps_progress, mission.progress, mission.stepGoal)
+                if (mission.complete) send(RingService.DISMISS, ring)
+            }
+
+            override fun onAccuracyChanged(sensor: android.hardware.Sensor?, accuracy: Int) = Unit
+        }
+        if (sensor != null && ExtraMission.canCountSteps(this) &&
+            sensorManager.registerListener(listener, sensor, android.hardware.SensorManager.SENSOR_DELAY_UI, 0)) {
+            shakeListener = listener
+        } else {
+            button(getString(R.string.math_fallback), controls, primary = false) { useMathFallback(ring) }
+        }
+    }
+
     private fun useMathFallback(ring: Ring) {
         ring.extra = null
         ring.math = MathMission(MathSettings())
@@ -326,6 +376,8 @@ open class RingActivity : AlarmScreen() {
             finish()
             return
         }
+        // The morning briefing follows alarms, not reminders that ring.
+        if (action == RingService.DISMISS) dismissSent = !ring.id.startsWith(Reminders.REMINDER_PREFIX)
         startService(Intent(this, RingService::class.java).setAction(action).putExtra("token", ring.token))
     }
 }
