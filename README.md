@@ -52,6 +52,15 @@ Terminalden debug APK oluşturmak için:
 
 Windows'ta `gradlew.bat :app:assembleDebug` kullan. APK, `app/build/outputs/apk/debug/app-debug.apk` yoluna yazılır.
 
+## Play'e sürüm çıkarmak
+
+GitHub'da **Actions → Build Play Store bundle → Run workflow** (yalnızca `main`). `versionCode` elle
+değiştirilmez: iş akışı her çalıştırmada `100 + çalıştırma numarası` verir, yani her yükleme bir öncekinden
+büyüktür. İstersen "version_name" kutusuna Play'de görünecek sürüm adını yaz (ör. `1.0.0`); boş bırakırsan
+`app/build.gradle.kts` içindeki ad kullanılır. Kullanılan numara iş özetinde ve indirilen dosyanın adında
+(`BENG-play-release-<versionCode>`) yazar. Yerel derlemeler `22` / `0.11.0` kullanır; elle denemek için
+`./gradlew -PversionCode=150 -PversionName=1.0.0 :app:bundleRelease`.
+
 ## Veriler ve güncellemeler
 
 - **Yedekleme:** Alarmlar, ayarlar, dil, uyanıklık kontrolü, sayaçlar, hava durumu konumu ve

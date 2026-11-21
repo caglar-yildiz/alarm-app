@@ -12,8 +12,11 @@ android {
         applicationId = "com.caglaryildiz.alarm"
         minSdk = 26
         targetSdk = 36
-        versionCode = 22
-        versionName = "0.11.0"
+        // Google Play needs a higher versionCode for every upload. The Play bundle workflow passes
+        // -PversionCode (from its run number) and optionally -PversionName, so nobody edits these by hand.
+        // Local builds fall back to the values below.
+        versionCode = providers.gradleProperty("versionCode").orNull?.toIntOrNull() ?: 22
+        versionName = providers.gradleProperty("versionName").orNull?.takeIf { it.isNotBlank() } ?: "0.11.0"
     }
     bundle {
         // The in-app language picker needs every translation installed, not only the device language.
