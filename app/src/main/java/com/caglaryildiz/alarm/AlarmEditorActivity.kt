@@ -151,10 +151,16 @@ class AlarmEditorActivity : AlarmScreen() {
     private fun updateTimeFields() {
         timeReadout.text = time.format(clockFormat)
         orbit.time = time
-        hourButton.isSelected = !orbit.selectingMinutes
-        minuteButton.isSelected = orbit.selectingMinutes
-        hourButton.alpha = if (hourButton.isSelected) 1f else .66f
-        minuteButton.alpha = if (minuteButton.isSelected) 1f else .66f
+        // The chosen tab looks like a primary button; the other stays a normal secondary one instead of a faded grey.
+        for ((tab, selected) in listOf(hourButton to !orbit.selectingMinutes, minuteButton to orbit.selectingMinutes)) {
+            tab.isSelected = selected
+            tab.background = android.graphics.drawable.RippleDrawable(
+                android.content.res.ColorStateList.valueOf(0x35FFFFFF),
+                if (selected) glass(0xFF9BDFFF.toInt(), 0xFFC3A0FC.toInt(), 18)
+                else glass(0xA6253152.toInt(), 0xA42F2149.toInt(), 18),
+                null)
+            tab.setTextColor(if (selected) midnight else accentColor)
+        }
     }
 
     private fun updateFields() {

@@ -2,6 +2,7 @@ package com.caglaryildiz.alarm
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.LinearGradient
 import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.PixelFormat
@@ -163,39 +164,47 @@ internal class OrbitTimeView(
         val count = if (selectingMinutes) 60 else 12
         val selectedRadius = if (!selectingMinutes && time.hour >= 12) innerRadius else outer
         val (x, y) = point(selected, count, selectedRadius)
-        paint.color = 0x605CCFFF
+        // The hand and the selected bubble use the app's accent gradient (as on primary buttons), not a flat grey.
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 2f * density
+        paint.strokeCap = Paint.Cap.ROUND
+        paint.color = 0xB09BDFFF.toInt()
         canvas.drawLine(centerX, centerY, x, y, paint)
-        paint.shader = RadialGradient(x, y, 24f * density,
-            intArrayOf(0xD698A5FF.toInt(), 0x0098A5FF), null, Shader.TileMode.CLAMP)
-        canvas.drawCircle(x, y, 24f * density, paint)
+        paint.style = Paint.Style.FILL
+        paint.shader = RadialGradient(x, y, 26f * density,
+            intArrayOf(0xA6B3A8FF.toInt(), 0x00B3A8FF), null, Shader.TileMode.CLAMP)
+        canvas.drawCircle(x, y, 26f * density, paint)
+        val bubble = 15f * density
+        paint.shader = LinearGradient(x - bubble, y - bubble, x + bubble, y + bubble,
+            0xFF9BDFFF.toInt(), 0xFFC3A0FC.toInt(), Shader.TileMode.CLAMP)
+        canvas.drawCircle(x, y, bubble, paint)
         paint.shader = null
-        paint.color = 0xFF6066AB.toInt()
-        canvas.drawCircle(x, y, 13f * density, paint)
 
         if (selectingMinutes) {
             for (minute in 0 until 60) {
                 if (minute % 5 == 0) {
-                    number(canvas, "%02d".format(java.util.Locale.ROOT, minute), minute, 60, outer)
+                    number(canvas, "%02d".format(java.util.Locale.ROOT, minute), minute, 60, outer, minute == selected)
                 } else {
                     val (tickX, tickY) = point(minute, 60, outer)
-                    paint.color = if (minute == selected) 0xFFFFFFFF.toInt() else 0x876CA7F1.toInt()
+                    paint.color = if (minute == selected) midnight else 0x876CA7F1.toInt()
                     canvas.drawCircle(tickX, tickY, if (minute == selected) 3f * density else density, paint)
                 }
             }
         } else {
             for (hour in 0 until 12) {
-                number(canvas, hour.toString(), hour, 12, outer)
-                number(canvas, (hour + 12).toString(), hour, 12, innerRadius)
+                number(canvas, hour.toString(), hour, 12, outer, time.hour == hour)
+                number(canvas, (hour + 12).toString(), hour, 12, innerRadius, time.hour == hour + 12)
             }
         }
         paint.color = 0xFFD6D9FF.toInt()
         canvas.drawCircle(centerX, centerY, 3f * density, paint)
     }
 
-    private fun number(canvas: Canvas, text: String, index: Int, count: Int, radius: Float) {
+    private fun number(canvas: Canvas, text: String, index: Int, count: Int, radius: Float, selected: Boolean = false) {
         val (x, y) = point(index, count, radius)
-        paint.textSize = 13f * density
-        paint.color = 0xFFF2F2FF.toInt()
+        paint.textSize = (if (selected) 14f else 13f) * density
+        // Dark text on the light selected bubble, light text elsewhere.
+        paint.color = if (selected) midnight else 0xFFF2F2FF.toInt()
         canvas.drawText(text, x, y - (paint.ascent() + paint.descent()) / 2f, paint)
     }
 
