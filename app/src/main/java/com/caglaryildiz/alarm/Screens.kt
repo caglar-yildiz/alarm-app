@@ -407,9 +407,10 @@ abstract class AlarmScreen : Activity() {
     }
 }
 
-class MainActivity : WeatherScreen() {
+class MainActivity : ReminderScreen() {
     private enum class Tab(val titleRes: Int, val icon: Int) {
         ALARMS(R.string.tab_alarms, R.drawable.ic_beng_launcher),
+        REMINDERS(R.string.tab_reminders, R.drawable.ic_reminder),
         WEATHER(R.string.tab_weather, R.drawable.ic_weather),
         TOOLS(R.string.tab_tools, R.drawable.ic_time_tools),
         PREMIUM(R.string.tab_premium, R.drawable.ic_crown)
@@ -456,6 +457,10 @@ class MainActivity : WeatherScreen() {
                 tool = Tool.WAKE
                 true
             }
+            intent.getBooleanExtra("remindersTab", false) -> {
+                tab = Tab.REMINDERS
+                true
+            }
             intent.getBooleanExtra("timersTab", false) -> {
                 tab = Tab.TOOLS
                 tool = Tool.COUNTDOWNS
@@ -472,7 +477,17 @@ class MainActivity : WeatherScreen() {
     }
 
     override fun onPremiumChanged() {
-        if (tab == Tab.PREMIUM || tab == Tab.TOOLS) render()
+        if (tab == Tab.PREMIUM || tab == Tab.TOOLS || tab == Tab.REMINDERS) render()
+    }
+
+    override fun onRemindersChanged() {
+        if (tab == Tab.REMINDERS) render()
+    }
+
+    override fun openPremiumTab() {
+        tab = Tab.PREMIUM
+        render(animateTabChange = true)
+        refreshPremium()
     }
 
     override fun onWeatherChanged() {
@@ -505,8 +520,10 @@ class MainActivity : WeatherScreen() {
                     })
                     importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 }, LinearLayout.LayoutParams(dp(26), dp(26)))
-                label(title, 12f, this, bold = selected, color = if (selected) accentColor else mutedColor).apply {
+                label(title, 11.5f, this, bold = selected, color = if (selected) accentColor else mutedColor).apply {
                     gravity = Gravity.CENTER
+                    setSingleLine()
+                    ellipsize = TextUtils.TruncateAt.END
                     includeFontPadding = false
                     setPadding(0, dp(6), 0, 0)
                     layoutParams = LinearLayout.LayoutParams(-1, -2)
@@ -1079,6 +1096,7 @@ class MainActivity : WeatherScreen() {
     override fun onResume() {
         super.onResume()
         alarms.syncAll()
+        Reminders(this).syncAll()
         render()
         refreshPremium()
         // Only from the home screen, never on top of a ringing alarm.
@@ -1112,6 +1130,7 @@ class MainActivity : WeatherScreen() {
         when (tab) {
             Tab.PREMIUM -> { showPremium(); return }
             Tab.WEATHER -> { showWeather(); return }
+            Tab.REMINDERS -> { showReminders(); return }
             Tab.TOOLS -> {
                 if (tool != null && tool != Tool.LANGUAGE) button(getString(R.string.back_to_tools), primary = false) {
                     tool = null
@@ -1193,6 +1212,18 @@ class MainActivity : WeatherScreen() {
         }
         label(summary, 22f, details, bold = true)
         if (alarms.canSchedule()) sleepNowLabel(details)
+        nextReminderSummary()?.let { next ->
+            label(next, 13.5f, details, color = 0xFFD9DCF5.toInt()).apply {
+                maxLines = 2
+                ellipsize = TextUtils.TruncateAt.END
+                setPadding(0, 0, 0, dp(2))
+                isClickable = true
+                setOnClickListener {
+                    tab = Tab.REMINDERS
+                    render(animateTabChange = true)
+                }
+            }
+        }
         row.addView(AstralPlanet(this), LinearLayout.LayoutParams(dp(112), dp(96)).apply { marginStart = dp(4) })
 
         // Wake check stays visible from the home screen: status at a glance, one tap to its settings.

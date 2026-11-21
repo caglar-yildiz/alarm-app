@@ -101,14 +101,17 @@ class RingService : Service() {
                     return START_NOT_STICKY
                 }
                 if (intent.action == DISMISS && (ring.math?.question != null || ring.extra?.complete == false)) return START_NOT_STICKY
+                val reminderId = ring.id.removePrefix(Reminders.REMINDER_PREFIX).takeIf { it != ring.id }
                 if (intent.action == SNOOZE) {
-                    WakeStats(this).snoozed(ring.id)
+                    // Reminders snooze themselves; only real alarms count in the wake-up statistics.
+                    if (reminderId != null) Reminders(this).snooze(reminderId) else WakeStats(this).snoozed(ring.id)
                     val alarms = Alarms(this)
                     alarms.all().firstOrNull { it.id == ring.id }?.let {
                         alarms.save(it.copy(snoozeAt = System.currentTimeMillis() + 300_000))
                     }
                 }
-                if (intent.action == DISMISS) {
+                // The wake check and the wake-up statistics follow real alarms only, not reminders that ring.
+                if (intent.action == DISMISS && reminderId == null) {
                     WakeStats(this).dismissed(ring.id, ring.startedMs, ring.retry)
                     WakeCheck(this).schedule(ring.id)
                 }

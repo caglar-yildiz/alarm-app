@@ -33,6 +33,8 @@
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/next_alarm_widget" />
         </receiver>
+        <activity android:name=".ReminderEditorActivity" android:exported="false" />
+        <receiver android:name=".ReminderReceiver" android:exported="false" />
         <receiver android:name=".CountdownReceiver" android:exported="false" android:directBootAware="false" />
         <activity android:name=".QrScannerActivity" android:exported="false" />
         <activity android:name=".RingActivity" android:exported="false"
