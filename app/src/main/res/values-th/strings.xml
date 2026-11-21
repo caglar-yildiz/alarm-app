@@ -420,12 +420,7 @@
     <string name="stats_empty">บันทึกการตื่นของคุณจะแสดงที่นี่หลังนาฬิกาปลุกครั้งแรก</string>
     <string name="stats_how">“ตรงเวลา” หมายถึงคุณปิดนาฬิกาปลุกโดยไม่เลื่อนปลุก และการตรวจว่าตื่นจริงไม่ต้องปลุกซ้ำ</string>
     <string name="stats_private">เก็บไว้ในโทรศัพท์เครื่องนี้เท่านั้น</string>
-    <string name="skip_next">ข้ามครั้งถัดไป</string>
-    <string name="skip_next_description">ข้ามนาฬิกาปลุกวันที่ %s</string>
     <string name="skip_until">ข้าม %s</string>
-    <string name="skip_undo">เลิกทำ</string>
-    <string name="vacation_button">โหมดวันหยุด: หยุดนาฬิกาปลุกที่ตั้งซ้ำชั่วคราว</string>
-    <string name="vacation_pick">หยุดถึงวันที่ (รวมวันนั้น)</string>
     <string name="vacation_title">โหมดวันหยุด</string>
     <string name="vacation_active">นาฬิกาปลุกที่ตั้งซ้ำหยุดชั่วคราวถึง %s นาฬิกาปลุกครั้งเดียวยังดังตามปกติ</string>
     <string name="vacation_end">ปิดโหมดวันหยุด</string>
@@ -490,4 +485,21 @@
     <string name="type_invalid_time">ใส่ชั่วโมง 0–23 และนาที 0–59</string>
     <string name="type_invalid_date">ไม่มีวันที่นี้ ตรวจสอบวันและเดือนอีกครั้ง</string>
     <string name="type_date_past">เลือกวันนี้หรือวันที่หลังจากนี้</string>
+    <string name="alarm_more">ตัวเลือกเพิ่มเติมสำหรับนาฬิกาปลุก %s</string>
+    <string name="skip_next_menu">ข้ามครั้งถัดไป (%s)</string>
+    <string name="skip_undo_menu">ไม่ข้าม</string>
+    <string name="skip_tag_description">%s แตะเพื่อเลิกทำ</string>
+    <string name="upcoming_channel">นาฬิกาปลุกที่กำลังจะดัง</string>
+    <string name="upcoming_title">นาฬิกาปลุกที่กำลังจะดัง: %s</string>
+    <string name="upcoming_text">ครั้งนี้ไม่ต้องใช้ใช่ไหม ข้ามได้เลย</string>
+    <string name="upcoming_skip">ข้ามครั้งนี้</string>
+    <string name="vacation_desc">หยุดนาฬิกาปลุกที่ตั้งซ้ำชั่วคราว</string>
+    <string name="vacation_headline">นอนให้เต็มอิ่มในวันหยุด</string>
+    <string name="vacation_description">นาฬิกาปลุกที่ตั้งซ้ำจะไม่ดังตั้งแต่วันแรกถึงวันสุดท้ายที่เลือก แล้วกลับมาทำงานเอง นาฬิกาปลุกครั้งเดียวยังดังตามปกติ</string>
+    <string name="vacation_scheduled">นาฬิกาปลุกที่ตั้งซ้ำจะหยุดตั้งแต่ %1$s ถึง %2$s นาฬิกาปลุกครั้งเดียวยังดังตามปกติ</string>
+    <string name="vacation_chip_active">พักร้อนถึง %s</string>
+    <string name="vacation_chip_scheduled">เริ่มพักร้อน %s</string>
+    <string name="vacation_start_value">วันแรก: %s</string>
+    <string name="vacation_end_value">วันสุดท้าย: %s</string>
+    <string name="vacation_turn_on">เปิดโหมดวันหยุด</string>
 </resources>

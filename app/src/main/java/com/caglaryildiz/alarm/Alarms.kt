@@ -16,6 +16,19 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
 
+internal data class Vacation(val from: LocalDate, val until: LocalDate) {
+    fun started(today: LocalDate = LocalDate.now()) = !today.isBefore(from)
+}
+
+/** The next ring of [alarm] after [now], jumping past [vacation] for repeating alarms. */
+internal fun nextOutside(alarm: Alarm, now: ZonedDateTime, vacation: Vacation?): Long? {
+    val candidate = alarm.nextAfter(now) ?: return null
+    if (vacation == null || alarm.days.isEmpty()) return candidate
+    val date = Instant.ofEpochMilli(candidate).atZone(now.zone).toLocalDate()
+    if (date.isBefore(vacation.from) || date.isAfter(vacation.until)) return candidate
+    return alarm.nextAfter(maxOf(now, vacation.until.plusDays(1).atStartOfDay(now.zone)))
+}
+
 internal enum class AlarmTask(val labelRes: Int, val premium: Boolean = false) {
     NONE(R.string.task_none),
     MATH(R.string.task_math),
@@ -132,25 +145,31 @@ internal class Alarms(private val context: Context) {
     }
 
     /**
-     * Vacation mode: repeating alarms stay quiet through this date (inclusive). One-time alarms still ring,
-     * because the user set them for a specific day. Null once the date has passed.
+     * Vacation mode: repeating alarms stay quiet from [Vacation.from] through [Vacation.until] (both inclusive).
+     * One-time alarms still ring, because the user set them for a specific day. Null once it is over.
      */
-    var pausedUntil: LocalDate?
-        get() = prefs.getString("pausedUntil", null)?.let(LocalDate::parse)?.takeIf { !it.isBefore(LocalDate.now()) }
-        set(value) {
-            prefs.edit().putString("pausedUntil", value?.toString()).apply()
-            syncAll()
+    val vacation: Vacation?
+        get() {
+            val until = prefs.getString("pausedUntil", null)?.let(LocalDate::parse) ?: return null
+            if (until.isBefore(LocalDate.now())) return null
+            // Older versions stored only the end: such a vacation started right away.
+            val from = prefs.getString("pausedFrom", null)?.let(LocalDate::parse) ?: LocalDate.MIN
+            return Vacation(from, until)
         }
 
-    /** When [alarm] rings next (not counting snoozes), respecting skipped dates and vacation mode. */
-    fun next(alarm: Alarm, now: ZonedDateTime = ZonedDateTime.now()): Long? {
-        if (!alarm.enabled) return null
-        val pause = pausedUntil
-        val from = if (pause != null && alarm.days.isNotEmpty()) {
-            maxOf(now, pause.plusDays(1).atStartOfDay(now.zone))
-        } else now
-        return alarm.nextAfter(from)
+    fun setVacation(from: LocalDate, until: LocalDate) {
+        prefs.edit().putString("pausedFrom", from.toString()).putString("pausedUntil", until.toString()).apply()
+        syncAll()
     }
+
+    fun endVacation() {
+        prefs.edit().remove("pausedFrom").remove("pausedUntil").apply()
+        syncAll()
+    }
+
+    /** When [alarm] rings next (not counting snoozes), respecting skipped dates and vacation mode. */
+    fun next(alarm: Alarm, now: ZonedDateTime = ZonedDateTime.now()): Long? =
+        if (!alarm.enabled) null else nextOutside(alarm, now, vacation)
 
     /** The next ring of any alarm, snoozes included. */
     fun nextRing(now: ZonedDateTime = ZonedDateTime.now()): Pair<Alarm, Long>? = all().mapNotNull { alarm ->
@@ -175,6 +194,7 @@ internal class Alarms(private val context: Context) {
     /** Things that show or depend on the next alarm. */
     private fun changed() {
         Bedtime(context).reschedule()
+        UpcomingAlarm(context).reschedule()
         NextAlarmWidget.update(context)
     }
 

@@ -430,12 +430,7 @@
     <string name="stats_empty">Nach deinem ersten Wecker erscheinen deine Aufwachzeiten hier.</string>
     <string name="stats_how">„Pünktlich“ heißt: Du hast den Wecker ohne Schlummern ausgeschaltet, und die Wachkontrolle musste nicht erneut klingeln.</string>
     <string name="stats_private">Wird nur auf diesem Handy gespeichert.</string>
-    <string name="skip_next">Nächsten überspringen</string>
-    <string name="skip_next_description">Wecker am %s überspringen</string>
     <string name="skip_until">%s übersprungen</string>
-    <string name="skip_undo">Rückgängig</string>
-    <string name="vacation_button">Urlaubsmodus: Wiederholte Wecker pausieren</string>
-    <string name="vacation_pick">Pausieren bis einschließlich</string>
     <string name="vacation_title">Urlaubsmodus</string>
     <string name="vacation_active">Wiederholte Wecker sind bis einschließlich %s pausiert. Einmalige Wecker klingeln weiterhin.</string>
     <string name="vacation_end">Urlaubsmodus beenden</string>
@@ -500,4 +495,21 @@
     <string name="type_invalid_time">Gib eine Stunde von 0 bis 23 und Minuten von 0 bis 59 ein.</string>
     <string name="type_invalid_date">Dieses Datum gibt es nicht. Prüfe Tag und Monat.</string>
     <string name="type_date_past">Wähle heute oder ein späteres Datum.</string>
+    <string name="alarm_more">Weitere Optionen für den Wecker um %s</string>
+    <string name="skip_next_menu">Nächsten überspringen (%s)</string>
+    <string name="skip_undo_menu">Nicht überspringen</string>
+    <string name="skip_tag_description">%s. Tippen zum Rückgängigmachen.</string>
+    <string name="upcoming_channel">Anstehende Wecker</string>
+    <string name="upcoming_title">Anstehender Wecker: %s</string>
+    <string name="upcoming_text">Diesmal nicht nötig? Überspring ihn.</string>
+    <string name="upcoming_skip">Diesmal überspringen</string>
+    <string name="vacation_desc">Wiederholte Wecker pausieren</string>
+    <string name="vacation_headline">An freien Tagen ausschlafen</string>
+    <string name="vacation_description">Wiederholte Wecker bleiben vom ersten bis zum letzten gewählten Tag still und starten danach von selbst wieder. Einmalige Wecker klingeln weiterhin.</string>
+    <string name="vacation_scheduled">Wiederholte Wecker pausieren vom %1$s bis einschließlich %2$s. Einmalige Wecker klingeln weiterhin.</string>
+    <string name="vacation_chip_active">Im Urlaub bis %s</string>
+    <string name="vacation_chip_scheduled">Urlaub ab %s</string>
+    <string name="vacation_start_value">Erster Tag: %s</string>
+    <string name="vacation_end_value">Letzter Tag: %s</string>
+    <string name="vacation_turn_on">Urlaubsmodus einschalten</string>
 </resources>

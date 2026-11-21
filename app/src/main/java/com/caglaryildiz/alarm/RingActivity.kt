@@ -321,19 +321,27 @@ open class RingActivity : AlarmScreen() {
             gravity = Gravity.CENTER
             accessibilityLiveRegion = android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE
         }
-        val sensor = sensorManager.getDefaultSensor(android.hardware.Sensor.TYPE_STEP_DETECTOR)
+        val detector = sensorManager.getDefaultSensor(android.hardware.Sensor.TYPE_STEP_DETECTOR)
+        val counter = sensorManager.getDefaultSensor(android.hardware.Sensor.TYPE_STEP_COUNTER)
         val listener = object : android.hardware.SensorEventListener {
             override fun onSensorChanged(event: android.hardware.SensorEvent) {
                 if (mission.complete) return
-                mission.step()
+                when (event.sensor.type) {
+                    android.hardware.Sensor.TYPE_STEP_DETECTOR -> mission.step()
+                    android.hardware.Sensor.TYPE_STEP_COUNTER -> mission.stepTotal(event.values[0])
+                }
                 progress.text = getString(R.string.steps_progress, mission.progress, mission.stepGoal)
                 if (mission.complete) send(RingService.DISMISS, ring)
             }
 
             override fun onAccuracyChanged(sensor: android.hardware.Sensor?, accuracy: Int) = Unit
         }
-        if (sensor != null && ExtraMission.canCountSteps(this) &&
-            sensorManager.registerListener(listener, sensor, android.hardware.SensorManager.SENSOR_DELAY_UI, 0)) {
+        // Both sensors on one listener: the detector reacts at once, the counter catches the steps it missed.
+        // A report latency of 0 asks the phone not to hold events back in batches.
+        val registered = ExtraMission.canCountSteps(this) && listOfNotNull(detector, counter).map {
+            sensorManager.registerListener(listener, it, android.hardware.SensorManager.SENSOR_DELAY_FASTEST, 0)
+        }.any { it }
+        if (registered) {
             shakeListener = listener
         } else {
             button(getString(R.string.math_fallback), controls, primary = false) { useMathFallback(ring) }

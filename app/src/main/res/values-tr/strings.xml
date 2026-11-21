@@ -430,12 +430,7 @@
     <string name="stats_empty">İlk alarmından sonra uyanışların burada görünür.</string>
     <string name="stats_how">“Zamanında”, alarmı ertelemeden kapattığın ve uyanıklık kontrolünün tekrar çalmak zorunda kalmadığı anlamına gelir.</string>
     <string name="stats_private">Yalnızca bu telefonda saklanır.</string>
-    <string name="skip_next">Sonrakini atla</string>
-    <string name="skip_next_description">%s tarihindeki alarmı atla</string>
     <string name="skip_until">%s atlanacak</string>
-    <string name="skip_undo">Geri al</string>
-    <string name="vacation_button">Tatil modu: tekrarlanan alarmları duraklat</string>
-    <string name="vacation_pick">Şu tarihe kadar duraklat (dahil)</string>
     <string name="vacation_title">Tatil modu</string>
     <string name="vacation_active">Tekrarlanan alarmlar %s tarihine kadar (dahil) duraklatıldı. Tek seferlik alarmlar yine çalar.</string>
     <string name="vacation_end">Tatil modunu bitir</string>
@@ -500,4 +495,21 @@
     <string name="type_invalid_time">0–23 arası bir saat ve 0–59 arası dakika gir.</string>
     <string name="type_invalid_date">Böyle bir tarih yok. Günü ve ayı kontrol et.</string>
     <string name="type_date_past">Bugünü veya daha sonraki bir tarihi seç.</string>
+    <string name="alarm_more">%s alarmı için diğer seçenekler</string>
+    <string name="skip_next_menu">Sonrakini atla (%s)</string>
+    <string name="skip_undo_menu">Atlama</string>
+    <string name="skip_tag_description">%s. Geri almak için dokun.</string>
+    <string name="upcoming_channel">Yaklaşan alarmlar</string>
+    <string name="upcoming_title">Yaklaşan alarm: %s</string>
+    <string name="upcoming_text">Bu sefer gerek yok mu? Atla.</string>
+    <string name="upcoming_skip">Bu sefer atla</string>
+    <string name="vacation_desc">Tekrarlanan alarmları duraklat</string>
+    <string name="vacation_headline">Tatil günlerinde doyasıya uyu</string>
+    <string name="vacation_description">Tekrarlanan alarmlar seçtiğin ilk günden son güne kadar çalmaz, sonra kendiliğinden yeniden başlar. Tek seferlik alarmlar yine çalar.</string>
+    <string name="vacation_scheduled">Tekrarlanan alarmlar %1$s ile %2$s arasında duraklatılacak. Tek seferlik alarmlar yine çalar.</string>
+    <string name="vacation_chip_active">%s tarihine kadar tatilde</string>
+    <string name="vacation_chip_scheduled">Tatil %s tarihinde başlıyor</string>
+    <string name="vacation_start_value">İlk gün: %s</string>
+    <string name="vacation_end_value">Son gün: %s</string>
+    <string name="vacation_turn_on">Tatil modunu aç</string>
 </resources>

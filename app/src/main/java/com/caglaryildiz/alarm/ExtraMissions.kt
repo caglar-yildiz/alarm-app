@@ -39,9 +39,33 @@ internal class ExtraMission(val task: AlarmTask, val qrCode: String, val phrase:
         if (!complete) complete = ++progress == SHAKE_COUNT
     }
 
-    /** One step from the step detector. Progress only grows while the alarm screen is open and walking. */
+    private var detectorSteps = 0
+    private var counterBase: Float? = null
+    private var counterSteps = 0
+
+    /**
+     * One step from the step detector: instant, but many phones skip the first steps and miss steps
+     * while the phone is held in the hand.
+     */
     fun step() {
-        if (task == AlarmTask.STEPS && !complete) complete = ++progress >= stepGoal
+        detectorSteps++
+        updateSteps()
+    }
+
+    /**
+     * The step counter's running total since boot. It is the accurate source but reports late and in
+     * batches, so progress uses whichever of the two sources has counted more.
+     */
+    fun stepTotal(total: Float) {
+        val base = counterBase ?: total.also { counterBase = it }
+        counterSteps = (total - base).toInt().coerceAtLeast(0)
+        updateSteps()
+    }
+
+    private fun updateSteps() {
+        if (task != AlarmTask.STEPS || complete) return
+        progress = maxOf(progress, detectorSteps, counterSteps).coerceAtMost(stepGoal)
+        complete = progress >= stepGoal
     }
 
     fun scan(text: String): Boolean {
@@ -55,8 +79,10 @@ internal class ExtraMission(val task: AlarmTask, val qrCode: String, val phrase:
         fun create(context: Context, task: AlarmTask, qrCode: String, stepGoal: Int = StepGoal.DEFAULT) =
             ExtraMission(task, qrCode, context.resources.getStringArray(R.array.typing_phrases).random(), StepGoal.coerce(stepGoal))
 
-        fun hasStepDetector(context: Context) =
-            context.getSystemService(SensorManager::class.java).getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) != null
+        /** Either step sensor is enough; most phones have both. */
+        fun hasStepDetector(context: Context) = context.getSystemService(SensorManager::class.java).let {
+            it.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) != null || it.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) != null
+        }
 
         /** Android 10+ asks the user before an app may count steps. */
         fun canCountSteps(context: Context) = hasStepDetector(context) &&

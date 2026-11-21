@@ -420,12 +420,7 @@
     <string name="stats_empty">最初のアラームの後、ここに起床の記録が表示されます。</string>
     <string name="stats_how">「時間どおり」とは、スヌーズせずにアラームを止め、起床チェックで再び鳴らなかったことを意味します。</string>
     <string name="stats_private">このスマホにのみ保存されます。</string>
-    <string name="skip_next">次回をスキップ</string>
-    <string name="skip_next_description">%s のアラームをスキップ</string>
     <string name="skip_until">%s はスキップ</string>
-    <string name="skip_undo">元に戻す</string>
-    <string name="vacation_button">休暇モード：繰り返しアラームを一時停止</string>
-    <string name="vacation_pick">一時停止の最終日</string>
     <string name="vacation_title">休暇モード</string>
     <string name="vacation_active">繰り返しアラームは %s まで一時停止中です。1回限りのアラームは通常どおり鳴ります。</string>
     <string name="vacation_end">休暇モードを終了</string>
@@ -490,4 +485,21 @@
     <string name="type_invalid_time">時は0〜23、分は0〜59で入力してください。</string>
     <string name="type_invalid_date">その日付はありません。日と月を確認してください。</string>
     <string name="type_date_past">今日以降の日付を選んでください。</string>
+    <string name="alarm_more">%s のアラームのその他のオプション</string>
+    <string name="skip_next_menu">次回をスキップ（%s）</string>
+    <string name="skip_undo_menu">スキップしない</string>
+    <string name="skip_tag_description">%s。タップで元に戻します。</string>
+    <string name="upcoming_channel">もうすぐ鳴るアラーム</string>
+    <string name="upcoming_title">もうすぐアラーム：%s</string>
+    <string name="upcoming_text">今回は不要ですか？スキップできます。</string>
+    <string name="upcoming_skip">今回はスキップ</string>
+    <string name="vacation_desc">繰り返しアラームを一時停止</string>
+    <string name="vacation_headline">休みの日はゆっくり眠ろう</string>
+    <string name="vacation_description">選んだ最初の日から最後の日まで繰り返しアラームは鳴らず、その後は自動で再開します。1回限りのアラームは通常どおり鳴ります。</string>
+    <string name="vacation_scheduled">繰り返しアラームは %1$s から %2$s まで一時停止します。1回限りのアラームは通常どおり鳴ります。</string>
+    <string name="vacation_chip_active">%s まで休暇中</string>
+    <string name="vacation_chip_scheduled">%s から休暇</string>
+    <string name="vacation_start_value">初日：%s</string>
+    <string name="vacation_end_value">最終日：%s</string>
+    <string name="vacation_turn_on">休暇モードをオンにする</string>
 </resources>

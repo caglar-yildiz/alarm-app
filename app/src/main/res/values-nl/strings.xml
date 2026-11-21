@@ -430,12 +430,7 @@
     <string name="stats_empty">Je wakker-wordmomenten verschijnen hier na je eerste wekker.</string>
     <string name="stats_how">‘Op tijd’ betekent dat je de wekker zonder sluimeren uitzette en de wakkercheck niet opnieuw hoefde af te gaan.</string>
     <string name="stats_private">Alleen op deze telefoon bewaard.</string>
-    <string name="skip_next">Volgende overslaan</string>
-    <string name="skip_next_description">Wekker op %s overslaan</string>
     <string name="skip_until">%s overgeslagen</string>
-    <string name="skip_undo">Ongedaan maken</string>
-    <string name="vacation_button">Vakantiemodus: herhalende wekkers pauzeren</string>
-    <string name="vacation_pick">Pauzeren tot en met</string>
     <string name="vacation_title">Vakantiemodus</string>
     <string name="vacation_active">Herhalende wekkers zijn gepauzeerd tot en met %s. Eenmalige wekkers gaan nog steeds af.</string>
     <string name="vacation_end">Vakantiemodus beëindigen</string>
@@ -500,4 +495,21 @@
     <string name="type_invalid_time">Voer een uur van 0 tot 23 en minuten van 0 tot 59 in.</string>
     <string name="type_invalid_date">Die datum bestaat niet. Controleer dag en maand.</string>
     <string name="type_date_past">Kies vandaag of een latere datum.</string>
+    <string name="alarm_more">Meer opties voor de wekker van %s</string>
+    <string name="skip_next_menu">Volgende overslaan (%s)</string>
+    <string name="skip_undo_menu">Niet overslaan</string>
+    <string name="skip_tag_description">%s. Tik om ongedaan te maken.</string>
+    <string name="upcoming_channel">Komende wekkers</string>
+    <string name="upcoming_title">Komende wekker: %s</string>
+    <string name="upcoming_text">Deze keer niet nodig? Sla hem over.</string>
+    <string name="upcoming_skip">Deze keer overslaan</string>
+    <string name="vacation_desc">Herhalende wekkers pauzeren</string>
+    <string name="vacation_headline">Uitslapen op je vrije dagen</string>
+    <string name="vacation_description">Herhalende wekkers blijven stil van de eerste tot de laatste gekozen dag en gaan daarna vanzelf weer af. Eenmalige wekkers gaan nog steeds af.</string>
+    <string name="vacation_scheduled">Herhalende wekkers pauzeren van %1$s tot en met %2$s. Eenmalige wekkers gaan nog steeds af.</string>
+    <string name="vacation_chip_active">Op vakantie tot %s</string>
+    <string name="vacation_chip_scheduled">Vakantie vanaf %s</string>
+    <string name="vacation_start_value">Eerste dag: %s</string>
+    <string name="vacation_end_value">Laatste dag: %s</string>
+    <string name="vacation_turn_on">Vakantiemodus aanzetten</string>
 </resources>

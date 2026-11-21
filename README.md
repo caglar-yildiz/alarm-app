@@ -10,8 +10,9 @@ Alarm ekranından kaçılamaz: alarm çalarken ana ekrana, Ayarlar'a geçilir ya
 
 ## Özellikler
 
-- **Kapatma görevleri:** toplama, hafıza dizisi, yazma; Premium: telefonu sallama, QR kod, şekil bulma ve **yürüme** (adım sensörüyle 20–100 adım; fiziksel etkinlik izni gerekir, yoksa alarm matematiğe döner).
-- **Sonrakini atla / tatil modu:** tekrarlanan bir alarmın yalnızca bir sonraki çalışı atlanabilir. Tatil modu, seçilen tarihe kadar (dahil) tekrarlanan alarmları susturur; tek seferlik alarmlar yine çalar.
+- **Kapatma görevleri:** toplama, hafıza dizisi, yazma; Premium: telefonu sallama, QR kod, şekil bulma ve **yürüme** (20–100 adım; fiziksel etkinlik izni gerekir, yoksa alarm matematiğe döner). Adımlar hem adım dedektöründen hem adım sayacından okunur ve büyük olan kullanılır: dedektör birçok telefonda ilk adımları ve elde tutulurken atılan adımları kaçırır.
+- **Sonrakini atla:** alarm kartındaki ⋮ menüsünden ya da alarmdan 2 saat önce gelen sessiz "Bu sefer atla" bildiriminden (`UpcomingAlarm`). Atlanan gün kartta küçük bir etiket olarak görünür; etikete dokununca geri alınır. Bildirim, tek seferlik alarmı kapatır.
+- **Tatil modu (Araçlar):** seçilen ilk ve son gün (dahil) arasında tekrarlanan alarmlar çalmaz, sonra kendiliğinden döner; tek seferlik alarmlar yine çalar. Açıkken "Sonraki alarm" kartında bir çip görünür.
 - **Sabah özeti:** alarm kapatılınca selam, saat, bugünün hava durumu, zamanında kalkma serisi ve uyanıklık kontrolü bilgisi gösterilir (`BriefingActivity`). Premium ile telefonun metin okuma sesiyle okunur.
 - **İstatistikler:** her alarmın nasıl bittiği (kapatıldı, ertelendi, çalıp bitti, uyanıklık kontrolü tekrar çaldı) yalnızca telefonda saklanır (`WakeStats`). Erteleme olmadan kapatılan gün “zamanında” sayılır; alarm olmayan günler seriyi bozmaz.
 - **Yatma vakti hatırlatıcısı:** bir sonraki gerçek alarma ve uyku hedefine göre bildirim (`Bedtime`).
