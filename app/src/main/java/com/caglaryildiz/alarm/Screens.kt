@@ -261,6 +261,123 @@ abstract class AlarmScreen : Activity() {
     protected fun premiumPill(parent: LinearLayout) =
         pill(getString(R.string.premium_badge), parent, goldColor, 0x40FFD98C, 0x99FFD98C.toInt())
 
+    /** A digits-only box for one part of a typed time or date. */
+    private fun digitField(hint: String, length: Int, value: String) = EditText(this).apply {
+        this.hint = hint
+        setText(value)
+        inputType = InputType.TYPE_CLASS_NUMBER
+        filters = arrayOf(android.text.InputFilter.LengthFilter(length))
+        gravity = Gravity.CENTER
+        textSize = 26f
+        setTextColor(Color.WHITE)
+        setHintTextColor(0x80C0C4E1.toInt())
+        setSelectAllOnFocus(true)
+        imeOptions = android.view.inputmethod.EditorInfo.IME_ACTION_NEXT
+        styleInput(this)
+    }
+
+    /** Moves the cursor on to [next] once [field] holds all its digits, so typing "0730" fills both boxes. */
+    private fun advance(field: EditText, length: Int, next: EditText) {
+        field.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+            override fun afterTextChanged(s: android.text.Editable?) {
+                if (field.hasFocus() && (s?.length ?: 0) >= length) next.requestFocus()
+            }
+        })
+    }
+
+    /** A dialog holding [fields]; OK runs [submit], which returns an error message or null when done. */
+    private fun typedDialog(title: String, fields: List<View>, focus: EditText, last: EditText, submit: () -> String?) {
+        val content = column().apply { setPadding(dp(24), dp(16), dp(24), 0) }
+        val row = LinearLayout(this).apply { gravity = Gravity.CENTER }
+        content.addView(row, LinearLayout.LayoutParams(-1, -2))
+        fields.forEach { row.addView(it) }
+        val error = label("", 14f, content, color = 0xFFFFB4C4.toInt()).apply {
+            visibility = View.GONE
+            accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
+        }
+        val dialog = android.app.AlertDialog.Builder(this, R.style.AstralDialogTheme)
+            .setTitle(title)
+            .setView(content)
+            .setPositiveButton(android.R.string.ok, null)
+            .setNegativeButton(getString(R.string.cancel), null)
+            .create()
+        fun trySubmit() {
+            val message = submit()
+            if (message == null) dialog.dismiss() else {
+                error.text = message
+                error.visibility = View.VISIBLE
+            }
+        }
+        last.imeOptions = android.view.inputmethod.EditorInfo.IME_ACTION_DONE
+        last.setOnEditorActionListener { _, _, _ -> trySubmit(); true }
+        dialog.setOnShowListener {
+            // Kept open on a mistake: the default OK button would close the dialog.
+            dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener { trySubmit() }
+            focus.requestFocus()
+        }
+        dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+        dialog.show()
+    }
+
+    private fun separator(text: String) = TextView(this).apply {
+        this.text = text
+        textSize = 26f
+        setTextColor(Color.WHITE)
+        setPadding(dp(8), 0, dp(8), 0)
+    }
+
+    /** Type a time as hours and minutes instead of tapping it on the clock. */
+    protected fun typeTime(initial: java.time.LocalTime, picked: (java.time.LocalTime) -> Unit) {
+        val hour = digitField(getString(R.string.type_hint_hour), 2, "%02d".format(java.util.Locale.ROOT, initial.hour))
+        val minute = digitField(getString(R.string.type_hint_minute), 2, "%02d".format(java.util.Locale.ROOT, initial.minute))
+        advance(hour, 2, minute)
+        val box = LinearLayout.LayoutParams(dp(88), -2)
+        hour.layoutParams = box
+        minute.layoutParams = LinearLayout.LayoutParams(dp(88), -2)
+        hour.contentDescription = getString(R.string.type_hint_hour)
+        minute.contentDescription = getString(R.string.type_hint_minute)
+        typedDialog(getString(R.string.type_time_title), listOf(hour, separator(":"), minute), hour, minute) {
+            val time = TypedInput.time(hour.text.toString(), minute.text.toString())
+                ?: return@typedDialog getString(R.string.type_invalid_time)
+            picked(time)
+            null
+        }
+    }
+
+    /** Type a date as day, month and year, in the order the app language writes them. */
+    protected fun typeDate(initial: java.time.LocalDate, earliest: java.time.LocalDate, picked: (java.time.LocalDate) -> Unit) {
+        val day = digitField(getString(R.string.type_hint_day), 2, "%02d".format(java.util.Locale.ROOT, initial.dayOfMonth))
+        val month = digitField(getString(R.string.type_hint_month), 2, "%02d".format(java.util.Locale.ROOT, initial.monthValue))
+        val year = digitField(getString(R.string.type_hint_year), 4, initial.year.toString())
+        val order = TypedInput.dateOrder(appLocale()).map {
+            when (it) {
+                TypedInput.Field.DAY -> day
+                TypedInput.Field.MONTH -> month
+                TypedInput.Field.YEAR -> year
+            }
+        }
+        day.contentDescription = getString(R.string.type_hint_day)
+        month.contentDescription = getString(R.string.type_hint_month)
+        year.contentDescription = getString(R.string.type_hint_year)
+        order.forEachIndexed { index, field ->
+            field.layoutParams = LinearLayout.LayoutParams(0, -2, if (field === year) 1.5f else 1f)
+            order.getOrNull(index + 1)?.let { advance(field, if (field === year) 4 else 2, it) }
+        }
+        val pattern = java.time.format.DateTimeFormatterBuilder.getLocalizedDateTimePattern(
+            java.time.format.FormatStyle.SHORT, null, java.time.chrono.IsoChronology.INSTANCE, appLocale())
+        val mark = pattern.firstOrNull { it in "./-" }?.toString() ?: "/"
+        val views = listOf(order[0], separator(mark), order[1], separator(mark), order[2])
+        typedDialog(getString(R.string.type_date_title), views, order[0], order[2]) {
+            when (val result = TypedInput.date(day.text.toString(), month.text.toString(), year.text.toString(), earliest)) {
+                is TypedInput.DateResult.Ok -> { picked(result.date); null }
+                TypedInput.DateResult.TooEarly -> getString(R.string.type_date_past)
+                TypedInput.DateResult.Invalid -> getString(R.string.type_invalid_date)
+            }
+        }
+    }
+
     /** Icon, title and description in one row, used for feature lists. */
     protected fun featureRow(
         icon: Int,
@@ -1051,6 +1168,12 @@ class MainActivity : WeatherScreen() {
         }, suggested.year, suggested.monthValue - 1, suggested.dayOfMonth).apply {
             setTitle(getString(R.string.vacation_pick))
             datePicker.minDate = today.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+            setButton(android.app.AlertDialog.BUTTON_NEUTRAL, getString(R.string.type_date)) { _, _ ->
+                typeDate(suggested, today) {
+                    alarms.pausedUntil = it
+                    render()
+                }
+            }
         }.show()
     }
 

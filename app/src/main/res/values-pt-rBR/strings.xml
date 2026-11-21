@@ -433,4 +433,17 @@
     <string name="briefing_wake_check">A checagem de despertar vai perguntar em %d min se você está acordado.</string>
     <string name="briefing_close">Vamos lá</string>
     <string name="premium_feature_briefing">Ouça a hora, o tempo de hoje e sua sequência depois do alarme.</string>
+    <string name="type_time">Digitar</string>
+    <string name="type_time_title">Digite o horário</string>
+    <string name="type_time_description">%s. Toque para digitar o horário.</string>
+    <string name="type_date">Digitar uma data</string>
+    <string name="type_date_title">Digite a data</string>
+    <string name="type_hint_hour">HH</string>
+    <string name="type_hint_minute">MM</string>
+    <string name="type_hint_day">DD</string>
+    <string name="type_hint_month">MM</string>
+    <string name="type_hint_year">AAAA</string>
+    <string name="type_invalid_time">Digite uma hora de 0 a 23 e minutos de 0 a 59.</string>
+    <string name="type_invalid_date">Essa data não existe. Confira o dia e o mês.</string>
+    <string name="type_date_past">Escolha hoje ou uma data posterior.</string>
 </resources>

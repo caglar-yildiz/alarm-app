@@ -424,4 +424,17 @@
     <string name="briefing_wake_check">Uyanıklık kontrolü %d dk sonra uyanık olup olmadığını soracak.</string>
     <string name="briefing_close">Hadi başlayalım</string>
     <string name="premium_feature_briefing">Alarmdan sonra saati, bugünün hava durumunu ve serini sesli dinle.</string>
+    <string name="type_time">Yaz</string>
+    <string name="type_time_title">Saati yaz</string>
+    <string name="type_time_description">%s. Saati yazmak için dokun.</string>
+    <string name="type_date">Tarihi yaz</string>
+    <string name="type_date_title">Tarihi yaz</string>
+    <string name="type_hint_hour">SS</string>
+    <string name="type_hint_minute">DD</string>
+    <string name="type_hint_day">GG</string>
+    <string name="type_hint_month">AA</string>
+    <string name="type_hint_year">YYYY</string>
+    <string name="type_invalid_time">0–23 arası bir saat ve 0–59 arası dakika gir.</string>
+    <string name="type_invalid_date">Böyle bir tarih yok. Günü ve ayı kontrol et.</string>
+    <string name="type_date_past">Bugünü veya daha sonraki bir tarihi seç.</string>
 </resources>

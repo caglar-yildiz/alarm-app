@@ -433,4 +433,17 @@
     <string name="briefing_wake_check">Il controllo risveglio ti chiederà tra %d min se sei sveglio.</string>
     <string name="briefing_close">Andiamo</string>
     <string name="premium_feature_briefing">Ascolta ora, meteo di oggi e la tua serie dopo la sveglia.</string>
+    <string name="type_time">Scrivi</string>
+    <string name="type_time_title">Scrivi l’ora</string>
+    <string name="type_time_description">%s. Tocca per scrivere l’ora.</string>
+    <string name="type_date">Scrivi una data</string>
+    <string name="type_date_title">Scrivi la data</string>
+    <string name="type_hint_hour">HH</string>
+    <string name="type_hint_minute">MM</string>
+    <string name="type_hint_day">GG</string>
+    <string name="type_hint_month">MM</string>
+    <string name="type_hint_year">AAAA</string>
+    <string name="type_invalid_time">Inserisci un’ora da 0 a 23 e minuti da 0 a 59.</string>
+    <string name="type_invalid_date">Questa data non esiste. Controlla giorno e mese.</string>
+    <string name="type_date_past">Scegli oggi o una data successiva.</string>
 </resources>

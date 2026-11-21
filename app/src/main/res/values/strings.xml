@@ -425,4 +425,17 @@
     <string name="briefing_wake_check">Wake check will ask if you’re awake in %d min.</string>
     <string name="briefing_close">Let’s go</string>
     <string name="premium_feature_briefing">Hear the time, today’s weather and your streak read aloud after the alarm.</string>
+    <string name="type_time">Type</string>
+    <string name="type_time_title">Type the time</string>
+    <string name="type_time_description">%s. Tap to type the time.</string>
+    <string name="type_date">Type a date</string>
+    <string name="type_date_title">Type the date</string>
+    <string name="type_hint_hour">HH</string>
+    <string name="type_hint_minute">MM</string>
+    <string name="type_hint_day">DD</string>
+    <string name="type_hint_month">MM</string>
+    <string name="type_hint_year">YYYY</string>
+    <string name="type_invalid_time">Enter an hour from 0 to 23 and minutes from 0 to 59.</string>
+    <string name="type_invalid_date">That date doesn’t exist. Check the day and month.</string>
+    <string name="type_date_past">Pick today or a later date.</string>
 </resources>

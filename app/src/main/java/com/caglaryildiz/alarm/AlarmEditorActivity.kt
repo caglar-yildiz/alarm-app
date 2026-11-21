@@ -44,6 +44,7 @@ class AlarmEditorActivity : AlarmScreen() {
     private lateinit var hourButton: Button
     private lateinit var minuteButton: Button
     private lateinit var dateButton: Button
+    private lateinit var typeDateButton: Button
     private lateinit var repeatButton: Button
     private lateinit var toneButton: Button
     private lateinit var crescendoButton: Button
@@ -75,7 +76,13 @@ class AlarmEditorActivity : AlarmScreen() {
         layout()
         showNameField(savedInstanceState?.getString("label") ?: alarm.label)
         val schedule = card()
-        timeReadout = timeLabel("", 56f, schedule).apply { gravity = Gravity.CENTER }
+        timeReadout = timeLabel("", 56f, schedule).apply {
+            gravity = Gravity.CENTER
+            // Tapping the big time opens the keyboard: faster than the clock for many people.
+            isClickable = true
+            isFocusable = true
+            setOnClickListener { typeAlarmTime() }
+        }
         orbit = OrbitTimeView(this) { picked ->
             time = picked
             updateFields()
@@ -91,14 +98,24 @@ class AlarmEditorActivity : AlarmScreen() {
             orbit.selectingMinutes = true
             updateTimeFields()
         }
-        for (tab in listOf(hourButton, minuteButton)) {
+        val typeButton = button(getString(R.string.type_time), tabs, primary = false) { typeAlarmTime() }
+        typeButton.contentDescription = getString(R.string.type_time_title)
+        for (tab in listOf(hourButton, minuteButton, typeButton)) {
             tab.layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply {
                 marginEnd = dp(4)
                 marginStart = dp(4)
             }
         }
         schedule.addView(orbit, LinearLayout.LayoutParams(-1, dp(268)))
-        dateButton = button("", section(getString(R.string.editor_date)), primary = false, action = ::pickDate)
+        val dateSection = section(getString(R.string.editor_date))
+        dateButton = button("", dateSection, primary = false, action = ::pickDate)
+        typeDateButton = button(getString(R.string.type_date), dateSection, primary = false) {
+            val today = LocalDate.now()
+            typeDate(date?.coerceAtLeast(today) ?: today, today) {
+                date = it
+                updateFields()
+            }
+        }
         repeatButton = button("", section(getString(R.string.editor_repeat_days)), primary = false, action = ::pickDays)
         val soundSection = section(getString(R.string.editor_sound))
         toneButton = button("", soundSection, primary = false, action = ::pickTone)
@@ -150,6 +167,7 @@ class AlarmEditorActivity : AlarmScreen() {
 
     private fun updateTimeFields() {
         timeReadout.text = time.format(clockFormat)
+        timeReadout.contentDescription = getString(R.string.type_time_description, time.format(clockFormat))
         orbit.time = time
         // The chosen tab looks like a primary button; the other stays a normal secondary one instead of a faded grey.
         for ((tab, selected) in listOf(hourButton to !orbit.selectingMinutes, minuteButton to orbit.selectingMinutes)) {
@@ -166,6 +184,7 @@ class AlarmEditorActivity : AlarmScreen() {
     private fun updateFields() {
         updateTimeFields()
         dateButton.isEnabled = days.isEmpty()
+        typeDateButton.visibility = if (days.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
         dateButton.text = when {
             days.isNotEmpty() -> getString(R.string.editor_date_by_days)
             date != null -> date?.format(dateFormat())
@@ -198,6 +217,11 @@ class AlarmEditorActivity : AlarmScreen() {
 
     private fun toggleCrescendo() {
         crescendo = !crescendo
+        updateFields()
+    }
+
+    private fun typeAlarmTime() = typeTime(time) {
+        time = it
         updateFields()
     }
 

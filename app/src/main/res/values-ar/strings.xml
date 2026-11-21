@@ -460,4 +460,17 @@
     <string name="briefing_wake_check">سيسألك التحقق من الاستيقاظ بعد %d د إن كنت مستيقظًا.</string>
     <string name="briefing_close">هيا بنا</string>
     <string name="premium_feature_briefing">استمع إلى الوقت وطقس اليوم وسلسلتك بعد المنبّه.</string>
+    <string name="type_time">كتابة</string>
+    <string name="type_time_title">اكتب الوقت</string>
+    <string name="type_time_description">%s. انقر لكتابة الوقت.</string>
+    <string name="type_date">اكتب التاريخ</string>
+    <string name="type_date_title">اكتب التاريخ</string>
+    <string name="type_hint_hour">س</string>
+    <string name="type_hint_minute">د</string>
+    <string name="type_hint_day">يوم</string>
+    <string name="type_hint_month">شهر</string>
+    <string name="type_hint_year">سنة</string>
+    <string name="type_invalid_time">أدخل ساعة من 0 إلى 23 ودقائق من 0 إلى 59.</string>
+    <string name="type_invalid_date">هذا التاريخ غير موجود. تحقّق من اليوم والشهر.</string>
+    <string name="type_date_past">اختر اليوم أو تاريخًا لاحقًا.</string>
 </resources>

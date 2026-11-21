@@ -415,4 +415,17 @@
     <string name="briefing_wake_check">Cek bangun akan bertanya apakah kamu sudah bangun dalam %d mnt.</string>
     <string name="briefing_close">Ayo mulai</string>
     <string name="premium_feature_briefing">Dengarkan jam, cuaca hari ini, dan rentetanmu setelah alarm.</string>
+    <string name="type_time">Ketik</string>
+    <string name="type_time_title">Ketik waktu</string>
+    <string name="type_time_description">%s. Ketuk untuk mengetik waktu.</string>
+    <string name="type_date">Ketik tanggal</string>
+    <string name="type_date_title">Ketik tanggal</string>
+    <string name="type_hint_hour">JJ</string>
+    <string name="type_hint_minute">MM</string>
+    <string name="type_hint_day">HH</string>
+    <string name="type_hint_month">BB</string>
+    <string name="type_hint_year">TTTT</string>
+    <string name="type_invalid_time">Masukkan jam 0–23 dan menit 0–59.</string>
+    <string name="type_invalid_date">Tanggal itu tidak ada. Periksa hari dan bulannya.</string>
+    <string name="type_date_past">Pilih hari ini atau tanggal setelahnya.</string>
 </resources>

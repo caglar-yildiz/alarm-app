@@ -415,4 +415,17 @@
     <string name="briefing_wake_check">%d分後に起床チェックで起きているか確認します。</string>
     <string name="briefing_close">さあ、始めよう</string>
     <string name="premium_feature_briefing">アラーム後に時刻、今日の天気、連続記録を読み上げます。</string>
+    <string name="type_time">入力</string>
+    <string name="type_time_title">時刻を入力</string>
+    <string name="type_time_description">%s。タップして時刻を入力します。</string>
+    <string name="type_date">日付を入力</string>
+    <string name="type_date_title">日付を入力</string>
+    <string name="type_hint_hour">時</string>
+    <string name="type_hint_minute">分</string>
+    <string name="type_hint_day">日</string>
+    <string name="type_hint_month">月</string>
+    <string name="type_hint_year">年</string>
+    <string name="type_invalid_time">時は0〜23、分は0〜59で入力してください。</string>
+    <string name="type_invalid_date">その日付はありません。日と月を確認してください。</string>
+    <string name="type_date_past">今日以降の日付を選んでください。</string>
 </resources>

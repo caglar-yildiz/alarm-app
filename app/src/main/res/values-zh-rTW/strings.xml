@@ -415,4 +415,17 @@
     <string name="briefing_wake_check">清醒確認會在 %d 分鐘後詢問你是否醒著。</string>
     <string name="briefing_close">出發吧</string>
     <string name="premium_feature_briefing">鬧鐘後朗讀時間、今天的天氣和連續紀錄。</string>
+    <string name="type_time">輸入</string>
+    <string name="type_time_title">輸入時間</string>
+    <string name="type_time_description">%s。輕觸即可輸入時間。</string>
+    <string name="type_date">輸入日期</string>
+    <string name="type_date_title">輸入日期</string>
+    <string name="type_hint_hour">時</string>
+    <string name="type_hint_minute">分</string>
+    <string name="type_hint_day">日</string>
+    <string name="type_hint_month">月</string>
+    <string name="type_hint_year">年</string>
+    <string name="type_invalid_time">請輸入 0 到 23 的小時和 0 到 59 的分鐘。</string>
+    <string name="type_invalid_date">沒有這個日期，請檢查日和月。</string>
+    <string name="type_date_past">請選擇今天或之後的日期。</string>
 </resources>

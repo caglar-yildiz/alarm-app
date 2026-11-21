@@ -415,4 +415,17 @@
     <string name="briefing_wake_check">การตรวจว่าตื่นจริงจะถามว่าคุณตื่นหรือยังในอีก %d นาที</string>
     <string name="briefing_close">ไปกันเลย</string>
     <string name="premium_feature_briefing">ฟังเวลา สภาพอากาศวันนี้ และสถิติของคุณหลังนาฬิกาปลุก</string>
+    <string name="type_time">พิมพ์</string>
+    <string name="type_time_title">พิมพ์เวลา</string>
+    <string name="type_time_description">%s แตะเพื่อพิมพ์เวลา</string>
+    <string name="type_date">พิมพ์วันที่</string>
+    <string name="type_date_title">พิมพ์วันที่</string>
+    <string name="type_hint_hour">ชม.</string>
+    <string name="type_hint_minute">นาที</string>
+    <string name="type_hint_day">วัน</string>
+    <string name="type_hint_month">เดือน</string>
+    <string name="type_hint_year">ปี</string>
+    <string name="type_invalid_time">ใส่ชั่วโมง 0–23 และนาที 0–59</string>
+    <string name="type_invalid_date">ไม่มีวันที่นี้ ตรวจสอบวันและเดือนอีกครั้ง</string>
+    <string name="type_date_past">เลือกวันนี้หรือวันที่หลังจากนี้</string>
 </resources>

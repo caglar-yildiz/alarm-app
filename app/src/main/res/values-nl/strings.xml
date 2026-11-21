@@ -424,4 +424,17 @@
     <string name="briefing_wake_check">De wakkercheck vraagt over %d min of je wakker bent.</string>
     <string name="briefing_close">Aan de slag</string>
     <string name="premium_feature_briefing">Hoor na de wekker de tijd, het weer en je reeks voorgelezen.</string>
+    <string name="type_time">Typen</string>
+    <string name="type_time_title">Typ de tijd</string>
+    <string name="type_time_description">%s. Tik om de tijd te typen.</string>
+    <string name="type_date">Datum typen</string>
+    <string name="type_date_title">Typ de datum</string>
+    <string name="type_hint_hour">UU</string>
+    <string name="type_hint_minute">MM</string>
+    <string name="type_hint_day">DD</string>
+    <string name="type_hint_month">MM</string>
+    <string name="type_hint_year">JJJJ</string>
+    <string name="type_invalid_time">Voer een uur van 0 tot 23 en minuten van 0 tot 59 in.</string>
+    <string name="type_invalid_date">Die datum bestaat niet. Controleer dag en maand.</string>
+    <string name="type_date_past">Kies vandaag of een latere datum.</string>
 </resources>

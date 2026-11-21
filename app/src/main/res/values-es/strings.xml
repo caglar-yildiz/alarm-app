@@ -433,4 +433,17 @@
     <string name="briefing_wake_check">El control de despertar te preguntará en %d min si estás despierto.</string>
     <string name="briefing_close">¡Vamos!</string>
     <string name="premium_feature_briefing">Escucha la hora, el tiempo de hoy y tu racha después de la alarma.</string>
+    <string name="type_time">Escribir</string>
+    <string name="type_time_title">Escribe la hora</string>
+    <string name="type_time_description">%s. Toca para escribir la hora.</string>
+    <string name="type_date">Escribir una fecha</string>
+    <string name="type_date_title">Escribe la fecha</string>
+    <string name="type_hint_hour">HH</string>
+    <string name="type_hint_minute">MM</string>
+    <string name="type_hint_day">DD</string>
+    <string name="type_hint_month">MM</string>
+    <string name="type_hint_year">AAAA</string>
+    <string name="type_invalid_time">Escribe una hora de 0 a 23 y minutos de 0 a 59.</string>
+    <string name="type_invalid_date">Esa fecha no existe. Revisa el día y el mes.</string>
+    <string name="type_date_past">Elige hoy o una fecha posterior.</string>
 </resources>

@@ -424,4 +424,17 @@
     <string name="briefing_wake_check">Die Wachkontrolle fragt in %d Min., ob du wach bist.</string>
     <string name="briefing_close">Los geht’s</string>
     <string name="premium_feature_briefing">Lass dir nach dem Wecker Uhrzeit, Wetter und deine Serie vorlesen.</string>
+    <string name="type_time">Eingeben</string>
+    <string name="type_time_title">Uhrzeit eingeben</string>
+    <string name="type_time_description">%s. Tippen, um die Uhrzeit einzugeben.</string>
+    <string name="type_date">Datum eingeben</string>
+    <string name="type_date_title">Datum eingeben</string>
+    <string name="type_hint_hour">HH</string>
+    <string name="type_hint_minute">MM</string>
+    <string name="type_hint_day">TT</string>
+    <string name="type_hint_month">MM</string>
+    <string name="type_hint_year">JJJJ</string>
+    <string name="type_invalid_time">Gib eine Stunde von 0 bis 23 und Minuten von 0 bis 59 ein.</string>
+    <string name="type_invalid_date">Dieses Datum gibt es nicht. Prüfe Tag und Monat.</string>
+    <string name="type_date_past">Wähle heute oder ein späteres Datum.</string>
 </resources>

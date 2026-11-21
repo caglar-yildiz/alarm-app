@@ -415,4 +415,17 @@
     <string name="briefing_wake_check">%d분 후 기상 확인에서 깨어 있는지 물어봅니다.</string>
     <string name="briefing_close">시작해요</string>
     <string name="premium_feature_briefing">알람 후 시간, 오늘 날씨, 연속 기록을 읽어 줍니다.</string>
+    <string name="type_time">입력</string>
+    <string name="type_time_title">시간 입력</string>
+    <string name="type_time_description">%s. 탭하여 시간을 입력하세요.</string>
+    <string name="type_date">날짜 입력</string>
+    <string name="type_date_title">날짜 입력</string>
+    <string name="type_hint_hour">시</string>
+    <string name="type_hint_minute">분</string>
+    <string name="type_hint_day">일</string>
+    <string name="type_hint_month">월</string>
+    <string name="type_hint_year">연도</string>
+    <string name="type_invalid_time">시는 0~23, 분은 0~59로 입력하세요.</string>
+    <string name="type_invalid_date">없는 날짜입니다. 일과 월을 확인하세요.</string>
+    <string name="type_date_past">오늘 이후 날짜를 선택하세요.</string>
 </resources>
