@@ -50,25 +50,31 @@ jobs:
           xcrun simctl status_bar "$SIM_DEVICE" override --time 9:41 || true
           xcrun simctl install "$SIM_DEVICE" "$app"
           mkdir -p shots
-          for tab in alarms reminders weather tools premium; do
+          shot() {
             xcrun simctl terminate "$SIM_DEVICE" com.caglaryildiz.alarm 2>/dev/null || true
-            xcrun simctl launch "$SIM_DEVICE" com.caglaryildiz.alarm -seedDemo -demoTab "$tab" ${{ env.SHOT_ARGS }}
-            sleep 8
-            xcrun simctl io "$SIM_DEVICE" screenshot "shots/$tab.png"
-          done
+            xcrun simctl launch "$SIM_DEVICE" com.caglaryildiz.alarm -seedDemo "${@:2}"
+            sleep 7
+            xcrun simctl io "$SIM_DEVICE" screenshot "shots/$1.png"
+          }
+          for tab in alarms reminders weather tools premium; do shot "$tab" -demoTab "$tab"; done
+          shot editor -demoScreen editor
+          shot ring -demoScreen ring
+          shot briefing -demoScreen briefing
+          shot stats -demoScreen stats
+          xcrun simctl uninstall "$SIM_DEVICE" com.caglaryildiz.alarm
+          xcrun simctl install "$SIM_DEVICE" "$app"
+          shot turkish -demoTurkish -demoTab alarms
           python3 -m venv /tmp/venv && /tmp/venv/bin/pip -q install pillow
           /tmp/venv/bin/python - <<'PY'
           from PIL import Image
-          names = ["alarms", "reminders", "weather", "tools", "premium"]
+          names = ["alarms", "reminders", "weather", "tools", "premium", "editor", "ring", "briefing", "stats", "turkish"]
           shots = [Image.open(f"shots/{n}.png").convert("RGB") for n in names]
           w = 260; h = int(shots[0].height * w / shots[0].width)
-          sheet = Image.new("RGB", (w * len(shots), h))
-          for i, s in enumerate(shots): sheet.paste(s.resize((w, h), Image.LANCZOS), (i * w, 0))
+          sheet = Image.new("RGB", (w * 5, h * 2))
+          for i, s in enumerate(shots): sheet.paste(s.resize((w, h), Image.LANCZOS), ((i % 5) * w, (i // 5) * h))
           sheet.save("shots/sheet.jpg", quality=60)
           PY
           echo "SHEET-BEGIN"; base64 -i shots/sheet.jpg | fold -w 2000; echo "SHEET-END"
-        env:
-          SHOT_ARGS: ''
 
       - name: Keep the screenshots
         if: always()

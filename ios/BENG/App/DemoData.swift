@@ -11,6 +11,13 @@ enum DemoData {
         return Tab(rawValue: args[index + 1])
     }
 
+    /// A screen to open on launch: editor, ring, briefing or a tool name.
+    static var screen: String? {
+        let args = ProcessInfo.processInfo.arguments
+        guard let index = args.firstIndex(of: "-demoScreen"), index + 1 < args.count else { return nil }
+        return args[index + 1]
+    }
+
     static func seed() {
         guard active, AlarmStore.all().isEmpty else { return }
         let today = Day.today()

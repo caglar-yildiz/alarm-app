@@ -152,6 +152,8 @@ struct BENGApp: App {
 struct RootView: View {
     @EnvironmentObject private var app: AppModel
     @Environment(\.requestReview) private var requestReview
+    @State private var demoEditor: EditorTarget?
+    @State private var demoRing: RingSource?
 
     var body: some View {
         let _ = app.revision
@@ -177,6 +179,8 @@ struct RootView: View {
         .fullScreenCover(isPresented: Binding(get: { app.ring != nil && !app.ringDismissed }, set: { if !$0 { app.ringDismissed = true } })) {
             if let ring = app.ring { RingView(source: .live(ring)).environmentObject(app) }
         }
+        .sheet(item: $demoEditor) { target in AlarmEditorView(original: target.alarm).environmentObject(app) }
+        .fullScreenCover(item: $demoRing) { source in RingView(source: source).environmentObject(app) }
         .sheet(isPresented: $app.showBriefing) { BriefingView(preview: app.briefingPreview).environmentObject(app) }
         .onChange(of: app.ring?.alarmId) { _, id in if id != nil { app.ringDismissed = false } }
         .onChange(of: app.askReview) { _, ask in
@@ -187,7 +191,17 @@ struct RootView: View {
         }
         .task {
             #if DEBUG
-            if DemoData.active { return }
+            if DemoData.active {
+                let first = AlarmStore.all().sorted { $0.time < $1.time }.first { $0.task == .math }
+                switch DemoData.screen {
+                case "editor": demoEditor = EditorTarget(id: "demo", alarm: first)
+                case "ring": if let first { demoRing = .preview(first) }
+                case "briefing": app.showBriefing = true
+                case let name?: if let tool = Tool(rawValue: name) { app.tab = .tools; app.tool = tool }
+                default: break
+                }
+                return
+            }
             #endif
             if AlarmManager.shared.authorizationState == .notDetermined {
                 _ = try? await AlarmManager.shared.requestAuthorization()
