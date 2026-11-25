@@ -1,0 +1,54 @@
+name: iOS app
+
+on:
+  push:
+    paths:
+      - '.github/workflows/ios.yml'
+      - 'ios/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and test (simulator)
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Select the newest Xcode 26
+        run: |
+          xcode="$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)"
+          sudo xcode-select -s "$xcode"
+          xcodebuild -version
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          cd ios && xcodegen generate
+
+      - name: Build and run the unit tests
+        run: |
+          cd ios
+          device="$(xcrun simctl list devices available | grep -E '^\s+iPhone' | head -1 | sed -E 's/^ +(.*) \(([0-9A-F-]+)\).*/\2/')"
+          echo "Simulator: $device"
+          set -o pipefail
+          xcodebuild -project BENG.xcodeproj -scheme BENG -destination "id=$device" \
+            CODE_SIGNING_ALLOWED=NO test 2>&1 | tee build.log | grep -E 'error:|warning: .*deprecated|Test Case .* (passed|failed)|\*\* (BUILD|TEST)' || true
+          grep -q '\*\* TEST SUCCEEDED \*\*' build.log
+
+      - name: Show compiler errors
+        if: failure()
+        run: grep -E -B2 -A6 'error:' ios/build.log | head -400 || true
+
+      - name: Keep the generated project
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BENG-xcodeproj
+          path: ios/BENG.xcodeproj
+          retention-days: 14

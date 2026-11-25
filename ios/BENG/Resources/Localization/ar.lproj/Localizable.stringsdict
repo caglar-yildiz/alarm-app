@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>countdowns_running</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>zero</key>
+			<string>%ld قيد التشغيل</string>
+			<key>one</key>
+			<string>%ld قيد التشغيل</string>
+			<key>two</key>
+			<string>%ld قيد التشغيل</string>
+			<key>few</key>
+			<string>%ld قيد التشغيل</string>
+			<key>many</key>
+			<string>%ld قيد التشغيل</string>
+			<key>other</key>
+			<string>%ld قيد التشغيل</string>
+		</dict>
+	</dict>
+	<key>countdowns_saved</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>zero</key>
+			<string>%ld مؤقّت</string>
+			<key>one</key>
+			<string>مؤقّت واحد</string>
+			<key>two</key>
+			<string>مؤقّتان</string>
+			<key>few</key>
+			<string>%ld مؤقّتات</string>
+			<key>many</key>
+			<string>%ld مؤقّتًا</string>
+			<key>other</key>
+			<string>%ld مؤقّت</string>
+		</dict>
+	</dict>
+	<key>day_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>zero</key>
+			<string>%ld يوم</string>
+			<key>one</key>
+			<string>يوم واحد</string>
+			<key>two</key>
+			<string>يومان</string>
+			<key>few</key>
+			<string>%ld أيام</string>
+			<key>many</key>
+			<string>%ld يومًا</string>
+			<key>other</key>
+			<string>%ld يوم</string>
+		</dict>
+	</dict>
+	<key>holiday_notice_days</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>zero</key>
+			<string>اليوم · عطلة (%ld)</string>
+			<key>one</key>
+			<string>اليوم · عطلة ليوم واحد</string>
+			<key>two</key>
+			<string>اليوم · عطلة ليومين</string>
+			<key>few</key>
+			<string>اليوم · عطلة لـ %ld أيام</string>
+			<key>many</key>
+			<string>اليوم · عطلة لـ %ld يومًا</string>
+			<key>other</key>
+			<string>اليوم · عطلة لـ %ld يوم</string>
+		</dict>
+	</dict>
+	<key>minutes</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>zero</key>
+			<string>%ld دقيقة</string>
+			<key>one</key>
+			<string>دقيقة واحدة</string>
+			<key>two</key>
+			<string>دقيقتان</string>
+			<key>few</key>
+			<string>%ld دقائق</string>
+			<key>many</key>
+			<string>%ld دقيقة</string>
+			<key>other</key>
+			<string>%ld دقيقة</string>
+		</dict>
+	</dict>
+	<key>question_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>zero</key>
+			<string>%ld سؤال</string>
+			<key>one</key>
+			<string>سؤال واحد</string>
+			<key>two</key>
+			<string>سؤالان</string>
+			<key>few</key>
+			<string>%ld أسئلة</string>
+			<key>many</key>
+			<string>%ld سؤالًا</string>
+			<key>other</key>
+			<string>%ld سؤال</string>
+		</dict>
+	</dict>
+	<key>stats_days</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>zero</key>
+			<string>%ld يوم</string>
+			<key>one</key>
+			<string>يوم واحد</string>
+			<key>two</key>
+			<string>يومان</string>
+			<key>few</key>
+			<string>%ld أيام</string>
+			<key>many</key>
+			<string>%ld يومًا</string>
+			<key>other</key>
+			<string>%ld يوم</string>
+		</dict>
+	</dict>
+	<key>stats_snoozes</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>zero</key>
+			<string>%ld غفوة</string>
+			<key>one</key>
+			<string>غفوة واحدة</string>
+			<key>two</key>
+			<string>غفوتان</string>
+			<key>few</key>
+			<string>%ld غفوات</string>
+			<key>many</key>
+			<string>%ld غفوة</string>
+			<key>other</key>
+			<string>%ld غفوة</string>
+		</dict>
+	</dict>
+	<key>stats_streak_status</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>zero</key>
+			<string>%ld يوم متتالٍ</string>
+			<key>one</key>
+			<string>يوم واحد متتالٍ</string>
+			<key>two</key>
+			<string>يومان متتاليان</string>
+			<key>few</key>
+			<string>%ld أيام متتالية</string>
+			<key>many</key>
+			<string>%ld يومًا متتاليًا</string>
+			<key>other</key>
+			<string>%ld يوم متتالٍ</string>
+		</dict>
+	</dict>
+	<key>trial_days_left</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>zero</key>
+			<string>تجربة مجانية · لم يتبقَّ أي يوم (%ld)</string>
+			<key>one</key>
+			<string>تجربة مجانية · يوم واحد متبقٍ</string>
+			<key>two</key>
+			<string>تجربة مجانية · يومان متبقيان</string>
+			<key>few</key>
+			<string>تجربة مجانية · %ld أيام متبقية</string>
+			<key>many</key>
+			<string>تجربة مجانية · %ld يومًا متبقيًا</string>
+			<key>other</key>
+			<string>تجربة مجانية · %ld يوم متبقٍ</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

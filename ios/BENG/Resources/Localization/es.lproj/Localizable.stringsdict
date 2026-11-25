@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>countdowns_running</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld en marcha</string>
+			<key>many</key>
+			<string>%ld en marcha</string>
+			<key>other</key>
+			<string>%ld en marcha</string>
+		</dict>
+	</dict>
+	<key>countdowns_saved</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld temporizador</string>
+			<key>many</key>
+			<string>%ld temporizadores</string>
+			<key>other</key>
+			<string>%ld temporizadores</string>
+		</dict>
+	</dict>
+	<key>day_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld día</string>
+			<key>many</key>
+			<string>%ld días</string>
+			<key>other</key>
+			<string>%ld días</string>
+		</dict>
+	</dict>
+	<key>holiday_notice_days</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Hoy · %ld día festivo</string>
+			<key>many</key>
+			<string>Hoy · %ld días festivos</string>
+			<key>other</key>
+			<string>Hoy · %ld días festivos</string>
+		</dict>
+	</dict>
+	<key>minutes</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld minuto</string>
+			<key>many</key>
+			<string>%ld minutos</string>
+			<key>other</key>
+			<string>%ld minutos</string>
+		</dict>
+	</dict>
+	<key>question_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld pregunta</string>
+			<key>many</key>
+			<string>%ld preguntas</string>
+			<key>other</key>
+			<string>%ld preguntas</string>
+		</dict>
+	</dict>
+	<key>stats_days</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld día</string>
+			<key>many</key>
+			<string>%ld días</string>
+			<key>other</key>
+			<string>%ld días</string>
+		</dict>
+	</dict>
+	<key>stats_snoozes</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>%ld posposición</string>
+			<key>many</key>
+			<string>%ld posposiciones</string>
+			<key>other</key>
+			<string>%ld posposiciones</string>
+		</dict>
+	</dict>
+	<key>stats_streak_status</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Racha de %ld día</string>
+			<key>many</key>
+			<string>Racha de %ld días</string>
+			<key>other</key>
+			<string>Racha de %ld días</string>
+		</dict>
+	</dict>
+	<key>trial_days_left</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@value@</string>
+		<key>value</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>one</key>
+			<string>Prueba gratis · queda %ld día</string>
+			<key>many</key>
+			<string>Prueba gratis · quedan %ld días</string>
+			<key>other</key>
+			<string>Prueba gratis · quedan %ld días</string>
+		</dict>
+	</dict>
+</dict>
+</plist>
