@@ -4,3 +4,8 @@
 local.properties
 *.iml
 .kotlin/
+promo/frames/
+promo/stills/
+promo/built.html
+promo/audio.wav
+promo/env.json

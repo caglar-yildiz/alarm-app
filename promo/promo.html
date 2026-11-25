@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: #0B1021; }
+  body { font-family: 'Inter', 'Noto Color Emoji', sans-serif; color: #fff; }
+  #stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: hidden; }
+  #world { position: absolute; inset: -40px; }
+  #bg { position: absolute; left: 0; top: 0; width: 1160px; height: 2000px; }
+  #flash { position: absolute; inset: 0; pointer-events: none; }
+  .wave { position: absolute; border-radius: 50%; border: 6px solid rgba(197,186,255,1); }
+  .ghost { position: absolute; width: 560px; height: 1160px; border-radius: 76px; border: 3px solid rgba(197,186,255,.9); }
+  #phone { position: absolute; left: 300px; top: 600px; width: 560px; height: 1160px; border-radius: 76px;
+           background: linear-gradient(145deg, #2a2f4a, #0c0e18 40%, #1b1f33); padding: 16px;
+           box-shadow: 0 40px 120px rgba(0,0,0,.6), inset 0 0 0 2px rgba(255,255,255,.08); transform-origin: 50% 60%; }
+  .sidebtn { position: absolute; right: -9px; width: 10px; border-radius: 0 6px 6px 0; background: linear-gradient(90deg,#1b1f33,#3a4060); }
+  #screen { position: relative; width: 528px; height: 1128px; border-radius: 60px; overflow: hidden; background: #0B1021; }
+  .scr { position: absolute; inset: 0; display: none; }
+  .scr canvas.sf { position: absolute; inset: 0; }
+  .panel { position: absolute; inset: 0; padding: 66px 29px 29px; }
+  .statusbar { position: absolute; top: 0; left: 0; right: 0; height: 50px; display: flex; justify-content: space-between;
+               align-items: center; padding: 14px 44px 0; font-size: 19px; font-weight: 600; color: #e8e8ff; z-index: 5; }
+  .title { font-size: 47px; font-weight: 600; color: #C5BAFF; letter-spacing: .12em; padding: 7px 0; }
+  .card { background: linear-gradient(135deg, rgba(36,47,88,.87), rgba(55,32,79,.82)); border: 1.5px solid rgba(140,140,216,.45);
+          border-radius: 29px; padding: 18px 23px; margin-top: 15px; }
+  .c { text-align: center; }
+  .lbl { padding: 7px 0; }
+  .muted { color: #C0C4E1; }
+  .bold { font-weight: 600; }
+  .time { font-weight: 300; letter-spacing: .055em; }
+  .btn { margin-top: 12px; min-height: 70px; border-radius: 26px; display: flex; align-items: center; justify-content: center;
+         font-size: 23px; border: 1.5px solid rgba(140,140,216,.45); }
+  .primary { background: linear-gradient(135deg, #9BDFFF, #C3A0FC); color: #0B1021; }
+  .secondary { background: linear-gradient(135deg, rgba(37,49,82,.65), rgba(47,33,73,.64)); color: #C5BAFF; }
+  .input { margin-top: 6px; min-height: 70px; border-radius: 18px; background: linear-gradient(135deg, rgba(17,25,47,.85), rgba(35,28,55,.84));
+           border: 1.5px solid rgba(140,140,216,.45); padding: 0 18px; display: flex; align-items: center; font-size: 26px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+  .grid div { height: 88px; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 44px; color: #C5BAFF;
+              background: linear-gradient(135deg, rgba(37,49,82,.65), rgba(47,33,73,.64)); border: 1.5px solid rgba(140,140,216,.45); }
+  .grid div.off { opacity: .35; }
+  #notif { position: absolute; left: 18px; right: 18px; top: 60px; border-radius: 34px; padding: 24px 26px 18px;
+           background: rgba(40,38,62,.97); border: 1.5px solid rgba(224,161,79,.55); box-shadow: 0 20px 60px rgba(0,0,0,.5); z-index: 8; }
+  #notif .app { display: flex; align-items: center; gap: 12px; font-size: 18px; color: #C0C4E1; }
+  #notif .ic { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#E0A14F,#7A3F8F); display: flex; align-items: center; justify-content: center; }
+  #notif h3 { font-size: 27px; margin-top: 14px; }
+  #notif p { font-size: 20px; color: #d9d4ea; margin-top: 6px; line-height: 1.35; }
+  #notif .act { margin-top: 16px; font-size: 21px; font-weight: 600; color: #FFD98C; padding: 10px 0 4px; }
+  #volhud { position: absolute; right: 22px; top: 210px; width: 74px; height: 380px; border-radius: 37px; background: rgba(28,30,48,.96);
+            border: 1.5px solid rgba(255,255,255,.12); overflow: hidden; z-index: 9; }
+  #volfill { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(0deg, #9BDFFF, #C3A0FC); }
+  #volicon { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; font-size: 30px; z-index: 2; }
+  #voltag { position: absolute; right: 108px; top: 360px; padding: 10px 18px; border-radius: 22px; font-size: 22px; font-weight: 600;
+            background: rgba(255,217,140,.18); border: 1.5px solid rgba(255,217,140,.7); color: #FFD98C; z-index: 9; white-space: nowrap; }
+  #touch { position: absolute; width: 90px; height: 90px; border-radius: 50%; background: rgba(255,255,255,.35); border: 3px solid rgba(255,255,255,.8); z-index: 10; }
+  #dim, #onflash { position: absolute; inset: 0; z-index: 12; pointer-events: none; }
+  #cap { position: absolute; left: 0; right: 0; top: 150px; text-align: center; }
+  .line { font-family: 'Inter Display', 'Inter'; font-weight: 800; font-size: 104px; line-height: 1.04; letter-spacing: -.02em; display: block; }
+  .grad { background: linear-gradient(90deg, #9BDFFF, #C3A0FC); -webkit-background-clip: text; color: transparent; }
+  .hot { background: linear-gradient(90deg, #FFD98C, #FF6B8B); -webkit-background-clip: text; color: transparent; }
+  #sub { position: absolute; left: 60px; right: 60px; top: 1790px; text-align: center; font-size: 40px; font-weight: 500; color: #dcdcf5; }
+  #chips { position: absolute; left: 50px; right: 50px; top: 300px; display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
+  .chip { padding: 12px 24px; border-radius: 40px; font-size: 34px; font-weight: 600; background: rgba(78,64,123,.6); border: 2px solid rgba(197,186,255,.6); }
+  .chip.p { border-color: rgba(255,217,140,.8); color: #FFE7B5; }
+  #pill { position: absolute; left: 0; right: 0; top: 64px; text-align: center; }
+  #pill span { display: inline-block; padding: 10px 26px; border-radius: 30px; font-size: 30px; font-weight: 600; color: #FFD98C;
+               background: rgba(255,217,140,.16); border: 2px solid rgba(255,217,140,.7); }
+  .z { position: absolute; font-family: 'Inter Display'; font-weight: 800; color: #C5BAFF; }
+  .vm { position: absolute; }
+  #countdown { position: absolute; left: 50%; top: 620px; width: 300px; height: 300px; margin-left: -150px; z-index: 7; }
+  #end { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  #end .name { font-family: 'Inter Display'; font-weight: 800; font-size: 150px; letter-spacing: .1em; color: #C5BAFF; margin-top: 40px; }
+  #end .tag { font-size: 56px; font-weight: 700; margin-top: 6px; }
+  #end .feat { font-size: 36px; color: #C0C4E1; margin-top: 46px; line-height: 1.6; }
+  #end .cta { margin-top: 70px; padding: 30px 60px; border-radius: 60px; font-size: 44px; font-weight: 700; color: #0B1021; background: linear-gradient(135deg, #9BDFFF, #C3A0FC); }
+  #end .small { margin-top: 28px; font-size: 30px; color: #C0C4E1; }
+</style></head>
+<body>
+<div id="stage">
+  <div id="world">
+    <canvas id="bg" width="1160" height="2000"></canvas>
+    <div id="flash"></div>
+    <div id="waves"></div>
+    <div id="ghosts"><div class="ghost" id="g1"></div><div class="ghost" id="g2"></div></div>
+    <svg class="vm" id="vmL" width="120" height="300" viewBox="0 0 120 300"></svg>
+    <svg class="vm" id="vmR" width="120" height="300" viewBox="0 0 120 300"></svg>
+    <div id="phone">
+      <div class="sidebtn" id="volbtn" style="top:250px;height:150px"></div>
+      <div class="sidebtn" style="top:440px;height:90px"></div>
+      <div id="screen">
+        <div class="statusbar"><span id="sbtime">06:29</span><span>▂▄▆ ◔ 87%</span></div>
+        <div class="scr" id="lock"><canvas class="sf" width="528" height="1128"></canvas>
+          <div class="panel c" id="lockpanel" style="padding-top:200px">
+            <div class="time" id="locktime" style="font-size:150px;font-weight:200">06:29</div>
+            <div class="muted" style="font-size:26px;margin-top:6px">Wednesday, November 25</div>
+            <div class="muted" style="font-size:22px;margin-top:500px">⏰  BENG · 06:30</div>
+          </div>
+        </div>
+        <div class="scr" id="ring"><canvas class="sf" width="528" height="1128"></canvas>
+          <div class="panel">
+            <div class="title">BENG</div>
+            <div class="card c" id="ringhead">
+              <div class="lbl bold" style="font-size:32px" id="ringtitle">Alarm ringing</div>
+              <div class="lbl muted" style="font-size:23px">Wake up</div>
+              <div class="time" id="ringtime" style="font-size:88px;padding:4px 0">06:30</div>
+              <canvas id="planet" width="470" height="164" style="display:block;margin:0 auto"></canvas>
+            </div>
+            <div class="card" id="controls"></div>
+          </div>
+        </div>
+        <div class="scr" id="brief"><canvas class="sf" width="528" height="1128"></canvas>
+          <div class="panel">
+            <div class="card c" style="margin-top:20px">
+              <div class="lbl bold" style="font-size:38px">Good morning!</div>
+              <div class="time" style="font-size:88px">06:35</div>
+              <div class="lbl muted" style="font-size:23px">Wednesday, November 25, 2026</div>
+              <canvas id="planet2" width="470" height="141" style="display:block;margin:0 auto"></canvas>
+            </div>
+            <div class="card" id="bw"><div class="lbl muted" style="font-size:22px">Weather</div>
+              <div class="lbl" style="font-size:25px;line-height:1.35">Istanbul: 14° and Partly cloudy now. Today up to 17°, down to 9°.</div></div>
+            <div class="card" id="bs"><div class="lbl" style="font-size:23px">🔥 7-day streak</div>
+              <div class="lbl" style="font-size:23px">Wake check will ask if you’re awake in 3 min.</div></div>
+            <div class="btn primary" id="bgo" style="margin-top:22px">Let’s go</div>
+          </div>
+        </div>
+        <div id="notif">
+          <div class="app"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24"><path stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" d="M2,15h20 M4,19h16 M7,15a5,5 0,0 1,10 0 M12,4v3 M4.2,8.2l1.8,1.8 M19.8,8.2l-1.8,1.8"/></svg></div>BENG · Wake check · now</div>
+          <h3>Are you awake?</h3>
+          <p>If you don’t confirm, the alarm will ring again.</p>
+          <div class="act">I’m awake</div>
+        </div>
+        <svg id="countdown" viewBox="0 0 300 300">
+          <circle cx="150" cy="150" r="128" stroke="rgba(255,255,255,.12)" stroke-width="18" fill="none"/>
+          <circle id="cdarc" cx="150" cy="150" r="128" stroke="#9BE8C0" stroke-width="18" fill="none" stroke-linecap="round"
+                  transform="rotate(-90 150 150)" stroke-dasharray="804.2" stroke-dashoffset="0"/>
+          <text id="cdnum" x="150" y="172" text-anchor="middle" font-family="Inter" font-weight="300" font-size="88" fill="#fff">60</text>
+        </svg>
+        <div id="volhud"><div id="volfill"></div><div id="volicon">🔔</div></div>
+        <div id="voltag">🔒 Locked</div>
+        <div id="touch"></div>
+        <div id="dim"></div>
+        <div id="onflash"></div>
+      </div>
+    </div>
+    <div id="zz"></div>
+  </div>
+  <div id="pill"><span>✦ Premium · Wake check</span></div>
+  <div id="cap"></div>
+  <div id="chips"></div>
+  <div id="sub"></div>
+  <div id="end">
+    <svg width="300" height="300" viewBox="0 0 108 108" style="filter:drop-shadow(0 0 40px rgba(155,223,255,.45))">
+      <path fill="#151A50" d="M24,4H84Q104,4 104,24V84Q104,104 84,104H24Q4,104 4,84V24Q4,4 24,4Z"/>
+      <path fill="#DCCEFF" d="M17,39C10,27 20,15 31,14C36,13 40,15 43,18Z M65,18C70,12 80,13 87,18C94,23 96,31 91,39Z"/>
+      <path stroke="#DCCEFF" stroke-width="4.8" stroke-linecap="round" fill="none" d="M48,14H60M54,14V21M32,82L24,94M76,82L84,94"/>
+      <path stroke="#DCCEFF" stroke-width="5" fill="none" d="M54,22A34,34 0,1 1,54 90A34,34 0,1 1,54 22Z"/>
+      <path fill="#DCCEFF" d="M63,45C68,46 70,49 71,53L77,56L73,58L74,61L71,62C72,66 68,68 63,67C62,73 64,77 70,85Q57,92 40,85C44,80 49,75 51,69C53,64 54,59 56,55C53,62 48,67 42,71C38,74 35,77 34,80L30,76C33,70 38,67 44,63C34,66 27,67 22,65L20,62C29,62 38,59 44,54C49,47 54,42 63,45Z"/>
+      <path fill="#9BF4D4" d="M78,35L80,40L85,42L80,44L78,49L76,44L71,42L76,40Z"/>
+    </svg>
+    <div class="name">BENG</div>
+    <div class="tag">The alarm you can’t ignore.</div>
+    <div class="feat">Extra-loud tones · Locked volume<br>7 dismiss missions · Wake check</div>
+    <div class="cta">Get it on Google Play</div>
+    <div class="small">Try Premium free for 7 days · No ads · No account</div>
+  </div>
+</div>
+<script>
+const TL = __TIMELINE__;
+const ENV = __ENV__;
+const FPS = 30;
+const $ = id => document.getElementById(id);
+
+// ---------- static drawing (mirrors Starfield and AstralPlanet in AstralViews.kt) ----------
+function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function starfield(c) {
+  const g = c.getContext('2d'), w = c.width, h = c.height, r = mulberry(87);
+  g.fillStyle = '#0B1021'; g.fillRect(0, 0, w, h);
+  let rg = g.createRadialGradient(w*.94, h*.72, 0, w*.94, h*.72, w*.86);
+  rg.addColorStop(0, 'rgba(62,27,102,.47)'); rg.addColorStop(1, 'rgba(62,27,102,0)'); g.fillStyle = rg; g.fillRect(0,0,w,h);
+  rg = g.createRadialGradient(w*.13, h*.12, 0, w*.13, h*.12, w*.61);
+  rg.addColorStop(0, 'rgba(48,44,118,.41)'); rg.addColorStop(1, 'rgba(48,44,118,0)'); g.fillStyle = rg; g.fillRect(0,0,w,h);
+  for (let i = 0; i < 94; i++) { const x = r(), y = r(), s = r();
+    g.fillStyle = s > .9 ? 'rgba(198,198,255,.65)' : 'rgba(198,198,255,.29)';
+    g.beginPath(); g.arc(x*w, y*h, (1+s)*w/530*1.4, 0, 7); g.fill(); }
+}
+function planet(c) {
+  const g = c.getContext('2d'), x = c.width/2, y = c.height/2, rad = Math.min(x, y)*.51;
+  const rg = g.createRadialGradient(x+rad*.42, y-rad*.48, 0, x+rad*.42, y-rad*.48, rad*1.6);
+  rg.addColorStop(0, '#B593FF'); rg.addColorStop(.43, '#514291'); rg.addColorStop(1, '#131730');
+  g.fillStyle = rg; g.beginPath(); g.arc(x, y, rad, 0, 7); g.fill();
+  g.save(); g.translate(x, y); g.rotate(-25*Math.PI/180); g.strokeStyle = 'rgba(195,187,255,.72)'; g.lineWidth = rad*.047;
+  g.beginPath(); g.ellipse(0, 0, rad*1.76, rad*.34, 0, 0, 7); g.stroke(); g.restore();
+}
+starfield($('bg')); document.querySelectorAll('canvas.sf').forEach(starfield); planet($('planet')); planet($('planet2'));
+
+// vibration marks: three arcs per side
+function arcs(svg, flip) {
+  let s = '';
+  for (let i = 0; i < 3; i++) { const r = 40 + i*28, x = flip ? 10 : 110;
+    s += `<path d="M${x},${150-r} A${r*1.3},${r*1.3} 0 0 ${flip?1:0} ${x},${150+r}" stroke="#C5BAFF" stroke-width="8" fill="none" stroke-linecap="round" opacity="${1-i*.25}"/>`; }
+  svg.innerHTML = s;
+}
+arcs($('vmL'), false); arcs($('vmR'), true);
+const waves = []; for (let i = 0; i < 4; i++) { const d = document.createElement('div'); d.className = 'wave'; $('waves').appendChild(d); waves.push(d); }
+const zs = []; for (let i = 0; i < 4; i++) { const d = document.createElement('div'); d.className = 'z'; d.textContent = 'Z'; $('zz').appendChild(d); zs.push(d); }
+
+// ---------- helpers ----------
+const clamp = (x, a=0, b=1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, p) => a + (b - a) * p;
+const ease = p => 1 - Math.pow(1 - clamp(p), 3);
+const easeIO = p => { p = clamp(p); return p < .5 ? 4*p*p*p : 1 - Math.pow(-2*p + 2, 3)/2; };
+const back = p => { p = clamp(p); const c = 1.9; return 1 + (c+1)*Math.pow(p-1, 3) + c*Math.pow(p-1, 2); };
+const rnd = i => { const x = Math.sin(i*12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); };
+const win = (t, a, b, fi=.25, fo=.25) => clamp((t - a)/fi) * clamp((b - t)/fo);
+const inRange = (t, [a, b]) => t >= a && t < b;
+function show(id, on) { $(id).style.display = on ? 'block' : 'none'; }
+
+// ---------- captions ----------
+const CAPS = [
+  { a: .3, b: 2.9, lines: [['Can’t get', ''], ['out of bed?', 'grad']], sub: 'Most alarms are way too easy to ignore.' },
+  { a: 3.05, b: 5.5, lines: [['LOUD.', 'hot', 0], ['RELENTLESS.', 'grad', .8]], sub: 'Extra-loud tones built for heavy sleepers', subAt: 1.3, punch: true },
+  { a: 5.6, b: 8.8, lines: [['Turn it down?', ''], ['Not a chance.', 'hot', .9]], sub: 'Volume is locked while it rings', subAt: .5 },
+  { a: 8.9, b: 12.15, lines: [['Want it off?', ''], ['Earn it.', 'grad', .7]], sub: 'Solve a mission to dismiss the alarm', subAt: .5 },
+  { a: 12.3, b: 15.0, lines: [['Pick a mission', 'grad']], sub: '' },
+  { a: 15.05, b: 16.95, lines: [['Sneaking back', ''], ['to bed?', 'grad']], sub: '' },
+  { a: 17.0, b: 17.8, lines: [['3 minutes', ''], ['later…', 'grad']], sub: '' },
+  { a: 17.85, b: 20.95, lines: [['Are you', ''], ['awake?', 'grad']], sub: 'Confirm within 60 seconds…', subAt: .4 },
+  { a: 21.0, b: 23.75, lines: [['No answer?', ''], ['It rings again.', 'hot', .45]], sub: 'Wake check won’t let you drift off', subAt: .8, punch: true },
+  { a: 23.85, b: 27.9, lines: [['Wake up.', ''], ['For real.', 'grad', .5]], sub: 'Morning briefing: weather, time & your streak', subAt: .8 },
+];
+let capKey = '';
+function captions(t) {
+  const c = CAPS.find(c => t >= c.a && t < c.b);
+  const key = c ? CAPS.indexOf(c) : -1;
+  if (key + '' !== capKey) {
+    capKey = key + '';
+    $('cap').innerHTML = c ? c.lines.map(l => `<span class="line ${l[1]}">${l[0]}</span>`).join('') : '';
+    $('sub').textContent = c ? c.sub : '';
+  }
+  if (!c) return;
+  const spans = $('cap').children, lt = t - c.a;
+  for (let i = 0; i < spans.length; i++) {
+    const delay = c.lines[i][2] ?? i * .12, p = lt - delay;
+    const o = clamp(p / .2) * clamp((c.b - t) / .2);
+    let s = c.punch ? lerp(1.6, 1, back(p / .35)) : 1;
+    spans[i].style.opacity = o;
+    spans[i].style.transform = `translateY(${(1 - ease(p / .35)) * 40}px) scale(${s})`;
+  }
+  const sp = lt - (c.subAt ?? .3);
+  $('sub').style.opacity = clamp(sp / .3) * clamp((c.b - t) / .2);
+  $('sub').style.transform = `translateY(${(1 - ease(sp / .4)) * 20}px)`;
+}
+
+// ---------- ring screen controls ----------
+let ctlKey = '';
+function controls(key, html) { if (key !== ctlKey) { ctlKey = key; $('controls').innerHTML = html; } }
+const SH = ['●', '▲', '■', '◆'];
+const board = [2,0,3,1, 1,3,0,2, 0,2,1,3, 3,1,2,0];
+
+function mathCtl(q, ans, err) {
+  return `<div class="lbl muted" style="font-size:22px">Question 1 / 1</div>
+    <div class="lbl bold c" style="font-size:47px">${q} = ?</div>
+    <div class="input">${ans ? ans + '<span style="opacity:.8">|</span>' : '<span style="color:rgba(192,196,225,.5)">Answer</span>'}</div>
+    <div class="btn primary" id="checkbtn">Check answer</div>
+    <div class="btn secondary">Snooze 5 minutes</div>`;
+}
+
+// ---------- main render ----------
+function render(t) {
+  const f = Math.min(ENV.vib.length - 1, Math.round(t * FPS));
+  const ringing = TL.ringing.some(r => inRange(t, r));
+  const ring2 = inRange(t, TL.ring2);
+  const loud = ringing ? ENV.loud[f] : 0;
+  const shakeMission = t >= 14.1 && t < 15.0;
+  const vib = (ringing && ENV.vib[f]) || (shakeMission && (Math.floor((t - 14.1) * 6) % 2 === 0));
+
+  // which screen
+  const scr = t < TL.ring1[0] ? 'lock' : t < TL.missions[1] ? 'ring' : t < TL.ring2[0] ? 'lock' : t < TL.brief ? 'ring' : 'brief';
+  ['lock', 'ring', 'brief'].forEach(s => show(s, s === scr));
+
+  // ---- phone position (moves away at the end card) ----
+  const endP = easeIO((t - TL.end) / .7);
+  let A = 0, rot = 0;
+  if (vib) { A = ring2 ? 20 : shakeMission ? 12 : 15; rot = ring2 ? 2.2 : 1.5; }
+  const jx = (rnd(f*3+1) - .5) * 2 * A, jy = (rnd(f*3+2) - .5) * 2 * A * .6, jr = (rnd(f*3+3) - .5) * 2 * rot;
+  const punchS = ringing ? 1 + loud * .025 : 1;
+  const ringStartPop = TL.ringing.reduce((m, [a]) => Math.max(m, t >= a ? Math.exp(-(t - a) * 6) : 0), 0);
+  const scale = (punchS + ringStartPop * .06) * lerp(1, .6, endP);
+  const py = lerp(0, 700, endP);
+  $('phone').style.transform = `translate(${jx}px, ${jy + py}px) rotate(${jr}deg) scale(${scale})`;
+  $('phone').style.opacity = 1 - endP;
+  // world camera shake
+  const cA = vib ? (ring2 ? 7 : 4) : 0;
+  $('world').style.transform = `translate(${(rnd(f*7+5)-.5)*2*cA}px, ${(rnd(f*7+6)-.5)*2*cA}px)`;
+
+  // ghosts (motion blur of the vibrating body)
+  [['g1', 1, .35], ['g2', 2, .18]].forEach(([id, k, o]) => {
+    const g = $(id), pf = f - k;
+    const gx = (rnd(pf*3+1) - .5) * 2 * A, gy = (rnd(pf*3+2) - .5) * 2 * A * .6, gr = (rnd(pf*3+3) - .5) * 2 * rot;
+    g.style.left = '300px'; g.style.top = '600px';
+    g.style.transform = `translate(${gx}px, ${gy}px) rotate(${gr}deg) scale(${scale})`;
+    g.style.transformOrigin = '50% 60%';
+    g.style.opacity = vib ? o : 0;
+  });
+
+  // vibration marks beside the phone
+  [['vmL', 160, -1], ['vmR', 880, 1]].forEach(([id, x, s]) => {
+    const e = $(id); e.style.left = (x + s * (rnd(f+id.length) * 10)) + 'px'; e.style.top = (870 + (rnd(f*2) - .5) * 14) + 'px';
+    e.style.opacity = vib ? .95 : 0;
+    e.style.transform = `scale(${1 + rnd(f*5) * .12})`;
+  });
+
+  // flash and waves
+  const red = ring2 ? 1 : 0;
+  const fl = ringing ? clamp(loud * .9 + ringStartPop * .8) : 0;
+  $('flash').style.background = `radial-gradient(circle at 50% 56%, ${red ? 'rgba(255,70,110,.75)' : 'rgba(150,90,255,.7)'} 0%, rgba(${red ? '255,60,100' : '120,70,230'},.25) 35%, rgba(0,0,0,0) 70%)`;
+  $('flash').style.opacity = fl;
+  const ringBlock = TL.ringing.find(r => inRange(t, r));
+  waves.forEach((w, i) => {
+    if (!ringBlock) { w.style.opacity = 0; return; }
+    const age = ((t - ringBlock[0]) - i * .45);
+    if (age < 0) { w.style.opacity = 0; return; }
+    const a = age % 1.8, r = 280 + a * 420;
+    w.style.width = w.style.height = (2 * r) + 'px';
+    w.style.left = (580 - r) + 'px'; w.style.top = (1220 - r) + 'px';
+    w.style.opacity = (1 - a / 1.8) * .55 * clamp((ringBlock[1] - t) / .2);
+    w.style.borderColor = red ? 'rgba(255,120,150,1)' : 'rgba(197,186,255,1)';
+  });
+
+  // ---- screen content ----
+  // lock clock
+  let lockTime = '06:29';
+  if (t >= TL.missions[1]) {
+    const ffp = clamp((t - TL.ff[0]) / (TL.ff[1] - TL.ff[0]));
+    lockTime = '06:3' + Math.round(lerp(1, 4, ffp));
+  }
+  $('locktime').textContent = lockTime;
+  $('sbtime').textContent = scr === 'ring' ? (t < 12.2 ? '06:30' : '06:34') : scr === 'brief' ? '06:35' : lockTime;
+  $('locktime').style.filter = inRange(t, TL.ff) ? `blur(${Math.sin(Math.PI * (t - TL.ff[0]) / .8) * 6}px)` : 'none';
+
+  $('lockpanel').style.transform = `translateY(${t >= TL.notif ? ease((t - TL.notif) / .35) * 170 : 0}px)`;
+  // dim the screen while "asleep"
+  let dim = 0;
+  if (t < TL.ring1[0]) dim = .45;
+  else if (t >= TL.missions[1] && t < TL.notif) dim = .5;
+  $('dim').style.background = `rgba(0,0,0,${dim})`;
+  // screen turns on when alarm fires / at dismiss
+  const on = Math.max(...[TL.ring1[0], TL.ring2[0]].map(a => t >= a ? Math.exp(-(t - a) * 8) : 0));
+  const dis = t >= TL.dismiss ? Math.exp(-(t - TL.dismiss) * 7) : 0;
+  $('onflash').style.background = red && on > .01 ? `rgba(255,90,120,${on})` : `rgba(255,255,255,${Math.max(on, dis) * .85})`;
+
+  if (scr === 'ring') {
+    $('ringtitle').textContent = t >= 12.2 && t < 15 ? 'Preview' : 'Alarm ringing';
+    $('ringtime').textContent = ring2 ? '06:34' : '06:30';
+    $('ringtime').style.transform = `scale(${1 + loud * .08})`;
+    $('ringtitle').style.color = ringing ? `rgb(255,${Math.round(255 - loud * 90)},${Math.round(255 - loud * 60)})` : '#fff';
+    $('ringhead').style.boxShadow = ringing ? `0 0 ${30 + loud * 60}px rgba(${red ? '255,80,120' : '170,120,255'},${.25 + loud * .5})` : 'none';
+    if (t < TL.missions[0]) {
+      const ans = t >= TL.taps[1] ? '45' : t >= TL.taps[0] ? '4' : '';
+      controls('m' + ans, mathCtl('27 + 18', ans));
+    } else if (t < 13.15) {
+      const sel = t >= 12.75 ? (t >= 13.0 ? 2 : 1) : 0;
+      const off = [1, 6].slice(0, sel);
+      controls('s' + sel, `<div class="lbl bold" style="font-size:29px">Find the shapes</div>
+        <div class="lbl muted" style="font-size:20px">Find the shapes on the grid in order, left to right.</div>
+        <div class="lbl c" style="font-size:50px;color:#C5BAFF">●  ◆  ▲  ■</div>
+        <div class="lbl" style="font-size:24px">${sel} / 4 · Find the ${['Circle','Diamond','Triangle'][sel]}</div>
+        <div class="grid">${board.map((b, i) => `<div class="${off.includes(i) ? 'off' : ''}">${SH[b]}</div>`).join('')}</div>`);
+    } else if (t < 14.1) {
+      const steps = Math.round(lerp(9, 27, clamp((t - 13.15) / .9)));
+      controls('w' + steps, `<div class="lbl bold" style="font-size:29px">Walk ✦</div>
+        <div class="lbl muted" style="font-size:22px">Get up and walk. Steps count while this screen is open.</div>
+        <div class="time c" style="font-size:59px;padding:40px 0">${steps} / 30 steps</div>
+        <div class="lbl c" style="font-size:70px">👣</div>`);
+    } else if (t < 15) {
+      const n = Math.min(12, 4 + Math.floor((t - 14.1) * 9));
+      controls('k' + n, `<div class="lbl bold" style="font-size:29px">Shake the phone ✦</div>
+        <div class="lbl c" style="font-size:70px;padding:40px 0">📳</div>
+        <div class="lbl c" style="font-size:44px">${n} / 12</div>`);
+    } else {
+      controls('m2', mathCtl('34 + 19', ''));
+    }
+  }
+
+  // touch indicator
+  let touch = null;
+  for (const k of TL.taps.slice(0, 2)) if (t >= k - .12 && t < k + .2) touch = [k, 150 + (k === TL.taps[0] ? 0 : 40), 650];
+  if (t >= TL.taps[2] - .15 && t < TL.taps[2] + .3) touch = [TL.taps[2], 264, 760];
+  if (t >= 12.75 - .1 && t < 12.75 + .2) touch = [12.75, 142, 835];
+  if (t >= 13.0 - .1 && t < 13.0 + .2) touch = [13.0, 264, 930];
+  if (t >= 27.0 && t < 27.6) touch = [27.2, 264, 1000];
+  const te = $('touch');
+  if (touch && scr !== 'lock') {
+    const p = (t - touch[0]);
+    te.style.display = 'block'; te.style.left = (touch[1] - 45) + 'px'; te.style.top = (touch[2] - 45) + 'px';
+    te.style.opacity = clamp(1 - Math.abs(p) / .25);
+    te.style.transform = `scale(${p < 0 ? 1.2 : 1 - Math.min(p, .1)})`;
+  } else te.style.display = 'none';
+  const cb = $('checkbtn');
+  if (cb) cb.style.filter = t >= TL.taps[2] - .05 && t < TL.taps[2] + .25 ? 'brightness(1.25)' : 'none';
+  $('bgo').style.filter = t >= 27.15 && t < 27.45 ? 'brightness(1.3)' : 'none';
+
+  // volume HUD
+  const vOn = win(t, TL.vol[0] + .3, TL.vol[1], .2, .3);
+  $('volhud').style.opacity = vOn; $('voltag').style.opacity = vOn * clamp((t - TL.vol_presses[0] - .25) / .2);
+  $('volhud').style.transform = `translateX(${(1 - ease(vOn)) * 80}px)`;
+  let level = 1, press = 0;
+  for (const k of TL.vol_presses) {
+    const d = t - k;
+    if (d >= 0 && d < .12) level = Math.min(level, lerp(1, .62, d / .12));
+    else if (d >= .12 && d < .45) level = Math.min(level, lerp(.62, 1, back((d - .12) / .33)));
+    if (d >= -.05 && d < .15) press = 1;
+  }
+  $('volfill').style.height = (clamp(level, 0, 1.03) * 100) + '%';
+  $('volbtn').style.transform = `translateX(${press ? -6 : 0}px)`;
+  $('volbtn').style.background = press ? 'linear-gradient(90deg,#9BDFFF,#C3A0FC)' : 'linear-gradient(90deg,#1b1f33,#3a4060)';
+  $('volbtn').style.boxShadow = press ? '0 0 30px #9BDFFF' : 'none';
+
+  // notification + countdown
+  const nIn = t >= TL.notif && t < TL.ring2[0];
+  const np = ease((t - TL.notif) / .35);
+  $('notif').style.display = nIn ? 'block' : 'none';
+  $('notif').style.transform = `translateY(${(1 - np) * -300}px)`;
+  const [c0, c1] = TL.countdown;
+  const cOn = t >= c0 - .2 && t < TL.ring2[0];
+  $('countdown').style.display = cOn ? 'block' : 'none';
+  if (cOn) {
+    const p = clamp((t - c0) / (c1 - c0));
+    const secs = Math.ceil(60 * (1 - p));
+    $('cdnum').textContent = secs;
+    $('cdarc').setAttribute('stroke-dashoffset', 804.2 * p);
+    $('cdarc').setAttribute('stroke', p < .5 ? '#9BE8C0' : p < .8 ? '#FFD98C' : '#FF6B8B');
+    $('countdown').style.opacity = clamp((t - c0 + .2) / .2);
+    $('countdown').style.transform = `scale(${1 + (p > .8 ? Math.abs(Math.sin(t * 20)) * .05 : 0)})`;
+  }
+
+  // Zzz while sneaking back to sleep (also in the intro)
+  const zOn = t < 2.9 || inRange(t, [15.1, 17.0]);
+  zs.forEach((z, i) => {
+    const base = t < 2.9 ? 0 : 15.1;
+    const a = ((t - base) * .7 + i * .25) % 1;
+    z.style.opacity = zOn ? Math.sin(Math.PI * a) * .9 : 0;
+    z.style.left = (800 + a * 120 + i * 10) + 'px'; z.style.top = (640 - a * 260) + 'px';
+    z.style.fontSize = (40 + i * 18) + 'px';
+  });
+
+  // mission chips
+  const CH = [['🧮 Math', 0], ['🧠 Memory', 0], ['⌨️ Typing', 0], ['📳 Shake ✦', 1], ['🔳 QR code ✦', 1], ['🔷 Shapes ✦', 1], ['👣 Walk ✦', 1]];
+  if (!$('chips').children.length) $('chips').innerHTML = CH.map(c => `<div class="chip ${c[1] ? 'p' : ''}">${c[0]}</div>`).join('');
+  [...$('chips').children].forEach((c, i) => {
+    const p = t - TL.chip_pops[i];
+    c.style.opacity = t < 15 ? clamp(p / .15) * clamp((15 - t) / .2) : 0;
+    c.style.transform = `scale(${p < 0 ? 0 : back(p / .3)})`;
+  });
+  $('chips').style.top = '300px';
+
+  // briefing cards slide in
+  if (scr === 'brief') {
+    [['bw', .3], ['bs', .6], ['bgo', .9]].forEach(([id, d]) => {
+      const p = ease((t - TL.brief - d) / .4);
+      $(id).style.opacity = p; $(id).style.transform = `translateY(${(1 - p) * 40}px)`;
+    });
+  }
+
+  // premium pill
+  const pillOn = win(t, TL.notif, TL.ring2[1], .3, .3);
+  $('pill').style.opacity = pillOn;
+
+  captions(t);
+
+  // end card
+  const eo = clamp((t - TL.end - .3) / .5);
+  $('end').style.opacity = eo;
+  [...$('end').children].forEach((c, i) => {
+    const p = ease((t - TL.end - .3 - i * .15) / .5);
+    c.style.opacity = p; c.style.transform = `translateY(${(1 - p) * 50}px)` + (i === 0 ? ` scale(${back((t - TL.end - .3) / .6)})` : '');
+  });
+  // gentle fade at the very end
+  $('stage').style.opacity = clamp((TL.total - t) / .5);
+}
+window.render = render;
+render(0);
+</script>
+</body></html>
