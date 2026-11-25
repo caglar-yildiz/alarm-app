@@ -41,6 +41,10 @@ final class AppModel: ObservableObject {
     private var observer: Any?
 
     init() {
+        #if DEBUG
+        DemoData.seed()
+        if let tab = DemoData.tab { self.tab = tab }
+        #endif
         observer = NotificationCenter.default.addObserver(forName: .bengDataChanged, object: nil, queue: .main) { [weak self] _ in
             Task { @MainActor in self?.revision += 1 }
         }
@@ -182,6 +186,9 @@ struct RootView: View {
             }
         }
         .task {
+            #if DEBUG
+            if DemoData.active { return }
+            #endif
             if AlarmManager.shared.authorizationState == .notDetermined {
                 _ = try? await AlarmManager.shared.requestAuthorization()
             }

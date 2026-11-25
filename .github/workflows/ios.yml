@@ -36,10 +36,47 @@ jobs:
           cd ios
           device="$(xcrun simctl list devices available | grep -E '^\s+iPhone' | head -1 | sed -E 's/^ +(.*) \(([0-9A-F-]+)\).*/\2/')"
           echo "Simulator: $device"
+          echo "SIM_DEVICE=$device" >> "$GITHUB_ENV"
           set -o pipefail
           xcodebuild -project BENG.xcodeproj -scheme BENG -destination "id=$device" \
-            CODE_SIGNING_ALLOWED=NO test 2>&1 | tee build.log | grep -E 'error:|warning: .*deprecated|Test Case .* (passed|failed)|\*\* (BUILD|TEST)' || true
+            -derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO test 2>&1 | tee build.log | grep -E 'error:|warning: .*deprecated|Test Case .* (passed|failed)|\*\* (BUILD|TEST)' || true
           grep -q '\*\* TEST SUCCEEDED \*\*' build.log
+
+      - name: Screenshots of every tab (demo data)
+        run: |
+          cd ios
+          app="$(ls -d DerivedData/Build/Products/Debug-iphonesimulator/BENG.app)"
+          xcrun simctl boot "$SIM_DEVICE" 2>/dev/null || true
+          xcrun simctl status_bar "$SIM_DEVICE" override --time 9:41 || true
+          xcrun simctl install "$SIM_DEVICE" "$app"
+          mkdir -p shots
+          for tab in alarms reminders weather tools premium; do
+            xcrun simctl terminate "$SIM_DEVICE" com.caglaryildiz.alarm 2>/dev/null || true
+            xcrun simctl launch "$SIM_DEVICE" com.caglaryildiz.alarm -seedDemo -demoTab "$tab" ${{ env.SHOT_ARGS }}
+            sleep 8
+            xcrun simctl io "$SIM_DEVICE" screenshot "shots/$tab.png"
+          done
+          python3 -m venv /tmp/venv && /tmp/venv/bin/pip -q install pillow
+          /tmp/venv/bin/python - <<'PY'
+          from PIL import Image
+          names = ["alarms", "reminders", "weather", "tools", "premium"]
+          shots = [Image.open(f"shots/{n}.png").convert("RGB") for n in names]
+          w = 260; h = int(shots[0].height * w / shots[0].width)
+          sheet = Image.new("RGB", (w * len(shots), h))
+          for i, s in enumerate(shots): sheet.paste(s.resize((w, h), Image.LANCZOS), (i * w, 0))
+          sheet.save("shots/sheet.jpg", quality=60)
+          PY
+          echo "SHEET-BEGIN"; base64 -i shots/sheet.jpg | fold -w 2000; echo "SHEET-END"
+        env:
+          SHOT_ARGS: ''
+
+      - name: Keep the screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BENG-screenshots
+          path: ios/shots
+          retention-days: 14
 
       - name: Show compiler errors
         if: failure()
