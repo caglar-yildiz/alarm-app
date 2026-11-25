@@ -59,7 +59,7 @@ actor Scheduler {
     private var again = false
 
     /// Fire-and-forget resync, for UI code.
-    nonisolated static func request() {
+    static func request() {
         Task { await shared.sync() }
     }
 
@@ -191,7 +191,7 @@ actor Scheduler {
         let attributes = AlarmAttributes(presentation: AlarmPresentation(alert: alert),
                                          metadata: BengAlarmData(alarmId: plan.alarmId, kind: plan.kind.rawValue, label: plan.title),
                                          tintColor: Color(red: 0.77, green: 0.73, blue: 1.0))
-        let schedule: Alarm.Schedule
+        let schedule: AlarmKit.Alarm.Schedule
         if let relative = plan.relative {
             let (time, days) = relative
             let weekdays = days.sorted().map(weekday)
@@ -199,11 +199,14 @@ actor Scheduler {
         } else {
             schedule = .fixed(plan.date ?? Date())
         }
-        let secondaryIntent: any LiveActivityIntent = plan.mission
-            ? BengMissionIntent(alarmKitID: id.uuidString, alarmID: plan.alarmId, kind: plan.kind.rawValue)
-            : BengSnoozeIntent(alarmKitID: id.uuidString, alarmID: plan.alarmId, kind: plan.kind.rawValue)
+        let secondaryIntent: any LiveActivityIntent
+        if plan.mission {
+            secondaryIntent = BengMissionIntent(alarmKitID: id.uuidString, alarmID: plan.alarmId, kind: plan.kind.rawValue)
+        } else {
+            secondaryIntent = BengSnoozeIntent(alarmKitID: id.uuidString, alarmID: plan.alarmId, kind: plan.kind.rawValue)
+        }
         let sound: AlertConfiguration.AlertSound = plan.tone.map { .named("\($0).wav") } ?? .default
-        return AlarmManager.AlarmConfiguration(schedule: schedule, attributes: attributes,
+        return AlarmManager.AlarmConfiguration.alarm(schedule: schedule, attributes: attributes,
                                                stopIntent: BengStopIntent(alarmKitID: id.uuidString, alarmID: plan.alarmId, kind: plan.kind.rawValue),
                                                secondaryIntent: secondaryIntent, sound: sound)
     }
