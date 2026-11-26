@@ -1,5 +1,7 @@
 # BENG
 
+> **iPhone sürümü:** `ios/` klasöründe (SwiftUI + AlarmKit, iOS 26+). Kurulum ve Android'den farkları için [ios/README.md](ios/README.md).
+
 Tek seferlik ve haftalık alarmlar kurabileceğin yerel bir Android uygulaması. Alarmı 5 dakika erteleyebilir, istersen kapatmak için toplama sorusu çözebilirsin. Alarm ayarları telefonda saklanır.
 
 Alarm düzenleyicisinde alarm adı, saat, tek seferlik tarih veya haftalık tekrar günleri, cihaz alarm sesi ve kapatma görevi ayrı ayrı değiştirilebilir.

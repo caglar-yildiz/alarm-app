@@ -1,0 +1,175 @@
+{
+  "permission_exact_alarm": {
+    "en": "Allow alarms so BENG can ring even in silent mode and during Focus.",
+    "tr": "BENG'in sessiz modda ve Odak açıkken de çalabilmesi için alarmlara izin ver.",
+    "de": "Erlaube Wecker, damit BENG auch im Stumm-Modus und im Fokus klingelt.",
+    "fr": "Autorise les alarmes pour que BENG sonne même en mode silencieux et en Concentration.",
+    "es": "Permite las alarmas para que BENG suene incluso en silencio y con Concentración.",
+    "it": "Consenti le sveglie perché BENG suoni anche in silenzioso e con Full immersion.",
+    "pt-BR": "Permita alarmes para o BENG tocar mesmo no modo silencioso e com Foco ativado.",
+    "nl": "Sta wekkers toe zodat BENG ook in de stille modus en tijdens Focus afgaat.",
+    "ja": "サイレントモードや集中モード中でもBENGが鳴るように、アラームを許可してください。",
+    "ko": "무음 모드와 집중 모드에서도 BENG이 울리도록 알람을 허용하세요.",
+    "zh-Hant": "允許鬧鐘，讓 BENG 在靜音模式和專注模式下也能響鈴。",
+    "ar": "اسمح بالمنبهات حتى يرن BENG حتى في الوضع الصامت ووضع التركيز.",
+    "th": "อนุญาตการปลุกเพื่อให้ BENG ดังได้แม้ในโหมดเงียบและโหมดโฟกัส",
+    "id": "Izinkan alarm agar BENG tetap berbunyi dalam mode senyap dan saat Fokus."
+  },
+  "permission_notifications": {
+    "en": "Notifications are needed for reminders, wake check, timers and the bedtime reminder.",
+    "tr": "Hatırlatıcılar, uyanıklık kontrolü, sayaçlar ve yatma vakti için bildirim izni gerekir.",
+    "de": "Mitteilungen werden für Erinnerungen, Wach-Check, Timer und die Schlafenszeit gebraucht.",
+    "fr": "Les notifications sont nécessaires pour les rappels, le contrôle de réveil, les minuteurs et le coucher.",
+    "es": "Las notificaciones son necesarias para recordatorios, control de despertar, temporizadores y la hora de dormir.",
+    "it": "Le notifiche servono per promemoria, controllo risveglio, timer e ora di dormire.",
+    "pt-BR": "As notificações são necessárias para lembretes, verificação de despertar, timers e hora de dormir.",
+    "nl": "Meldingen zijn nodig voor herinneringen, wekcontrole, timers en bedtijd.",
+    "ja": "リマインダー、起床チェック、タイマー、就寝リマインダーには通知が必要です。",
+    "ko": "리마인더, 기상 확인, 타이머, 취침 알림에는 알림 권한이 필요합니다.",
+    "zh-Hant": "提醒事項、起床確認、計時器和就寢提醒需要通知權限。",
+    "ar": "الإشعارات مطلوبة للتذكيرات وفحص الاستيقاظ والمؤقتات وتذكير وقت النوم.",
+    "th": "ต้องใช้การแจ้งเตือนสำหรับการเตือนความจำ การตรวจว่าตื่น ตัวจับเวลา และเวลาเข้านอน",
+    "id": "Notifikasi diperlukan untuk pengingat, cek bangun, timer, dan waktu tidur."
+  },
+  "premium_auto_renew": {
+    "en": "Renews automatically. Cancel anytime in your Apple Account subscriptions.",
+    "tr": "Otomatik yenilenir. Apple Hesabı aboneliklerinden istediğin zaman iptal edebilirsin.",
+    "de": "Verlängert sich automatisch. Jederzeit in den Abos deines Apple Accounts kündbar.",
+    "fr": "Renouvellement automatique. Résiliable à tout moment dans les abonnements de ton compte Apple.",
+    "es": "Se renueva automáticamente. Cancela cuando quieras en las suscripciones de tu cuenta de Apple.",
+    "it": "Si rinnova automaticamente. Puoi annullare in qualsiasi momento negli abbonamenti dell'Account Apple.",
+    "pt-BR": "Renova automaticamente. Cancele quando quiser nas assinaturas da sua Conta Apple.",
+    "nl": "Wordt automatisch verlengd. Altijd op te zeggen via de abonnementen van je Apple Account.",
+    "ja": "自動更新されます。Appleアカウントのサブスクリプションからいつでも解約できます。",
+    "ko": "자동으로 갱신됩니다. Apple 계정 구독에서 언제든지 취소할 수 있습니다.",
+    "zh-Hant": "自動續訂。可隨時在 Apple 帳號的訂閱項目中取消。",
+    "ar": "يتجدد تلقائيًا. يمكنك الإلغاء في أي وقت من اشتراكات حساب Apple.",
+    "th": "ต่ออายุอัตโนมัติ ยกเลิกได้ทุกเมื่อในการสมัครรับของบัญชี Apple",
+    "id": "Diperpanjang otomatis. Batalkan kapan saja di langganan Akun Apple kamu."
+  },
+  "premium_no_account": {
+    "en": "No app account needed; the subscription is managed with your Apple Account.",
+    "tr": "Uygulama hesabı gerekmez; abonelik Apple Hesabınla yönetilir.",
+    "de": "Kein App-Konto nötig; das Abo läuft über deinen Apple Account.",
+    "fr": "Aucun compte d'app requis ; l'abonnement est géré avec ton compte Apple.",
+    "es": "No necesitas cuenta en la app; la suscripción se gestiona con tu cuenta de Apple.",
+    "it": "Nessun account dell'app; l'abbonamento è gestito con il tuo Account Apple.",
+    "pt-BR": "Não precisa de conta no app; a assinatura é gerenciada pela sua Conta Apple.",
+    "nl": "Geen app-account nodig; het abonnement loopt via je Apple Account.",
+    "ja": "アプリのアカウントは不要です。サブスクリプションはAppleアカウントで管理されます。",
+    "ko": "앱 계정이 필요 없습니다. 구독은 Apple 계정으로 관리됩니다.",
+    "zh-Hant": "不需要 App 帳號；訂閱透過你的 Apple 帳號管理。",
+    "ar": "لا حاجة إلى حساب في التطبيق؛ تتم إدارة الاشتراك عبر حساب Apple.",
+    "th": "ไม่ต้องมีบัญชีแอป การสมัครรับจัดการผ่านบัญชี Apple ของคุณ",
+    "id": "Tidak perlu akun aplikasi; langganan dikelola dengan Akun Apple kamu."
+  },
+  "billing_loading_price": {
+    "en": "Loading App Store price…", "tr": "App Store fiyatı yükleniyor…", "de": "App Store-Preis wird geladen …",
+    "fr": "Chargement du prix App Store…", "es": "Cargando el precio de la App Store…", "it": "Caricamento del prezzo App Store…",
+    "pt-BR": "Carregando o preço da App Store…", "nl": "App Store-prijs laden…", "ja": "App Storeの価格を読み込み中…",
+    "ko": "App Store 가격을 불러오는 중…", "zh-Hant": "正在載入 App Store 價格…", "ar": "جارٍ تحميل سعر App Store…",
+    "th": "กำลังโหลดราคาจาก App Store…", "id": "Memuat harga App Store…"
+  },
+  "billing_query_failed": {
+    "en": "The App Store product query failed.", "tr": "App Store ürün sorgusu başarısız oldu.", "de": "Die App Store-Produktabfrage ist fehlgeschlagen.",
+    "fr": "La requête de produit App Store a échoué.", "es": "Falló la consulta del producto en la App Store.", "it": "La richiesta del prodotto App Store non è riuscita.",
+    "pt-BR": "A consulta do produto na App Store falhou.", "nl": "De App Store-productaanvraag is mislukt.", "ja": "App Storeの商品情報を取得できませんでした。",
+    "ko": "App Store 상품 조회에 실패했습니다.", "zh-Hant": "App Store 產品查詢失敗。", "ar": "فشل الاستعلام عن المنتج في App Store.",
+    "th": "การค้นหาสินค้าใน App Store ล้มเหลว", "id": "Kueri produk App Store gagal."
+  },
+  "billing_product_not_found": {
+    "en": "The App Store could not find the subscription plans.", "tr": "App Store abonelik planlarını bulamadı.", "de": "Der App Store hat die Abo-Pläne nicht gefunden.",
+    "fr": "L'App Store n'a pas trouvé les formules d'abonnement.", "es": "La App Store no encontró los planes de suscripción.", "it": "L'App Store non ha trovato i piani di abbonamento.",
+    "pt-BR": "A App Store não encontrou os planos de assinatura.", "nl": "De App Store kon de abonnementen niet vinden.", "ja": "App Storeでサブスクリプションプランが見つかりませんでした。",
+    "ko": "App Store에서 구독 요금제를 찾지 못했습니다.", "zh-Hant": "App Store 找不到訂閱方案。", "ar": "لم يعثر App Store على خطط الاشتراك.",
+    "th": "App Store ไม่พบแผนการสมัครรับ", "id": "App Store tidak menemukan paket langganan."
+  },
+  "billing_manage_failed": {
+    "en": "Subscriptions could not be opened. Use Settings › Apple Account › Subscriptions.",
+    "tr": "Abonelikler açılamadı. Ayarlar › Apple Hesabı › Abonelikler yolunu kullan.",
+    "de": "Abos konnten nicht geöffnet werden. Nutze Einstellungen › Apple Account › Abonnements.",
+    "fr": "Impossible d'ouvrir les abonnements. Va dans Réglages › Compte Apple › Abonnements.",
+    "es": "No se pudieron abrir las suscripciones. Ve a Ajustes › Cuenta de Apple › Suscripciones.",
+    "it": "Impossibile aprire gli abbonamenti. Vai in Impostazioni › Account Apple › Abbonamenti.",
+    "pt-BR": "Não foi possível abrir as assinaturas. Use Ajustes › Conta Apple › Assinaturas.",
+    "nl": "Abonnementen konden niet worden geopend. Ga naar Instellingen › Apple Account › Abonnementen.",
+    "ja": "サブスクリプションを開けませんでした。設定 › Appleアカウント › サブスクリプション から操作してください。",
+    "ko": "구독을 열 수 없습니다. 설정 › Apple 계정 › 구독을 이용하세요.",
+    "zh-Hant": "無法開啟訂閱項目。請前往「設定」›「Apple 帳號」›「訂閱項目」。",
+    "ar": "تعذر فتح الاشتراكات. استخدم الإعدادات › حساب Apple › الاشتراكات.",
+    "th": "เปิดการสมัครรับไม่ได้ ใช้ การตั้งค่า › บัญชี Apple › การสมัครรับ",
+    "id": "Langganan tidak dapat dibuka. Buka Pengaturan › Akun Apple › Langganan."
+  },
+  "trial_body": {
+    "en": "The first 7 days are free. You are charged only if you don't cancel before the trial ends. One free trial per Apple Account.",
+    "tr": "İlk 7 gün ücretsiz. Deneme bitmeden iptal etmezsen ücretlendirilirsin. Her Apple Hesabı için bir ücretsiz deneme.",
+    "de": "Die ersten 7 Tage sind kostenlos. Du zahlst nur, wenn du nicht vor Ende kündigst. Ein Test pro Apple Account.",
+    "fr": "Les 7 premiers jours sont gratuits. Tu n'es débité que si tu ne résilies pas avant la fin. Un essai par compte Apple.",
+    "es": "Los primeros 7 días son gratis. Solo se cobra si no cancelas antes de que termine. Una prueba por cuenta de Apple.",
+    "it": "I primi 7 giorni sono gratis. Paghi solo se non annulli prima della fine. Una prova per Account Apple.",
+    "pt-BR": "Os primeiros 7 dias são grátis. Você só paga se não cancelar antes do fim. Um teste por Conta Apple.",
+    "nl": "De eerste 7 dagen zijn gratis. Je betaalt pas als je niet vóór het einde opzegt. Eén proef per Apple Account.",
+    "ja": "最初の7日間は無料です。期間終了前に解約しなければ課金されます。無料トライアルはAppleアカウントごとに1回です。",
+    "ko": "처음 7일은 무료입니다. 체험이 끝나기 전에 취소하지 않으면 요금이 청구됩니다. Apple 계정당 1회.",
+    "zh-Hant": "前 7 天免費。若未在試用結束前取消才會收費。每個 Apple 帳號限一次免費試用。",
+    "ar": "أول 7 أيام مجانية. لن تُحاسَب إلا إذا لم تلغِ قبل انتهاء التجربة. تجربة واحدة لكل حساب Apple.",
+    "th": "7 วันแรกฟรี จะเรียกเก็บเงินเมื่อคุณไม่ยกเลิกก่อนสิ้นสุดช่วงทดลอง ทดลองฟรีได้ครั้งเดียวต่อบัญชี Apple",
+    "id": "7 hari pertama gratis. Kamu hanya ditagih jika tidak membatalkan sebelum uji coba berakhir. Satu uji coba per Akun Apple."
+  },
+  "ios_trial_cta": {
+    "en": "Start 7-day free trial", "tr": "7 günlük ücretsiz denemeyi başlat", "de": "7 Tage kostenlos testen",
+    "fr": "Commencer l'essai gratuit de 7 jours", "es": "Empezar la prueba gratis de 7 días", "it": "Inizia la prova gratuita di 7 giorni",
+    "pt-BR": "Começar teste grátis de 7 dias", "nl": "Start 7 dagen gratis", "ja": "7日間の無料トライアルを開始",
+    "ko": "7일 무료 체험 시작", "zh-Hant": "開始 7 天免費試用", "ar": "ابدأ التجربة المجانية لمدة 7 أيام",
+    "th": "เริ่มทดลองใช้ฟรี 7 วัน", "id": "Mulai uji coba gratis 7 hari"
+  },
+  "ios_open_mission": {
+    "en": "Mission", "tr": "Görev", "de": "Aufgabe", "fr": "Mission", "es": "Misión", "it": "Missione", "pt-BR": "Missão",
+    "nl": "Opdracht", "ja": "ミッション", "ko": "미션", "zh-Hant": "任務", "ar": "المهمة", "th": "ภารกิจ", "id": "Misi"
+  },
+  "ios_stop": {
+    "en": "Stop", "tr": "Durdur", "de": "Stopp", "fr": "Arrêter", "es": "Detener", "it": "Ferma", "pt-BR": "Parar",
+    "nl": "Stop", "ja": "停止", "ko": "중지", "zh-Hant": "停止", "ar": "إيقاف", "th": "หยุด", "id": "Hentikan"
+  },
+  "ios_snooze": {
+    "en": "Snooze", "tr": "Ertele", "de": "Schlummern", "fr": "Répéter", "es": "Posponer", "it": "Posticipa", "pt-BR": "Soneca",
+    "nl": "Snooze", "ja": "スヌーズ", "ko": "다시 알림", "zh-Hant": "稍後提醒", "ar": "غفوة", "th": "เลื่อนปลุก", "id": "Tunda"
+  },
+  "ios_rering_note": {
+    "en": "Stopping the alarm on the lock screen does not end it: if the mission isn't done, it rings again in a minute.",
+    "tr": "Alarmı kilit ekranında durdurmak onu bitirmez: görev tamamlanmazsa bir dakika sonra yeniden çalar.",
+    "de": "Stoppen auf dem Sperrbildschirm beendet den Wecker nicht: Ohne erledigte Aufgabe klingelt er nach einer Minute erneut.",
+    "fr": "Arrêter l'alarme sur l'écran verrouillé ne la termine pas : sans mission accomplie, elle sonne à nouveau une minute plus tard.",
+    "es": "Detener la alarma en la pantalla bloqueada no la termina: si no completas la misión, vuelve a sonar en un minuto.",
+    "it": "Fermare la sveglia dalla schermata di blocco non la chiude: senza missione completata, suona di nuovo dopo un minuto.",
+    "pt-BR": "Parar o alarme na tela bloqueada não o encerra: se a missão não for concluída, ele toca de novo em um minuto.",
+    "nl": "Stoppen op het toegangsscherm beëindigt de wekker niet: zonder voltooide opdracht gaat hij na een minuut opnieuw af.",
+    "ja": "ロック画面でアラームを止めても終わりません。ミッションが終わっていなければ1分後に再び鳴ります。",
+    "ko": "잠금 화면에서 알람을 멈춰도 끝나지 않습니다. 미션을 완료하지 않으면 1분 후 다시 울립니다.",
+    "zh-Hant": "在鎖定畫面停止鬧鐘並不會結束它：任務未完成時，一分鐘後會再次響起。",
+    "ar": "إيقاف المنبه من شاشة القفل لا ينهيه: إذا لم تُكمل المهمة فسيرن مجددًا بعد دقيقة.",
+    "th": "การหยุดนาฬิกาปลุกบนหน้าจอล็อกไม่ได้ปิดมัน หากภารกิจยังไม่เสร็จ จะดังอีกครั้งในหนึ่งนาที",
+    "id": "Menghentikan alarm di layar kunci tidak mengakhirinya: jika misi belum selesai, alarm berbunyi lagi semenit kemudian."
+  },
+  "ios_alarms_denied": {
+    "en": "Alarms are turned off for BENG. Turn them on in Settings so your alarms can ring.",
+    "tr": "BENG için alarmlar kapalı. Alarmların çalabilmesi için Ayarlar'dan aç.",
+    "de": "Wecker sind für BENG deaktiviert. Aktiviere sie in den Einstellungen, damit sie klingeln.",
+    "fr": "Les alarmes sont désactivées pour BENG. Active-les dans Réglages pour qu'elles sonnent.",
+    "es": "Las alarmas están desactivadas para BENG. Actívalas en Ajustes para que suenen.",
+    "it": "Le sveglie sono disattivate per BENG. Attivale in Impostazioni perché possano suonare.",
+    "pt-BR": "Os alarmes estão desativados para o BENG. Ative-os em Ajustes para que toquem.",
+    "nl": "Wekkers staan uit voor BENG. Zet ze aan in Instellingen zodat ze kunnen afgaan.",
+    "ja": "BENGのアラームがオフになっています。鳴るように設定でオンにしてください。",
+    "ko": "BENG의 알람이 꺼져 있습니다. 알람이 울리도록 설정에서 켜세요.",
+    "zh-Hant": "BENG 的鬧鐘已關閉。請到「設定」開啟，鬧鐘才會響。",
+    "ar": "المنبهات متوقفة لـ BENG. فعّلها من الإعدادات حتى ترن.",
+    "th": "ปิดการปลุกสำหรับ BENG อยู่ เปิดในการตั้งค่าเพื่อให้นาฬิกาปลุกดังได้",
+    "id": "Alarm untuk BENG dimatikan. Nyalakan di Pengaturan agar alarm bisa berbunyi."
+  },
+  "ios_open_settings": {
+    "en": "Open Settings", "tr": "Ayarları aç", "de": "Einstellungen öffnen", "fr": "Ouvrir Réglages", "es": "Abrir Ajustes",
+    "it": "Apri Impostazioni", "pt-BR": "Abrir Ajustes", "nl": "Open Instellingen", "ja": "設定を開く", "ko": "설정 열기",
+    "zh-Hant": "開啟設定", "ar": "فتح الإعدادات", "th": "เปิดการตั้งค่า", "id": "Buka Pengaturan"
+  }
+}

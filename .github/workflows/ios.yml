@@ -1,0 +1,97 @@
+name: iOS app
+
+on:
+  push:
+    paths:
+      - '.github/workflows/ios.yml'
+      - 'ios/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and test (simulator)
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Select the newest Xcode 26
+        run: |
+          xcode="$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)"
+          sudo xcode-select -s "$xcode"
+          xcodebuild -version
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          cd ios && xcodegen generate
+
+      - name: Build and run the unit tests
+        run: |
+          cd ios
+          device="$(xcrun simctl list devices available | grep -E '^\s+iPhone' | head -1 | sed -E 's/^ +(.*) \(([0-9A-F-]+)\).*/\2/')"
+          echo "Simulator: $device"
+          echo "SIM_DEVICE=$device" >> "$GITHUB_ENV"
+          set -o pipefail
+          xcodebuild -project BENG.xcodeproj -scheme BENG -destination "id=$device" \
+            -derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO test 2>&1 | tee build.log | grep -E 'error:|warning: .*deprecated|Test Case .* (passed|failed)|\*\* (BUILD|TEST)' || true
+          grep -q '\*\* TEST SUCCEEDED \*\*' build.log
+
+      - name: Screenshots of every tab (demo data)
+        run: |
+          cd ios
+          app="$(ls -d DerivedData/Build/Products/Debug-iphonesimulator/BENG.app)"
+          xcrun simctl boot "$SIM_DEVICE" 2>/dev/null || true
+          xcrun simctl status_bar "$SIM_DEVICE" override --time 9:41 || true
+          xcrun simctl install "$SIM_DEVICE" "$app"
+          mkdir -p shots
+          shot() {
+            xcrun simctl terminate "$SIM_DEVICE" com.caglaryildiz.alarm 2>/dev/null || true
+            xcrun simctl launch "$SIM_DEVICE" com.caglaryildiz.alarm -seedDemo "${@:2}"
+            sleep 7
+            xcrun simctl io "$SIM_DEVICE" screenshot "shots/$1.png"
+          }
+          for tab in alarms reminders weather tools premium; do shot "$tab" -demoTab "$tab"; done
+          shot editor -demoScreen editor
+          shot ring -demoScreen ring
+          shot briefing -demoScreen briefing
+          shot stats -demoScreen stats
+          xcrun simctl uninstall "$SIM_DEVICE" com.caglaryildiz.alarm
+          xcrun simctl install "$SIM_DEVICE" "$app"
+          shot turkish -demoTurkish -demoTab alarms
+          python3 -m venv /tmp/venv && /tmp/venv/bin/pip -q install pillow
+          /tmp/venv/bin/python - <<'PY'
+          from PIL import Image
+          names = ["alarms", "reminders", "weather", "tools", "premium", "editor", "ring", "briefing", "stats", "turkish"]
+          shots = [Image.open(f"shots/{n}.png").convert("RGB") for n in names]
+          w = 260; h = int(shots[0].height * w / shots[0].width)
+          sheet = Image.new("RGB", (w * 5, h * 2))
+          for i, s in enumerate(shots): sheet.paste(s.resize((w, h), Image.LANCZOS), ((i % 5) * w, (i // 5) * h))
+          sheet.save("shots/sheet.jpg", quality=60)
+          PY
+          echo "SHEET-BEGIN"; base64 -i shots/sheet.jpg | fold -w 2000; echo "SHEET-END"
+
+      - name: Keep the screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BENG-screenshots
+          path: ios/shots
+          retention-days: 14
+
+      - name: Show compiler errors
+        if: failure()
+        run: grep -E -B2 -A6 'error:' ios/build.log | head -400 || true
+
+      - name: Keep the generated project
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BENG-xcodeproj
+          path: ios/BENG.xcodeproj
+          retention-days: 14
